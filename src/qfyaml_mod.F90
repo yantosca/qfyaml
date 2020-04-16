@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
@@ -60,8 +60,11 @@ MODULE QFYAML_Mod
 !  At present, I have only tested with YAML mappings but as time allows I
 !  can try to add other YAML features.
 !
+!  At present, nested levels of variables are not supported, but
+!  might bein the future.
+!
 !  I have removed some routines that are not as pertinent to YAML input
-!  from the original code.
+!  from the original config-fortran code.
 !
 !      -- Bob Yantosca (15 Apr 2020), yantosca@seas.harvard.edu
 !
@@ -82,7 +85,7 @@ MODULE QFYAML_Mod
 
   ! Numeric type constants
   INTEGER, PARAMETER :: QFYAML_num_types      = 4 
-  INTEGER, PARAMETER :: QFYAML_INTEGER_type   = 1 
+  INTEGER, PARAMETER :: QFYAML_integer_type   = 1 
   INTEGER, PARAMETER :: QFYAML_real_type      = 2 
   INTEGER, PARAMETER :: QFYAML_string_type    = 3 
   INTEGER, PARAMETER :: QFYAML_bool_type      = 4 
@@ -100,17 +103,20 @@ MODULE QFYAML_Mod
   CHARACTER(LEN=7), PARAMETER :: QFYAML_type_names(0:QFYAML_num_types) = &
       (/ 'storage', 'integer', 'real   ', 'string ', 'bool   ' /) 
 
-  CHARACTER,        PARAMETER :: tab_char = char(9)
-
   ! The separator(s) for array-like variables (space, comma, ', ", and tab)
-  CHARACTER(LEN=*), PARAMETER :: QFYAML_separators = " ,'"""//tab_char
+  CHARACTER,         PARAMETER :: tab_char = char(9)
+  CHARACTER(LEN=*),  PARAMETER :: QFYAML_separators = " ,'"""//tab_char
+
+  ! Bracket characters
+  CHARACTER(LEN=4),  PARAMETER :: QFYAML_brackets = "{}[]"
 
   ! The separator for categories (stored in var_name)
-  CHARACTER(LEN=*), PARAMETER :: QFYAML_category_separator = "%"
+  CHARACTER(LEN=1),  PARAMETER :: QFYAML_category_separator = "%"
 
   ! The default string for data that is not yet stored
-  CHARACTER(LEN=*), PARAMETER :: unstored_data_string="__UNSTORED_DATA_STRING"
-!
+  CHARACTER(LEN=21), PARAMETER :: unstored_data_string="__UNSTORED_DATA_STRING"
+
+  ! Type for a single variable
   TYPE, PRIVATE :: QFYAML_var_t
      PRIVATE
      CHARACTER(LEN=QFYAML_namlen)              :: var_name       
@@ -127,7 +133,8 @@ MODULE QFYAML_Mod
      CHARACTER(LEN=QFYAML_strlen), ALLOCATABLE :: char_data(:)
      LOGICAL,                      ALLOCATABLE :: bool_data(:)
   END TYPE QFYAML_var_t
-!
+
+  ! Type for the list of variables
   TYPE, PUBLIC :: QFYAML_t
      LOGICAL                                   :: sorted = .false.
      INTEGER                                   :: num_vars = 0
@@ -159,10 +166,9 @@ MODULE QFYAML_Mod
   END INTERFACE QFYAML_Add_Get
 
 CONTAINS
-
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
@@ -200,12 +206,12 @@ CONTAINS
 
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
 !
-! !IROUTINE: 
+! !IROUTINE: get_var_index
 !
 ! !DESCRIPTION:  Return the index of the variable with name 'var_name', 
 !  or -1 if not found.
@@ -252,7 +258,7 @@ CONTAINS
   END SUBROUTINE get_var_index
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
@@ -296,7 +302,7 @@ CONTAINS
   END SUBROUTINE QFYAML_Init
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
@@ -371,7 +377,8 @@ CONTAINS
   END SUBROUTINE QFYAML_Read_File
 !EOC
 !------------------------------------------------------------------------------
-!                  GEOS-Chem Global Chemical Transport Model                  !
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
+! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
 !
@@ -386,8 +393,8 @@ CONTAINS
 !
 ! !INPUT PARAMETERS: 
 !
-    INTEGER,                   INTENT(IN)    :: set_by        ! Where from?
-    CHARACTER(LEN=*),          INTENT(IN)    :: line_arg      ! Input
+    INTEGER,                      INTENT(IN)    :: set_by        ! Where from?
+    CHARACTER(LEN=*),             INTENT(IN)    :: line_arg      ! Input
 !
 ! !INPUT/OUTPUT PARAMETERS: 
 !
@@ -395,7 +402,7 @@ CONTAINS
 !
 ! !OUTPUT PARAMETERS: 
 !
-    LOGICAL,                   INTENT(OUT)   :: valid_syntax  ! Good line? 
+    LOGICAL,                      INTENT(OUT)   :: valid_syntax  ! Good line? 
     CHARACTER(LEN=QFYAML_namlen), OPTIONAL      :: category_arg  ! Cat name
 !
 ! !REVISION HISTORY:
@@ -407,23 +414,27 @@ CONTAINS
 !
 ! !LOCAL VARIABLES:
 !
-    INTEGER                   :: ix
-    INTEGER                   :: colon_ix
-    LOGICAL                   :: append
+    ! Scalars
+    INTEGER                      :: ix
+    INTEGER                      :: colon_ix
+    LOGICAL                      :: append
 
-    CHARACTER(LEN=QFYAML_namlen) :: var_name, category
+    ! Strings
+    CHARACTER(LEN=QFYAML_namlen) :: category
+    CHARACTER(LEN=QFYAML_namlen) :: var_name
     CHARACTER(LEN=QFYAML_strlen) :: line
 
     !=======================================================================
     ! PARSE_LINE begins here!
     !=======================================================================
 
+    ! Assume a properly formatted line
     valid_syntax = .true.
 
     ! Work on a copy
-    colon_ix = 0
-    line = line_arg
-    category = ""
+    colon_ix     = 0
+    line         = line_arg
+    category     = ""
     if (present(category_arg)) category = category_arg
 
     CALL trim_comment(line, '#;')
@@ -438,11 +449,20 @@ CONTAINS
     ! and has a colon in the line, then it's a category
     ! FUTURE TODO: Check the indentation level to add nested categories
     IF ( line(1:1) /= "" .and. colon_ix > 0 ) THEN
-       IF ( PRESENT( category_arg ) ) THEN
-          category_arg = line(1:colon_ix-1)
-          RETURN
+
+       ! If there is nothing after the colon ...
+       IF ( colon_ix == LEN_TRIM(line) ) THEN
+
+          ! Then this indicates a nested category, so return it
+          category = line(1:colon_ix-1)
+          IF ( PRESENT( category_arg ) ) THEN
+             category_arg = category
+             RETURN
+          ENDIF
        ENDIF
     ENDIF
+
+    ! ... otherwise we'll use a category of "" for the variable name
 
     ! define the variable name
     append = .FALSE.
@@ -496,59 +516,48 @@ CONTAINS
   END SUBROUTINE parse_line
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
 !
-! !IROUTINE: 
+! !IROUTINE: read_variable
 !
-! !DESCRIPTION: 
+! !DESCRIPTION: Get the start and end positions of the line content, 
+!  and the number of entries.
 !\\
 !\\
 ! !INTERFACE:
 !
-
-!
-! !USES:
-!
-
-!
-! !INPUT PARAMETERS: 
-!
-
+  SUBROUTINE read_variable(var)
 !
 ! !INPUT/OUTPUT PARAMETERS: 
 !
-
-!
-! !OUTPUT PARAMETERS: 
-!
-
-!
-! !RETURN VALUE:
-!
-!
-! !REMARKS:
+    TYPE(QFYAML_var_t), INTENT(INOUT) :: var
 !
 ! !REVISION HISTORY:
 !  15 Apr 2020 - R. Yantosca - Initial version
-!  See the subsequent Git history with the gitk browser!
+!  See the subsequent Git history wi th the gitk browser!
 !EOP
 !------------------------------------------------------------------------------
 !BOC
 !
 ! !LOCAL VARIABLES:
 !
-  SUBROUTINE read_variable(var)
-    TYPE(QFYAML_var_t), INTENT(INOUT)            :: var
-    INTEGER                                   :: n, n_entries
-    INTEGER                                   :: ix_start(QFYAML_MaxArr)
-    INTEGER                                   :: ix_end(QFYAML_MaxArr), stat
+    INTEGER :: n, n_entries
+    INTEGER :: ix_start(QFYAML_MaxArr)
+    INTEGER :: ix_end(QFYAML_MaxArr), stat
 
-    ! Get the start and end positions of the line content, and the number of entries
-    CALL get_fields_string(var%stored_data, QFYAML_separators, &
-         QFYAML_MaxArr, n_entries, ix_start, ix_end)
+    ! Initialize
+    ix_start  = 0
+    ix_end    = 0
+    n         = 0
+    n_entries = 0
+
+    CALL get_fields_string(var%stored_data, QFYAML_separators,  &
+                           QFYAML_brackets, QFYAML_MaxArr,      &
+                           n_entries,       ix_start,           &
+                           ix_end                              )
 
     if (var%var_size /= n_entries) then
 
@@ -592,40 +601,29 @@ CONTAINS
   END SUBROUTINE read_variable
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
 !
-! !IROUTINE: 
+! !IROUTINE: trim_comment
 !
-! !DESCRIPTION: 
+! !DESCRIPTION:  Strip comments, but only outside quoted strings 
+!  (so that var = '#yolo' is valid when # is a comment char)
 !\\
 !\\
 ! !INTERFACE:
 !
-
-!
-! !USES:
-!
-
+  SUBROUTINE trim_comment(line, comment_chars)
 !
 ! !INPUT PARAMETERS: 
 !
+    CHARACTER(LEN=*), INTENT(IN)    :: comment_chars
 
 !
 ! !INPUT/OUTPUT PARAMETERS: 
 !
-
-!
-! !OUTPUT PARAMETERS: 
-!
-
-!
-! !RETURN VALUE:
-!
-!
-! !REMARKS:
+    CHARACTER(LEN=*), INTENT(INOUT) :: line
 !
 ! !REVISION HISTORY:
 !  15 Apr 2020 - R. Yantosca - Initial version
@@ -636,38 +634,37 @@ CONTAINS
 !
 ! !LOCAL VARIABLES:
 !
-  SUBROUTINE trim_comment(line, comment_chars)
-    CHARACTER(LEN=*), INTENT(INOUT) :: line
-    CHARACTER(LEN=*), INTENT(IN)    :: comment_chars
-    character                       :: current_char, need_char
-    INTEGER                         :: n
+    ! Scalars
+    INTEGER          :: n
 
-    ! Strip comments, but only outside quoted strings (so that var = '#yolo' is
-    ! valid when # is a comment char)
+    ! Strings
+    CHARACTER(LEN=1) :: current_char
+    CHARACTER(LEN=1) :: need_char
+
     need_char = ""
 
-    do n = 1, len(line)
+    DO n = 1, LEN(line)
        current_char = line(n:n)
 
-       if (need_char == "") then
-          if (current_char == "'") then
+       IF (need_char == "") THEN
+          IF (current_char == "'") THEN
              need_char = "'"    ! Open string
-          else if (current_char == '"') then
+          ELSE IF (current_char == '"') THEN
              need_char = '"'    ! Open string
-          else if (index(comment_chars, current_char) /= 0) then
+          ELSE IF (INDEX(comment_chars, current_char) /= 0) THEN
              line = line(1:n-1) ! Trim line up to comment character
-             exit
-          end if
-       else if (current_char == need_char) then
+             EXIT
+          ENDIF
+       ELSE IF (current_char == need_char) THEN
           need_char = ""        ! Close string
-       end if
+       ENDIF
 
-    end do
+    ENDDO
 
   END SUBROUTINE trim_comment
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
@@ -679,28 +676,11 @@ CONTAINS
 !\\
 ! !INTERFACE:
 !
-
-!
-! !USES:
-!
-
+  SUBROUTINE QFYAML_check(yml)
 !
 ! !INPUT PARAMETERS: 
 !
-
-!
-! !INPUT/OUTPUT PARAMETERS: 
-!
-
-!
-! !OUTPUT PARAMETERS: 
-!
-
-!
-! !RETURN VALUE:
-!
-!
-! !REMARKS:
+    TYPE(QFYAML_t), INTENT(IN)       :: yml
 !
 ! !REVISION HISTORY:
 !  15 Apr 2020 - R. Yantosca - Initial version
@@ -711,9 +691,7 @@ CONTAINS
 !
 ! !LOCAL VARIABLES:
 !
-  SUBROUTINE QFYAML_check(yml)
-    TYPE(QFYAML_t), INTENT(IN)       :: yml
-    INTEGER                       :: n
+    INTEGER                      :: n
     CHARACTER(LEN=QFYAML_strlen) :: err_string
 
     do n = 1, yml%num_vars
@@ -726,40 +704,32 @@ CONTAINS
   END SUBROUTINE QFYAML_check
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
 !
-! !IROUTINE: 
+! !IROUTINE: split_category
 !
-! !DESCRIPTION: 
+! !DESCRIPTION: splits the category and the var name
 !\\
 !\\
 ! !INTERFACE:
 !
-
-!
-! !USES:
-!
-
+  SUBROUTINE split_category(variable, category, var_name)
 !
 ! !INPUT PARAMETERS: 
 !
+    TYPE(QFYAML_var_t),       INTENT(IN)  :: variable
 
 !
 ! !INPUT/OUTPUT PARAMETERS: 
 !
-
-!
-! !OUTPUT PARAMETERS: 
-!
-
-!
-! !RETURN VALUE:
-!
+    CHARACTER(QFYAML_namlen), INTENT(OUT) :: category
+    CHARACTER(QFYAML_namlen), INTENT(OUT) :: var_name
 !
 ! !REMARKS:
+!  TO DO: Support nested categories
 !
 ! !REVISION HISTORY:
 !  15 Apr 2020 - R. Yantosca - Initial version
@@ -770,11 +740,7 @@ CONTAINS
 !
 ! !LOCAL VARIABLES:
 !
-  SUBROUTINE split_category(variable, category, var_name)
-    TYPE(QFYAML_var_t), INTENT(IN)          :: variable
-    character(QFYAML_namlen), INTENT(OUT) :: category
-    character(QFYAML_namlen), INTENT(OUT) :: var_name
-    INTEGER                              :: ix
+    INTEGER :: ix
 
     ix = index(variable%var_name, QFYAML_category_separator)
 
@@ -789,40 +755,24 @@ CONTAINS
   END SUBROUTINE split_category
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
 !
-! !IROUTINE: 
+! !IROUTINE: resize_storage
 !
-! !DESCRIPTION: 
+! !DESCRIPTION: Resize the storage size of variable, which can be of type
+!  INTEGER, LOGICAL, REAL, or CHARACTER
 !\\
 !\\
 ! !INTERFACE:
 !
-
-!
-! !USES:
-!
-
-!
-! !INPUT PARAMETERS: 
-!
-
+  SUBROUTINE resize_storage(variable)
 !
 ! !INPUT/OUTPUT PARAMETERS: 
 !
-
-!
-! !OUTPUT PARAMETERS: 
-!
-
-!
-! !RETURN VALUE:
-!
-!
-! !REMARKS:
+    TYPE(QFYAML_var_t), INTENT(INOUT) :: variable
 !
 ! !REVISION HISTORY:
 !  15 Apr 2020 - R. Yantosca - Initial version
@@ -833,29 +783,25 @@ CONTAINS
 !
 ! !LOCAL VARIABLES:
 !
-  ! Resize the storage size of variable, which can be of type INTEGER, logical,
-  ! real or character
-  SUBROUTINE resize_storage(variable)
-    TYPE(QFYAML_var_t), INTENT(INOUT) :: variable
+    SELECT CASE (variable%var_type)
+       CASE (QFYAML_INTEGER_type)
+          DEALLOCATE( variable%int_data )
+          ALLOCATE( variable%int_data(variable%var_size) )
+       CASE (QFYAML_bool_type)
+          DEALLOCATE( variable%bool_data )
+          ALLOCATE( variable%bool_data(variable%var_size) )
+       CASE (QFYAML_real_type)
+          DEALLOCATE( variable%real_data )
+          ALLOCATE( variable%real_data(variable%var_size) )
+       CASE (QFYAML_string_type)
+          DEALLOCATE( variable%char_data )
+          ALLOCATE( variable%char_data(variable%var_size) )
+    END SELECT
 
-    select case (variable%var_type)
-    case (QFYAML_INTEGER_type)
-       deallocate( variable%int_data )
-       allocate( variable%int_data(variable%var_size) )
-    case (QFYAML_bool_type)
-       deallocate( variable%bool_data )
-       allocate( variable%bool_data(variable%var_size) )
-    case (QFYAML_real_type)
-       deallocate( variable%real_data )
-       allocate( variable%real_data(variable%var_size) )
-    case (QFYAML_string_type)
-       deallocate( variable%char_data )
-       allocate( variable%char_data(variable%var_size) )
-    end select
   END SUBROUTINE resize_storage
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | APR 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
@@ -896,9 +842,6 @@ CONTAINS
 !EOP
 !------------------------------------------------------------------------------
 !BOC
-!
-! !LOCAL VARIABLES:
-!
 
     ! Check if variable already exists
     CALL get_var_index(yml, var_name, ix)
@@ -943,7 +886,7 @@ CONTAINS
   END SUBROUTINE prepare_store_var
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
@@ -1006,10 +949,9 @@ CONTAINS
     ENDIF
 
   END SUBROUTINE Prepare_Get_Var
-
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
@@ -1062,7 +1004,7 @@ CONTAINS
   END SUBROUTINE ensure_free_storage
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
@@ -1074,25 +1016,21 @@ CONTAINS
 !\\
 ! !INTERFACE:
 !
-  SUBROUTINE get_fields_string(line, delims, n_max, n_found, ixs_start, ixs_end)
-
-!
-! !USES:
-!
-
+  SUBROUTINE get_fields_string(line_arg, delims,  brackets,          &
+                               n_max,    n_found, ixs_start, ixs_end)
 !
 ! !INPUT PARAMETERS: 
 !
-    CHARACTER(LEN=*), INTENT(IN)  :: line        ! Line to read
-    CHARACTER(LEN=*), INTENT(IN)  :: delims      ! Accepted delimiters
-    INTEGER, INTENT(IN)           :: n_max       ! Max # of entries to read
+    CHARACTER(LEN=*), INTENT(IN)   :: line_arg         ! Line to read
+    CHARACTER(LEN=*), INTENT(IN)   :: delims           ! Accepted delimiters
+    CHARACTER(LEN=*), INTENT(IN)   :: brackets         ! brackets
+    INTEGER,          INTENT(IN)   :: n_max            ! Max entries to read
 !
 ! !INPUT/OUTPUT PARAMETERS: 
 !
-    ! Number of entries found
-    INTEGER, INTENT(INOUT)        :: n_found          ! # of entries found
-    INTEGER, INTENT(INOUT)        :: ixs_start(n_max) ! start pt. of ith entry
-    INTEGER, INTENT(INOUT)        :: ixs_end(n_max)   ! end pt.   of ith entry
+    INTEGER,         INTENT(INOUT) :: n_found          ! # of entries found
+    INTEGER,         INTENT(INOUT) :: ixs_start(n_max) ! start pt. of ith entry
+    INTEGER,         INTENT(INOUT) :: ixs_end(n_max)   ! end pt.   of ith entry
 !
 ! !REVISION HISTORY:
 !  15 Apr 2020 - R. Yantosca - Initial version
@@ -1103,37 +1041,53 @@ CONTAINS
 !
 ! !LOCAL VARIABLES:
 !
+    ! Scalars
+    INTEGER                      :: B, ix, ix_prev
 
-    INTEGER :: ix, ix_prev
-
+    ! Strings
+    CHARACTER(LEN=1            ) :: bkt
+    CHARACTER(LEN=QFYAML_strlen) :: line
+    
+    ! Initialize
+    ix      = 0
     ix_prev = 0
     n_found = 0
+    line   = line_arg
 
-    do while (n_found < n_max)
+    ! Strip out brackets from the line
+    DO B = 1, LEN( QFYAML_brackets )
+       bkt = QFYAML_brackets(B:B)
+       ix  = INDEX( line, bkt )
+       IF ( ix > 0 ) line(ix:ix) = " "
+    ENDDO
+
+    ! Parse the values 
+    ix = 0
+    DO WHILE (n_found < n_max)
 
        ! Find the starting point of the next entry (a non-delimiter value)
-       ix = verify(line(ix_prev+1:), delims)
-       if (ix == 0) exit
+       ix = VERIFY(line(ix_prev+1:), delims)
+       IF (ix == 0) EXIT
 
        n_found            = n_found + 1
-       ixs_start(n_found) = ix_prev + ix ! This is the absolute position in 'line'
+       ixs_start(n_found) = ix_prev + ix ! the absolute position in 'line2'
 
        ! Get the end point of the current entry (next delimiter index minus one)
-       ix = scan(line(ixs_start(n_found)+1:), delims) - 1
+       ix = SCAN( line(ixs_start(n_found)+1:), delims) - 1
 
-       if (ix == -1) then              ! If there is no last delimiter,
-          ixs_end(n_found) = len(line) ! the end of the line is the endpoint
-       else
+       IF (ix == -1) THEN              ! If there is no last delimiter,
+          ixs_end(n_found) = LEN(line) ! the end of the line is the endpoint
+       ELSE
           ixs_end(n_found) = ixs_start(n_found) + ix
-       end if
+       ENDIF
 
        ix_prev = ixs_end(n_found) ! We continue to search from here
-    end do
+    ENDDO
 
   END SUBROUTINE get_fields_string
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
@@ -1190,7 +1144,7 @@ CONTAINS
   END SUBROUTINE binary_search_variable
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
@@ -1210,7 +1164,7 @@ CONTAINS
 !
 ! !REVISION HISTORY:
 !  15 Apr 2020 - R. Yantosca - Initial version
-!  See the subsequent Git history with the gitk browser!
+ !  See the subsequent Git history with the gitk browser!
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -1228,7 +1182,7 @@ CONTAINS
 
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
@@ -1259,7 +1213,7 @@ CONTAINS
     INTEGER :: split_pos
 
     IF ( SIZE(list) > 1 ) then
-       CALL parition_var_list(list, split_pos)
+       CALL partition_var_list(list, split_pos)
        CALL qsort( list(:split_pos-1) )
        CALL qsort( list(split_pos:) )
     ENDIF
@@ -1267,19 +1221,19 @@ CONTAINS
   END SUBROUTINE qsort
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
 !
-! !IROUTINE: 
+! !IROUTINE: partition_var_list
 !
-! !DESCRIPTION: 
+! !DESCRIPTION: Helper routine for quicksort, to perform partitioning
 !\\
 !\\
 ! !INTERFACE:
 !
-  SUBROUTINE parition_var_list(list, marker)
+  SUBROUTINE partition_var_list(list, marker)
 !
 ! !INPUT PARAMETERS: 
 !
@@ -1298,7 +1252,7 @@ CONTAINS
 !
 ! !LOCAL VARIABLES:
 !
-  ! Helper routine for quicksort, to perform partitioning
+  
     INTEGER                        :: left, right, pivot_ix
     TYPE(QFYAML_var_t)                :: temp
     CHARACTER(LEN=QFYAML_namlen)    :: pivot_value
@@ -1334,10 +1288,10 @@ CONTAINS
     else
        marker = left
     end if
-  END SUBROUTINE parition_var_list
+  END SUBROUTINE partition_var_list
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
@@ -1375,7 +1329,7 @@ CONTAINS
   END SUBROUTINE QFYAML_CleanUp
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
@@ -1388,7 +1342,7 @@ CONTAINS
 !\\
 ! !INTERFACE:
 !
-  SUBROUTINE QFYAML_get_size(yml, var_name, res)
+  SUBROUTINE QFYAML_Get_Size(yml, var_name, res)
 !
 ! !INPUT PARAMETERS: 
 !
@@ -1408,16 +1362,17 @@ CONTAINS
     INTEGER :: ix
 
     CALL get_var_index(yml, var_name, ix)
-    if (ix /= -1) then
+    IF (ix /= -1) THEN
        res = yml%vars(ix)%var_size
-    else
+    ELSE
        res = -1
        CALL handle_error("QFYAML_get_size: variable ["//var_name//"] not found")
-    end if
-  END SUBROUTINE QFYAML_get_size
+    ENDIF
+
+  END SUBROUTINE QFYAML_Get_Size
 !EOC
 !------------------------------------------------------------------------------
-! QFYAML: Bob Yantosca (2020) yantosca@seas.harvard.edu
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
 ! Based on existing package https://github.com/jannisteunissen/config_fortran
 !------------------------------------------------------------------------------
 !BOP
@@ -1430,7 +1385,7 @@ CONTAINS
 !\\
 ! !INTERFACE:
 !
-  SUBROUTINE QFYAML_get_TYPE(yml, var_name, res)
+  SUBROUTINE QFYAML_Get_Type(yml, var_name, res)
 !
 ! !INPUT PARAMETERS: 
 !
@@ -1451,14 +1406,15 @@ CONTAINS
 
     CALL get_var_index(yml, var_name, ix)
 
-    if (ix /= -1) then
+    IF (ix /= -1) THEN
        res = yml%vars(ix)%var_type
-    else
+    ELSE
        res = -1
        CALL handle_error("QFYAML_get_type: variable ["//var_name//"] not found")
-    end if
-  END SUBROUTINE QFYAML_get_type
+    ENDIF
 
+  END SUBROUTINE QFYAML_get_type
+!EOC
 !############################################################################
 !### HERE FOLLOWS OVERLOADED MODULE PROCEDURES.  THESE ARE SIMPLE SO
 !### WE WILL OMIT ADDING SUBROUTINE HEADERS

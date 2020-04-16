@@ -33,7 +33,7 @@ PROGRAM Test_QFYAML
   CHARACTER(LEN=255)    :: fileName
 
   ! Arrays
-  REAL(yp), allocatable :: my_reals(:)
+  REAL(yp), allocatable :: a_real(:)
 
   ! Objects
   TYPE(QFYAML_t)        :: yml
@@ -55,25 +55,52 @@ PROGRAM Test_QFYAML
   PRINT*, "### Reading " // TRIM( fileName )
   CALL QFYAML_Init( fileName, yml, RC ) 
 
-  ! Read the author%age field
+  ! Read various fields
+
   key   = "author%age"
   v_int = -999
   CALL QFYAML_Add_Get( yml, key, v_int, "" )
-  WRITE( 6, '(a30, " | ", i7)') TRIM(key), v_int
+  WRITE( 6, "(a30, "" | "", i7)") TRIM(key), v_int
 
-  ! Read the author%age field
+  key    = "author%fav_reals"
+  ALLOCATE( a_real(2) )
+  a_real = -999.0_yp
+  CALL QFYAML_Add_Get( yml, key, a_real, "" )
+  WRITE( 6, "(a30, "" | "", 2f7.2)") TRIM(key), a_real
+  DEALLOCATE( a_real )
+
   key    = "author%lots_of_work"
   v_bool = .FALSE.
   CALL QFYAML_Add_Get( yml, key, v_bool, "" )
-  WRITE( 6, '(a30, " | ", l7)') TRIM(key), v_bool
+  WRITE( 6, "(a30, "" | "", l7)") TRIM(key), v_bool
 
-  ! Read the author%age field
+  key    = "author_name%first"
+  v_str  = ""
+  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  WRITE( 6, "(a30, "" | "", a)") TRIM(key), TRIM(v_str)
+
+  key    = "author_name%full"
+  v_str  = ""
+  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  WRITE( 6, "(a30, "" | "", a)") TRIM(key), TRIM(v_str)
+
+  key    = "filename"
+  v_str = ""
+  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  WRITE( 6, "(a30, "" | "", a)") TRIM(key), TRIM(v_str)
+
   key    = "weather%humidity"
-  v_bool = .FALSE.
+  v_real = -999.0_yp
   CALL QFYAML_Add_Get( yml, key, v_real, "" )
-  WRITE( 6, '(a30, " | ", f13.6)') TRIM(key), RoundOff( v_real, 2 )
+  WRITE( 6, "(a30, "" | "", f13.6)") TRIM(key), v_real
 
-  print*, '### finishing'
+  key    = "weather%temperature"
+  v_real = -999.0_yp
+  CALL QFYAML_Add_Get( yml, key, v_real, "" )
+  WRITE( 6, "(a30, "" | "", f13.6)") TRIM(key), v_real
+
+  ! Finalize the config object
+  print*, "### finishing"
   CALL QFYAML_CleanUp( yml )
 
 END PROGRAM test_qfyaml
