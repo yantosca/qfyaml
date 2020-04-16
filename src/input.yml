@@ -1,0 +1,15 @@
+author:
+    age: 29                          # Age of the author of this code:
+    fav_reals: [1.0, 2.0]            # My favorite numbers: 
+    lots_of_work: false              # Whether I have a lot of work to do:
+
+author_name:
+  first: J
+  full: H.J. Teunissen
+
+filename: another_file
+
+weather:
+    humidity: 99.0
+    temperature: 23.0
+

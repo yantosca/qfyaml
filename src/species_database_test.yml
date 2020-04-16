@@ -1,0 +1,81 @@
+A3O2:
+  Formula: CH3CH2CH2OO
+  Fullname: Primary peroxy radical from C3H8
+  Is_Gas: true
+  MW_g: 75.1
+ACET:
+  DD_F0: 1.0
+  DD_Hstar: 1.0e+5
+  EmMW_g: 12.0
+  Formula: CH3C(O)CH3
+  Fullname: Acetone
+  Henry_CR: 5500.0
+  Henry_K0: 2.74e+1
+  Is_Advected: true
+  Is_DryDep: true
+  Is_Gas: true
+  MW_g: 58.08
+ACTA:
+  DD_F0: 1.0
+  DD_Hstar: 4.1e+3
+  Formula: CH3C(O)OH
+  Fullname: Acetic acid
+  Henry_CR: 6200.0
+  Henry_K0: 4.05e+3
+  Is_Advected: true
+  Is_DryDep: true
+  Is_Gas: true
+  Is_WetDep: true
+  MW_g: 60.1
+  WD_RetFactor: 2.0e-2
+AERI:
+  DD_DvzAerSnow: 0.03
+  DD_DvzMinVal: [0.01, 0.01]
+  DD_F0: 0.0
+  DD_Hstar: 0.0
+  Formula: I
+  Fullname: Iodine on aerosol
+  Is_Advected: true
+  Is_Aero: true
+  Is_DryDep: true
+  Is_WetDep: true
+  MW_g: 126.9
+  WD_AerScavEff: 1.0
+  WD_KcScaleFac: [1.0, 0.5, 1.0]
+  WD_RainoutEff: [1.0, 0.0, 1.0]
+ALD2:
+  DD_F0: 1.0
+  DD_Hstar: 1.1e+1
+  EmMW_g: 12.0
+  Formula: CH3CHO
+  Fullname: Acetaldehyde
+  Henry_CR: 5900.0
+  Henry_K0: 13.2e+1
+  Is_Advected: true
+  Is_DryDep: true
+  Is_Gas: true
+  Is_Photolysis: true
+  Is_WetDep: true
+  MW_g: 44.05
+  MolecRatio: 2.0
+  WD_RetFactor: 2.0e-2
+ALK4:
+  EmMW_g: 12.0
+  Fullname: Lumped >= C4 Alkanes
+  Is_Advected: true
+  Is_Gas: true
+  MW_g: 58.12
+  MolecRatio: 4.3
+ASOA1:
+  DD_DvzAerSnow: 0.03
+  DD_F0: 0.0
+  DD_Hstar: 0.0
+  Fullname: Lumped non-volatile aerosol products of light aromatics + IVOCs
+  Is_Advected: true
+  Is_Aero: true
+  Is_DryDep: true
+  Is_WetDep: true
+  MW_g: 150.0
+  WD_AerScavEff: 0.8
+  WD_KcScaleFac: [1.0, 0.5, 1.0]
+  WD_RainoutEff: [0.8, 0.0, 0.8]

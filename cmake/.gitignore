@@ -1,0 +1,8 @@
+*.[oaxd]
+*.mod
+*.MOD
+*~*
+*.swp
+*.bak
+*.patch
+*.diff
