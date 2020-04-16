@@ -21,6 +21,7 @@ MODULE QFYAML_Mod
 !
 ! !PUBLIC TYPES:
 !
+  PUBLIC :: yp
   PUBLIC :: QFYAML_t
 !
 ! !PUBLIC DATA MEMBERS:
@@ -98,7 +99,6 @@ MODULE QFYAML_Mod
 
   CHARACTER(LEN=7), PARAMETER :: QFYAML_type_names(0:QFYAML_num_types) = &
       (/ 'storage', 'integer', 'real   ', 'string ', 'bool   ' /) 
-
 
   CHARACTER,        PARAMETER :: tab_char = char(9)
 

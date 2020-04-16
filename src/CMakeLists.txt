@@ -3,6 +3,8 @@
 add_executable(test_qfyaml.x
   test_qfyaml.F90
   qfyaml_mod.F90
+  precision_mod.F90
+  roundoff_mod.F90
 )
 install(
   TARGETS test_qfyaml.x

@@ -1,6 +1,6 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/yantosca/yaml_test/blob/master/LICENSE.txt)
 
-# qfyaml: Quick Fortran YAML parserl
+# qfyaml: Quick Fortran YAML parser
 
 This repository contains a quick and dirty YAML parser written in Fortran. It is built off the existing package https://github.com/jannisteunissen/config_fortran.
 
