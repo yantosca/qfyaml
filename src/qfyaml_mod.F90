@@ -415,15 +415,18 @@ CONTAINS
 ! !LOCAL VARIABLES:
 !
     ! Scalars
+    LOGICAL                      :: append
     INTEGER                      :: ix
     INTEGER                      :: colon_ix
-    LOGICAL                      :: append
+    INTEGER                      :: ampsnd_ix
+    INTEGER                      :: star_ix
+    INTEGER                      :: trim_len
 
     ! Strings
     CHARACTER(LEN=QFYAML_namlen) :: category
     CHARACTER(LEN=QFYAML_namlen) :: var_name
-    CHARACTER(LEN=QFYAML_strlen) :: line
-
+    CHARACTER(LEN=QFYAML_strlen) :: line, anchor_targ
+    
     !=======================================================================
     ! PARSE_LINE begins here!
     !=======================================================================
@@ -433,17 +436,24 @@ CONTAINS
 
     ! Work on a copy
     colon_ix     = 0
+    ampsnd_ix    = 0
+    star_ix      = 0
     line         = line_arg
     category     = ""
-    if (present(category_arg)) category = category_arg
+    IF ( PRESENT( category_arg ) ) category = category_arg
 
     CALL trim_comment(line, '#;')
 
     ! Skip empty lines
-    if (line == "") return
+    IF ( line == "" ) RETURN
 
-    ! Look for the location of the colon in the line
-    colon_ix = INDEX( line, ":" )
+    ! Get the length of the line (excluding trailing whitespace)
+    trim_len  = LEN_TRIM( line ) 
+
+    ! Look for the positions of certain characters
+    colon_ix  = INDEX( line, ":" )
+    ampsnd_ix = INDEX( line, "&" )
+    star_ix   = INDEX( line, "*" )
 
     ! If the text is flush with the first column
     ! and has a colon in the line, then it's a category
@@ -451,10 +461,25 @@ CONTAINS
     IF ( line(1:1) /= "" .and. colon_ix > 0 ) THEN
 
        ! If there is nothing after the colon ...
-       IF ( colon_ix == LEN_TRIM(line) ) THEN
+       IF ( colon_ix == trim_len ) THEN
 
           ! Then this indicates a nested category, so return it
           category = line(1:colon_ix-1)
+          IF ( PRESENT( category_arg ) ) THEN
+             category_arg = category
+             RETURN
+          ENDIF
+
+       ! If there is an ampersand following the colon
+       ! then this denotes a YAML anchor
+       ELSE IF ( colon_ix > 0 .and. ampsnd_ix > 0 ) THEN
+
+          ! Category name
+          category    = line(1:colon_ix-1)
+
+          ! Anchor target name
+          anchor_targ = line(ampsnd_ix+1:trim_len)
+
           IF ( PRESENT( category_arg ) ) THEN
              category_arg = category
              RETURN
@@ -468,22 +493,24 @@ CONTAINS
     append = .FALSE.
     var_name = line(1:colon_ix-1)
 
+!   IF ( index
+
     ! If there are less than two spaces or a tab, reset to no category
-    if (var_name(1:2) /= " " .and. var_name(1:1) /= tab_char) then
+    IF (var_name(1:2) /= " " .and. var_name(1:1) /= tab_char) THEN
        category = ""
-    end if
+    ENDIF
 
     ! Replace leading tabs by spaces
-    ix = verify(var_name, tab_char) ! Find first non-tab character
+    ix = VERIFY(var_name, tab_char) ! Find first non-tab character
     var_name(1:ix-1) = ""
 
     ! Remove leading blanks
-    var_name = adjustl(var_name)
+    var_name = ADJUSTL(var_name)
 
     ! Add category if it is defined
-    if (category /= "") then
-       var_name = trim(category) // QFYAML_category_separator // var_name
-    end if
+    IF (category /= "") THEN
+       var_name = TRIM(category) // QFYAML_category_separator // var_name
+    ENDIF
 
     ! Set line to the values behind the '=' sign
     line = line(colon_ix+1:) 
@@ -491,24 +518,24 @@ CONTAINS
     ! Find variable corresponding to name in file
     CALL get_var_index(yml, var_name, ix)
 
-    if (ix <= 0) then
+    IF (ix <= 0) then
        ! Variable still needs to be created, for now store data as a string
        CALL prepare_store_var(yml, trim(var_name), QFYAML_unknown_type, 1, &
             "Not yet created", ix, .false.)
        yml%vars(ix)%stored_data = line
-    else
-       if (append) then
+    ELSE
+       IF (append) THEN
           yml%vars(ix)%stored_data = &
-               trim(yml%vars(ix)%stored_data) // trim(line)
-       else
+               TRIM(yml%vars(ix)%stored_data) // TRIM(line)
+       ELSE
           yml%vars(ix)%stored_data = line
-       end if
+       ENDIF
 
        ! If type is known, read in values
-       if (yml%vars(ix)%var_type /= QFYAML_unknown_type) then
+       IF (yml%vars(ix)%var_type /= QFYAML_unknown_type) THEN
           CALL read_variable(yml%vars(ix))
-       end if
-    end if
+       ENDIF
+    ENDIF
 
     ! Store how the variable was set
     yml%vars(ix)%set_by = set_by
