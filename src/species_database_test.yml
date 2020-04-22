@@ -14,6 +14,7 @@ ACET:
   Is_Advected: true
   Is_DryDep: true
   Is_Gas: true
+  MolecRatio: 3.0
   MW_g: 58.08
 ACTA:
   DD_F0: 1.0
@@ -79,8 +80,8 @@ ASOA1: &ASOAproperties
   WD_AerScavEff: 0.8
   WD_KcScaleFac: [1.0, 0.5, 1.0]
   WD_RainoutEff: [0.8, 0.0, 0.8]
-#ASOA2:
-#  >> : *ASOAproperties
+ASOA2:
+  >> : *ASOAproperties
 OCPO:
   DD_DvzAerSnow: 0.03
   DD_F0: 0.0

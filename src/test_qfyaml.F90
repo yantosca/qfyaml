@@ -37,6 +37,7 @@ PROGRAM Test_QFYAML
 
   ! Objects
   TYPE(QFYAML_t)        :: yml
+  TYPE(QFYAML_t)        :: yml_anchored
 !
 ! !REVISION HISTORY:
 !  06 Jan 2015 - R. Yantosca - Initial version
@@ -53,7 +54,7 @@ PROGRAM Test_QFYAML
   ! Read the YAML file into a config object
   fileName = "input.yml"
   PRINT*, "### Reading " // TRIM( fileName )
-  CALL QFYAML_Init( fileName, yml, RC ) 
+  CALL QFYAML_Init( fileName, yml, yml_anchored, RC ) 
 
   ! Read various fields
 
@@ -101,6 +102,7 @@ PROGRAM Test_QFYAML
 
   ! Finalize the config object
   print*, "### finishing"
-  CALL QFYAML_CleanUp( yml )
+  CALL QFYAML_CleanUp( yml          )
+  CALL QFYAML_CleanUp( yml_anchored )
 
 END PROGRAM test_qfyaml

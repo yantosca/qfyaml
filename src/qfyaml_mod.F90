@@ -49,7 +49,7 @@ MODULE QFYAML_Mod
 !  in Fortran for reading in certain YAML files (e.g. species database)
 !  into the GEOS-Chem model. I found that certain Fortran YAML parsers
 !  either did not support mapping, or required the bleeding edge versions
-!  of Fortran compilers. 
+!  of Fortran compilers.
 !
 !  The back end is code that was taken from the "config_fortran" package
 !  (https://github.com/jannisteunissen/config_fortran) by H. J. Teunissen.
@@ -77,23 +77,23 @@ MODULE QFYAML_Mod
 !
 ! !DEFINED PARAMETERS:
 !
-  ! The double precision kind-parameter
+  ! The precision kind-parameter
   INTEGER, PARAMETER :: yp                    = kind(0.0e0)
 
   ! Success return code
   INTEGER, PARAMETER :: QFYAML_Success        = 0
 
   ! Numeric type constants
-  INTEGER, PARAMETER :: QFYAML_num_types      = 4 
-  INTEGER, PARAMETER :: QFYAML_integer_type   = 1 
-  INTEGER, PARAMETER :: QFYAML_real_type      = 2 
-  INTEGER, PARAMETER :: QFYAML_string_type    = 3 
-  INTEGER, PARAMETER :: QFYAML_bool_type      = 4 
-  INTEGER, PARAMETER :: QFYAML_unknown_type   = 0 
+  INTEGER, PARAMETER :: QFYAML_num_types      = 4
+  INTEGER, PARAMETER :: QFYAML_integer_type   = 1
+  INTEGER, PARAMETER :: QFYAML_real_type      = 2
+  INTEGER, PARAMETER :: QFYAML_string_type    = 3
+  INTEGER, PARAMETER :: QFYAML_bool_type      = 4
+  INTEGER, PARAMETER :: QFYAML_unknown_type   = 0
 
   ! How was the YAML file set?
   INTEGER, PARAMETER :: QFYAML_set_by_default = 1
-  INTEGER, PARAMETER :: QFYAML_set_by_file    = 3  
+  INTEGER, PARAMETER :: QFYAML_set_by_file    = 3
 
   ! Maxima
   INTEGER, PARAMETER :: QFYAML_NamLen         = 80    ! Max len for names
@@ -101,7 +101,7 @@ MODULE QFYAML_Mod
   INTEGER, PARAMETER :: QFYAML_MaxArr         = 1000  ! Max entries per array
 
   CHARACTER(LEN=7), PARAMETER :: QFYAML_type_names(0:QFYAML_num_types) = &
-      (/ 'storage', 'integer', 'real   ', 'string ', 'bool   ' /) 
+      (/ 'storage', 'integer', 'real   ', 'string ', 'bool   ' /)
 
   ! The separator(s) for array-like variables (space, comma, ', ", and tab)
   CHARACTER,         PARAMETER :: tab_char = char(9)
@@ -119,15 +119,17 @@ MODULE QFYAML_Mod
   ! Type for a single variable
   TYPE, PRIVATE :: QFYAML_var_t
      PRIVATE
-     CHARACTER(LEN=QFYAML_namlen)              :: var_name       
-     CHARACTER(LEN=QFYAML_strlen)              :: description    
-     INTEGER                                   :: var_type       
-     INTEGER                                   :: var_size       
+     CHARACTER(LEN=QFYAML_namlen)              :: category
+     CHARACTER(LEN=QFYAML_namlen)              :: var_name
+     CHARACTER(LEN=QFYAML_strlen)              :: description
+     INTEGER                                   :: var_type
+     INTEGER                                   :: var_size
      LOGICAL                                   :: dynamic_size
-     LOGICAL                                   :: used           
+     LOGICAL                                   :: used
      INTEGER                                   :: set_by=QFYAML_set_by_default
      CHARACTER(LEN=QFYAML_strlen)              :: stored_data
-     CHARACTER(LEN=QFYAML_namlen)              :: anchor_var
+     CHARACTER(LEN=QFYAML_namlen)              :: anchor_ptr
+     CHARACTER(LEN=QFYAML_namlen)              :: anchor_tgt
      REAL(yp),                     ALLOCATABLE :: real_data(:)
      INTEGER,                      ALLOCATABLE :: int_data(:)
      CHARACTER(LEN=QFYAML_strlen), ALLOCATABLE :: char_data(:)
@@ -181,9 +183,9 @@ CONTAINS
 !\\
 ! !INTERFACE:
 !
-  SUBROUTINE handle_error(err_string)
+  SUBROUTINE Handle_Error( err_string )
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
     CHARACTER(LEN=*), INTENT(IN) :: err_string
 !
@@ -202,7 +204,7 @@ CONTAINS
     ! It is usually best to quit after an error, to make sure the error message
     ! is not overlooked in the program's output
     error stop
-  END SUBROUTINE handle_error
+  END SUBROUTINE Handle_Error
 
 !EOC
 !------------------------------------------------------------------------------
@@ -213,20 +215,20 @@ CONTAINS
 !
 ! !IROUTINE: get_var_index
 !
-! !DESCRIPTION:  Return the index of the variable with name 'var_name', 
+! !DESCRIPTION:  Return the index of the variable with name 'var_name',
 !  or -1 if not found.
 !\\
 !\\
 ! !INTERFACE:
 !
-  SUBROUTINE get_var_index(yml, var_name, ix)
+  SUBROUTINE Get_Var_Index( yml, var_name, ix )
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
     TYPE(QFYAML_t),   INTENT(IN)  :: yml
     CHARACTER(LEN=*), INTENT(IN)  :: var_name
 !
-! !OUTPUT PARAMETERS: 
+! !OUTPUT PARAMETERS:
 !
     INTEGER,          INTENT(OUT) :: ix
 !
@@ -241,21 +243,86 @@ CONTAINS
 !
     INTEGER :: i
 
+    ! Initialize
     ix = -1
 
-    if (yml%sorted) then
-       CALL binary_search_variable(yml, var_name, ix)
-    else
-       ! Linear search
-       do i = 1, yml%num_vars
+    IF ( yml%sorted ) THEN
+
+       ! If the variable names have been sorted, use a binary search
+       CALL Binary_Search_Variable( yml, var_name, ix )
+
+    ELSE
+
+       ! Otherwise use a linear search
+       DO i = 1, yml%num_vars
           IF ( TRIM(yml%vars(i)%var_name) == TRIM(var_name) ) THEN
              ix = i
              EXIT
           ENDIF
-       end do
-    end if
+       ENDDO
 
-  END SUBROUTINE get_var_index
+    ENDIF
+
+  END SUBROUTINE Get_Var_Index
+!EOC
+!------------------------------------------------------------------------------
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
+! Based on existing package https://github.com/jannisteunissen/config_fortran
+!------------------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE: get_anchor_info
+!
+! !DESCRIPTION: Returns information about a variable containing an anchor
+!  target field: the index, the category name, and the variable name (minus
+!  the category).  Missing values are returned if not found.
+!\\
+!\\
+! !INTERFACE:
+!
+  SUBROUTINE Get_Anchor_Info( yml, anchor_ptr, begin_ix, end_ix, anchor_cat )
+!
+! !INPUT PARAMETERS:
+!
+    TYPE(QFYAML_t),               INTENT(IN)  :: yml        ! Config object
+    CHARACTER(LEN=*),             INTENT(IN)  :: anchor_ptr ! Anchor to match
+!
+! !OUTPUT PARAMETERS:
+!
+    INTEGER,                      INTENT(OUT) :: begin_ix   ! 1st var w/ anchor
+    INTEGER,                      INTENT(OUT) :: end_ix     ! last var w/ anchor
+    CHARACTER(LEN=QFYAML_namlen), INTENT(OUT) :: anchor_cat ! Anchor category
+!
+! !REVISION HISTORY:
+!  15 Apr 2020 - R. Yantosca - Initial version
+!  See the subsequent Git history with the gitk browser!
+!EOP
+!------------------------------------------------------------------------------
+!BOC
+!
+! !LOCAL VARIABLES:
+!
+    INTEGER :: i
+
+    ! Initialize
+    begin_ix   = 0
+    end_ix     = 0
+    anchor_cat = "UNKNOWN"
+
+    ! Linear search
+    DO i = 1, yml%num_vars
+       IF ( TRIM( yml%vars(i)%anchor_tgt ) == TRIM( anchor_ptr ) ) THEN
+          IF ( begin_ix == 0 ) begin_ix = i
+          end_ix = i
+       ENDIF
+    ENDDO
+
+    ! Also return the category for this anchor
+    IF ( begin_ix > 0 ) THEN
+       anchor_cat = yml%vars(begin_ix)%category
+    ENDIF
+
+  END SUBROUTINE Get_Anchor_Info
 !EOC
 !------------------------------------------------------------------------------
 ! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
@@ -270,17 +337,18 @@ CONTAINS
 !\\
 ! !INTERFACE:
 !
-  SUBROUTINE QFYAML_Init( fileName, yml, RC )
+  SUBROUTINE QFYAML_Init( fileName, yml, yml_anchored, RC )
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
     CHARACTER(LEN=*), INTENT(IN)    :: fileName
 !
-! !INPUT/OUTPUT PARAMETERS: 
+! !INPUT/OUTPUT PARAMETERS:
 !
     TYPE(QFYAML_t),   INTENT(INOUT) :: yml
+    TYPE(QFYAML_t),   INTENT(INOUT) :: yml_anchored
 !
-! !OUTPUT PARAMETERS: 
+! !OUTPUT PARAMETERS:
 !
     INTEGER,          INTENT(OUT)   :: RC
 !
@@ -294,8 +362,8 @@ CONTAINS
 ! !LOCAL VARIABLES:
 !
     ! Read the YML file
-    CALL QFYAML_Read_File( yml, fileName )
-    
+    CALL QFYAML_Read_File( yml, fileName, yml_anchored )
+
     ! Sort the variable names in the yml object for faster search
     CALL QFYAML_Sort( yml )
 
@@ -314,15 +382,16 @@ CONTAINS
 !\\
 ! !INTERFACE:
 !
-  SUBROUTINE QFYAML_Read_File( yml, fileName )
+  SUBROUTINE QFYAML_Read_File( yml, fileName, yml_anchored )
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
-    CHARACTER(LEN=*), INTENT(IN)    :: fileName   ! YAML file to read
+    CHARACTER(LEN=*), INTENT(IN)    :: fileName      ! YAML file to read
 !
-! !INPUT/OUTPUT PARAMETERS: 
+! !INPUT/OUTPUT PARAMETERS:
 !
-    TYPE(QFYAML_t),      INTENT(INOUT) :: yml        ! Configuration object
+    TYPE(QFYAML_t),   INTENT(INOUT) :: yml           ! Configuration object
+    TYPE(QFYAML_t),   INTENT(INOUT) :: yml_anchored  ! "" for anchored vars
 !
 ! !REVISION HISTORY:
 !  15 Apr 2020 - R. Yantosca - Initial version
@@ -332,47 +401,126 @@ CONTAINS
 !BOC
 !
 ! !LOCAL VARIABLES:
-! 
-    INTEGER                      :: io_state
-    INTEGER                      :: line_number
+!
+    ! Scalars
     LOGICAL                      :: valid_syntax
+    INTEGER                      :: anchor_ix
+    INTEGER                      :: begin_ix
+    INTEGER                      :: end_ix
+    INTEGER                      :: I
+    INTEGER                      :: io_state
+    INTEGER                      :: N
+    INTEGER                      :: line_number
+    INTEGER                      :: my_unit
+
+    ! Strings
     CHARACTER(LEN=QFYAML_namlen) :: line_fmt
+    CHARACTER(LEN=QFYAML_namlen) :: category
+    CHARACTER(LEN=QFYAML_namlen) :: anchor_cat
+    CHARACTER(LEN=QFYAML_namlen) :: anchor_ptr
+    CHARACTER(LEN=QFYAML_namlen) :: anchor_tgt
+    CHARACTER(LEN=QFYAML_namlen) :: var_pt_to_anchor
+    CHARACTER(LEN=QFYAML_namlen) :: var_w_anchor
+    CHARACTER(LEN=QFYAML_namlen) :: var_name
     CHARACTER(LEN=QFYAML_strlen) :: err_string
     CHARACTER(LEN=QFYAML_strlen) :: line
-    CHARACTER(LEN=QFYAML_namlen) :: category
-!
-! !DEFINED PARAMETERS:
-!
-    INTEGER, parameter         :: my_unit = 123
 
+    !=======================================================================
+    ! QFYAML_READ_FILE begins here!
+    !=======================================================================
 
-    open(my_unit, file=trim(filename), status="old", action="read")
-    write(line_fmt, "(A,I0,A)") "(A", QFYAML_strlen, ")"
+    ! Initialize
+    anchor_ptr   = ""
+    anchor_tgt   = ""
+    category     = ""
+    line_number  = 0
+    my_unit      = 777
 
-    category    = "" ! Default category is empty
-    line_number = 0
+    !=======================================================================
+    ! First pass: read the file
+    !=======================================================================
 
-    do
-       read(my_unit, FMT=trim(line_fmt), ERR=998, end=999) line
+    ! Open the file
+    OPEN( my_unit, FILE=TRIM(filename), STATUS="old", ACTION="read")
+    WRITE( line_fmt, "(A,I0,A)") "(A", QFYAML_strlen, ")"
+
+    ! Start looping
+    DO
+
+       ! Read each line and increment the count
+       READ( my_unit, FMT=trim(line_fmt), ERR=998, end=999) line
        line_number = line_number + 1
 
-       CALL parse_line(yml, QFYAML_set_by_file, line, valid_syntax, category)
+       ! Parse each line for information.  This will also add
+       ! each found variable to the "yml" configuration object.
+       ! YAML anchors will also be referenced.
+       CALL Parse_Line( yml          = yml,                                  &
+                        yml_anchored = yml_anchored,                         &
+                        set_by       = QFYAML_set_by_file,                   &
+                        line_arg     = line,                                 &
+                        valid_syntax = valid_syntax,                         &
+                        category     = category,                             &
+                        anchor_tgt   = anchor_tgt,                           &
+                        anchor_ptr   = anchor_ptr                           )
 
-       if (.not. valid_syntax) then
-          write(err_string, *) "Cannot read line ", line_number, &
-               " from ", trim(filename)
-          CALL handle_error(err_string)
-       end if
-    end do
+       ! Throw an error if the line is not in proper YAML format
+       IF ( .not. valid_syntax ) THEN
+          WRITE(err_string, *) "Cannot read line ", line_number, &
+               " from ", TRIM(filename)
+          CALL Handle_Error(err_string)
+       ENDIF
+    ENDDO
 
     ! Error handling
-998 write(err_string, "(A,I0,A,I0)") " IOSTAT = ", io_state, &
+998 WRITE(err_string, "(A,I0,A,I0)") " IOSTAT = ", io_state, &
          " while reading from " // trim(filename) // " at line ", &
          line_number
-    CALL handle_error("QFYAML_read_file:" // err_string)
+    CALL Handle_Error("QFYAML_read_file:" // err_string)
 
     ! Routine ends here if the end of "filename" is reached
-999 close(my_unit, iostat=io_state)
+999 CLOSE( my_unit, iostat=io_state )
+
+    !=======================================================================
+    ! Second pass: Create variables that point to YAML anchors
+    ! with all of the corresponding properties.
+    !=======================================================================
+    DO N = 1, yml_anchored%num_vars
+
+       ! Get proprties of each variable that points to an anchor
+       anchor_ptr = yml_anchored%vars(N)%anchor_ptr
+       category   = yml_anchored%vars(N)%category
+       var_name   = yml_anchored%vars(N)%var_name
+
+       ! Find all target variables with the given value of anchor_ptr,
+       ! and return the start and ending indices in the yml config object.
+       CALL Get_Anchor_Info( yml        = yml,                                &
+                             anchor_ptr = anchor_ptr,                         &
+                             begin_ix   = begin_ix,                           &
+                             end_ix     = end_ix,                             &
+                             anchor_cat = anchor_cat )
+
+       ! Loop over all target variables containing the value of anchor_ptr
+       DO anchor_ix = begin_ix, end_ix
+
+          ! Variable with the anchor
+          var_w_anchor = yml%vars(anchor_ix)%var_name
+
+          ! Variable that we want to point to the anchor
+          I = INDEX( var_w_anchor, QFYAML_category_separator )
+          var_pt_to_anchor = TRIM( category )                             // &
+                             QFYAML_category_separator                    // &
+                             var_w_anchor(I+1:)
+
+          ! Create a new variable for this category,
+          ! copying the fields of the variable with the anchor.
+          CALL Copy_Anchor_Variable( yml              = yml,                 &
+                                     anchor_ix        = anchor_ix,           &
+                                     var_w_anchor     = var_w_anchor,        &
+                                     var_pt_to_anchor = var_pt_to_anchor    )
+
+       ENDDO
+
+    ENDDO
 
   END SUBROUTINE QFYAML_Read_File
 !EOC
@@ -384,26 +532,31 @@ CONTAINS
 !
 ! !IROUTINE: parse line
 !
-! !DESCRIPTION: Parses a single line of a YAML file
+! !DESCRIPTION: Parses a single line of a YAML file and adds the relevant
+!  variables to the yml configuration object.
 !\\
 !\\
 ! !INTERFACE:
 !
-  SUBROUTINE parse_line(yml, set_by, line_arg, valid_syntax, category_arg)
+  SUBROUTINE Parse_Line( yml,          yml_anchored, set_by,     line_arg,   &
+                         valid_syntax, category,     anchor_ptr, anchor_tgt )
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
-    INTEGER,                      INTENT(IN)    :: set_by        ! Where from?
-    CHARACTER(LEN=*),             INTENT(IN)    :: line_arg      ! Input
+    INTEGER,                      INTENT(IN)    :: set_by
+    CHARACTER(LEN=*),             INTENT(IN)    :: line_arg
 !
-! !INPUT/OUTPUT PARAMETERS: 
+! !INPUT/OUTPUT PARAMETERS:
 !
-    TYPE(QFYAML_t),               INTENT(INOUT) :: yml           ! Config obj
+    TYPE(QFYAML_t),               INTENT(INOUT) :: yml
+    TYPE(QFYAML_t),               INTENT(INOUT) :: yml_anchored
 !
-! !OUTPUT PARAMETERS: 
+! !OUTPUT PARAMETERS:
 !
-    LOGICAL,                      INTENT(OUT)   :: valid_syntax  ! Good line? 
-    CHARACTER(LEN=QFYAML_namlen), OPTIONAL      :: category_arg  ! Cat name
+    LOGICAL,                      INTENT(OUT)   :: valid_syntax
+    CHARACTER(LEN=QFYAML_namlen), INTENT(OUT)   :: category
+    CHARACTER(LEN=QFYAML_namlen), INTENT(OUT)   :: anchor_ptr
+    CHARACTER(LEN=QFYAML_namlen), INTENT(OUT)   :: anchor_tgt
 !
 ! !REVISION HISTORY:
 !  15 Apr 2020 - R. Yantosca - Initial version
@@ -417,38 +570,35 @@ CONTAINS
     ! Scalars
     LOGICAL                      :: append
     INTEGER                      :: ix
-    INTEGER                      :: colon_ix
     INTEGER                      :: ampsnd_ix
+    INTEGER                      :: anchor_ix
+    INTEGER                      :: colon_ix
     INTEGER                      :: star_ix
     INTEGER                      :: trim_len
 
     ! Strings
-    CHARACTER(LEN=QFYAML_namlen) :: category
     CHARACTER(LEN=QFYAML_namlen) :: var_name
-    CHARACTER(LEN=QFYAML_strlen) :: line, anchor_targ
-    
+    CHARACTER(LEN=QFYAML_strlen) :: line
+
     !=======================================================================
     ! PARSE_LINE begins here!
     !=======================================================================
 
-    ! Assume a properly formatted line
+    ! Initialize
     valid_syntax = .true.
-
-    ! Work on a copy
     colon_ix     = 0
     ampsnd_ix    = 0
     star_ix      = 0
     line         = line_arg
-    category     = ""
-    IF ( PRESENT( category_arg ) ) category = category_arg
 
-    CALL trim_comment(line, '#;')
+    ! Strip all comments from the line
+    CALL Trim_Comment(line, '#;')
 
     ! Skip empty lines
     IF ( line == "" ) RETURN
 
     ! Get the length of the line (excluding trailing whitespace)
-    trim_len  = LEN_TRIM( line ) 
+    trim_len  = LEN_TRIM( line )
 
     ! Look for the positions of certain characters
     colon_ix  = INDEX( line, ":" )
@@ -463,27 +613,20 @@ CONTAINS
        ! If there is nothing after the colon ...
        IF ( colon_ix == trim_len ) THEN
 
-          ! Then this indicates a nested category, so return it
-          category = line(1:colon_ix-1)
-          IF ( PRESENT( category_arg ) ) THEN
-             category_arg = category
-             RETURN
-          ENDIF
+          ! Then this indicates a category name, so return
+          ! and there is no anchor present
+          anchor_tgt = ""
+          category   = line(1:colon_ix-1)
+          RETURN
 
        ! If there is an ampersand following the colon
        ! then this denotes a YAML anchor
        ELSE IF ( colon_ix > 0 .and. ampsnd_ix > 0 ) THEN
 
-          ! Category name
-          category    = line(1:colon_ix-1)
-
-          ! Anchor target name
-          anchor_targ = line(ampsnd_ix+1:trim_len)
-
-          IF ( PRESENT( category_arg ) ) THEN
-             category_arg = category
-             RETURN
-          ENDIF
+          ! Return anchor target and category name
+          anchor_tgt = line(ampsnd_ix+1:trim_len)
+          category   = line(1:colon_ix-1)
+          RETURN
        ENDIF
     ENDIF
 
@@ -492,8 +635,6 @@ CONTAINS
     ! define the variable name
     append = .FALSE.
     var_name = line(1:colon_ix-1)
-
-!   IF ( index
 
     ! If there are less than two spaces or a tab, reset to no category
     IF (var_name(1:2) /= " " .and. var_name(1:1) /= tab_char) THEN
@@ -507,40 +648,215 @@ CONTAINS
     ! Remove leading blanks
     var_name = ADJUSTL(var_name)
 
-    ! Add category if it is defined
-    IF (category /= "") THEN
-       var_name = TRIM(category) // QFYAML_category_separator // var_name
+    ! Test if the variable is a YAML anchor
+    IF ( var_name == ">>" ) THEN
+
+       !--------------------------------------------------------------------
+       ! Variable points to a YAML anchor
+       !--------------------------------------------------------------------
+
+       ! Add category if it is defined
+       IF ( category /= "" ) THEN
+          var_name = TRIM( category ) // QFYAML_category_separator // var_name
+       ENDIF
+
+       ! Get the name of the anchor we want to point to
+       anchor_ptr = line(star_ix+1:)
+
+       ! Add the variable to the extra configuration object
+       ! which we will pass back to routine QFYAML_Read_File.
+       ! There we will create a new variable with all of the
+       ! properties of the anchor target.
+       CALL Add_Variable( yml            = yml_anchored,                     &
+                          append         = append,                           &
+                          set_by         = set_by,                           &
+                          line_arg       = "",                               &
+                          anchor_ptr_arg = anchor_ptr,                       &
+                          anchor_tgt_arg = anchor_tgt,                       &
+                          category_arg   = category,                         &
+                          var_name_arg   = var_name                         )
+
+    ELSE
+
+       !--------------------------------------------------------------------
+       ! Variable does NOT point to a YAML anchor
+       !--------------------------------------------------------------------
+
+       ! Add category if it is defined
+       IF ( category /= "" ) THEN
+          var_name = TRIM( category ) // QFYAML_category_separator // var_name
+       ENDIF
+
+       ! Set line to the values behind the '=' sign
+       line = line(colon_ix+1:)
+
+       ! Add the variable to the config object
+       CALL Add_Variable( yml            = yml,                              &
+                          append         = append,                           &
+                          set_by         = set_by,                           &
+                          line_arg       = line,                             &
+                          anchor_ptr_arg = anchor_ptr,                       &
+                          anchor_tgt_arg = anchor_tgt,                       &
+                          category_arg   = category,                         &
+                          var_name_arg   = var_name                         )
+
     ENDIF
 
-    ! Set line to the values behind the '=' sign
-    line = line(colon_ix+1:) 
+  END SUBROUTINE Parse_Line
+!EOC
+!------------------------------------------------------------------------------
+!                  GEOS-Chem Global Chemical Transport Model                  !
+!------------------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE: add_variable
+!
+! !DESCRIPTION: Adds a new variable to the config object.  Either it creates
+!  the variable as "stored" (aka deferred) or actual.  This was split off
+!  from the routine Parse\_Line above.
+!\\
+!\\
+! !INTERFACE:
+!
+  SUBROUTINE Add_Variable( yml,            line_arg,     anchor_ptr_arg,      &
+                           anchor_tgt_arg, category_arg, var_name_arg,        &
+                           set_by,         append                            )
+!
+! !INPUT PARAMETERS:
+!
+    LOGICAL,                      INTENT(IN)    :: append
+    INTEGER,                      INTENT(IN)    :: set_by
+    CHARACTER(LEN=*),             INTENT(IN)    :: line_arg
+    CHARACTER(LEN=QFYAML_namlen), INTENT(IN)    :: anchor_ptr_arg
+    CHARACTER(LEN=QFYAML_namlen), INTENT(IN)    :: anchor_tgt_arg
+    CHARACTER(LEN=QFYAML_namlen), INTENT(IN)    :: category_arg
+    CHARACTER(LEN=QFYAML_namlen), INTENT(IN)    :: var_name_arg
+!
+! !INPUT/OUTPUT PARAMETERS:
+!
+    TYPE(QFYAML_t),               INTENT(INOUT) :: yml
+!
+! !REVISION HISTORY:
+!  15 Apr 2020 - R. Yantosca - Initial version
+!  See the subsequent Git history with the gitk browser!
+!EOP
+!------------------------------------------------------------------------------
+!BOC
+!
+! !LOCAL VARIABLES:
+!
+    INTEGER :: ix
 
     ! Find variable corresponding to name in file
-    CALL get_var_index(yml, var_name, ix)
+    CALL Get_Var_Index( yml, var_name_arg, ix )
 
-    IF (ix <= 0) then
-       ! Variable still needs to be created, for now store data as a string
-       CALL prepare_store_var(yml, trim(var_name), QFYAML_unknown_type, 1, &
-            "Not yet created", ix, .false.)
-       yml%vars(ix)%stored_data = line
+    IF ( ix <= 0 ) then
+
+       !--------------------------------------------------------------------
+       ! Variable is not already present in the yml object
+       !--------------------------------------------------------------------
+
+       ! Prepare to store the data as a string
+       CALL Prepare_Store_Var( yml          = yml,                           &
+                               var_name     = TRIM( var_name_arg ),          &
+                               var_type     = QFYAML_unknown_type,           &
+                               var_size     = 1,                             &
+                               description  = "Not yet created",             &
+                               ix           = ix,                            &
+                               dynamic_size = .FALSE.                       )
+
+       ! Store the value of the mapping in the "stored_data" field
+       yml%vars(ix)%stored_data = TRIM( line_arg )
+
     ELSE
-       IF (append) THEN
-          yml%vars(ix)%stored_data = &
-               TRIM(yml%vars(ix)%stored_data) // TRIM(line)
+
+       !--------------------------------------------------------------------
+       ! Variable is already present in the yml object
+       !--------------------------------------------------------------------
+       IF ( append ) THEN
+
+          ! Append data to data that is already present
+          yml%vars(ix)%stored_data = TRIM( yml%vars(ix)%stored_data )     // &
+                                     TRIM( line_arg                 )
+
        ELSE
-          yml%vars(ix)%stored_data = line
+
+          ! Or store overwrite existing data
+          yml%vars(ix)%stored_data = line_arg
+
        ENDIF
 
        ! If type is known, read in values
-       IF (yml%vars(ix)%var_type /= QFYAML_unknown_type) THEN
-          CALL read_variable(yml%vars(ix))
+       IF ( yml%vars(ix)%var_type /= QFYAML_unknown_type ) THEN
+          CALL Read_Variable( yml%vars(ix) )
        ENDIF
+
     ENDIF
 
-    ! Store how the variable was set
-    yml%vars(ix)%set_by = set_by
+    ! Store other fields of this variable
+    yml%vars(ix)%anchor_tgt = anchor_tgt_arg
+    yml%vars(ix)%anchor_ptr = anchor_ptr_arg
+    yml%vars(ix)%category   = category_arg
+    yml%vars(ix)%set_by     = set_by
 
-  END SUBROUTINE parse_line
+  END SUBROUTINE Add_Variable
+!EOC
+!------------------------------------------------------------------------------
+!                  GEOS-Chem Global Chemical Transport Model                  !
+!------------------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE: copy_anchor_variable
+!
+! !DESCRIPTION: Adds a new variable that is a copy of a variable with a
+!  YAML anchor.  The new variable will contain all of the field values of
+!  the old variable.
+!\\
+!\\
+! !INTERFACE:
+!
+  SUBROUTINE Copy_Anchor_Variable( yml,          anchor_ix,                  &
+                                   var_w_anchor, var_pt_to_anchor           )
+!
+! !INPUT PARAMETERS:
+!
+    INTEGER,                      INTENT(IN)    :: anchor_ix
+    CHARACTER(LEN=QFYAML_namlen), INTENT(IN)    :: var_w_anchor
+    CHARACTER(LEN=QFYAML_namlen), INTENT(IN)    :: var_pt_to_anchor
+!
+! !INPUT/OUTPUT PARAMETERS:
+!
+    TYPE(QFYAML_t),               INTENT(INOUT) :: yml
+!
+! !REVISION HISTORY:
+!  15 Apr 2020 - R. Yantosca - Initial version
+!  See the subsequent Git history with the gitk browser!
+!EOP
+!------------------------------------------------------------------------------
+!BOC
+!
+! !LOCAL VARIABLES:
+!
+    INTEGER :: ix
+
+    ! Prepare to store the data as a string
+    CALL Prepare_Store_Var( yml          = yml,                              &
+                            var_name     = TRIM( var_pt_to_anchor ),         &
+                            var_type     = QFYAML_unknown_type,              &
+                            var_size     = 1,                                &
+                            description  = "Not yet created",                &
+                            ix           = ix,                               &
+                            dynamic_size = .FALSE.                          )
+
+    ! Copy each field of the "anchor" variable to the new variable
+    yml%vars(ix)%category    = yml%vars(anchor_ix)%category
+    yml%vars(ix)%description = yml%vars(anchor_ix)%description
+    yml%vars(ix)%set_by      = yml%vars(anchor_ix)%set_by
+    yml%vars(ix)%stored_data = yml%vars(anchor_ix)%stored_data
+    yml%vars(ix)%anchor_ptr  = yml%vars(anchor_ix)%anchor_tgt
+    yml%vars(ix)%anchor_tgt  = ""
+
+  END SUBROUTINE Copy_Anchor_Variable
 !EOC
 !------------------------------------------------------------------------------
 ! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
@@ -550,7 +866,7 @@ CONTAINS
 !
 ! !IROUTINE: read_variable
 !
-! !DESCRIPTION: Get the start and end positions of the line content, 
+! !DESCRIPTION: Get the start and end positions of the line content,
 !  and the number of entries.
 !\\
 !\\
@@ -558,7 +874,7 @@ CONTAINS
 !
   SUBROUTINE read_variable(var)
 !
-! !INPUT/OUTPUT PARAMETERS: 
+! !INPUT/OUTPUT PARAMETERS:
 !
     TYPE(QFYAML_var_t), INTENT(INOUT) :: var
 !
@@ -635,7 +951,7 @@ CONTAINS
 !
 ! !IROUTINE: trim_comment
 !
-! !DESCRIPTION:  Strip comments, but only outside quoted strings 
+! !DESCRIPTION:  Strip comments, but only outside quoted strings
 !  (so that var = '#yolo' is valid when # is a comment char)
 !\\
 !\\
@@ -643,12 +959,12 @@ CONTAINS
 !
   SUBROUTINE trim_comment(line, comment_chars)
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
     CHARACTER(LEN=*), INTENT(IN)    :: comment_chars
 
 !
-! !INPUT/OUTPUT PARAMETERS: 
+! !INPUT/OUTPUT PARAMETERS:
 !
     CHARACTER(LEN=*), INTENT(INOUT) :: line
 !
@@ -696,16 +1012,16 @@ CONTAINS
 !------------------------------------------------------------------------------
 !BOP
 !
-! !IROUTINE: 
+! !IROUTINE:
 !
-! !DESCRIPTION: 
+! !DESCRIPTION:
 !\\
 !\\
 ! !INTERFACE:
 !
   SUBROUTINE QFYAML_check(yml)
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
     TYPE(QFYAML_t), INTENT(IN)       :: yml
 !
@@ -745,12 +1061,12 @@ CONTAINS
 !
   SUBROUTINE split_category(variable, category, var_name)
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
     TYPE(QFYAML_var_t),       INTENT(IN)  :: variable
 
 !
-! !INPUT/OUTPUT PARAMETERS: 
+! !INPUT/OUTPUT PARAMETERS:
 !
     CHARACTER(QFYAML_namlen), INTENT(OUT) :: category
     CHARACTER(QFYAML_namlen), INTENT(OUT) :: var_name
@@ -797,7 +1113,7 @@ CONTAINS
 !
   SUBROUTINE resize_storage(variable)
 !
-! !INPUT/OUTPUT PARAMETERS: 
+! !INPUT/OUTPUT PARAMETERS:
 !
     TYPE(QFYAML_var_t), INTENT(INOUT) :: variable
 !
@@ -833,7 +1149,7 @@ CONTAINS
 !------------------------------------------------------------------------------
 !BOP
 !
-! !IROUTINE: prepare_store_var 
+! !IROUTINE: prepare_store_var
 !
 ! !DESCRIPTION: Helper routine to store variables. This is useful because
 !  a lot of the same code is executed for the different types of variables.
@@ -845,7 +1161,7 @@ CONTAINS
                                description, ix, dynamic_size)
 
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
     CHARACTER(LEN=*), INTENT(IN)   :: var_name
     INTEGER,          INTENT(IN)   :: var_type
@@ -854,12 +1170,12 @@ CONTAINS
     LOGICAL,          OPTIONAL     :: dynamic_size
 
 !
-! !INPUT/OUTPUT PARAMETERS: 
+! !INPUT/OUTPUT PARAMETERS:
 !
     TYPE(QFYAML_t),  INTENT(INOUT) :: yml
 
 !
-! !OUTPUT PARAMETERS: 
+! !OUTPUT PARAMETERS:
 !
     INTEGER,         INTENT(OUT)   :: ix          ! Index of variable
 !
@@ -920,7 +1236,7 @@ CONTAINS
 !
 ! !IROUTINE: prepare_get_var
 !
-! !DESCRIPTION: Helper routine to get variables. This is useful because a 
+! !DESCRIPTION: Helper routine to get variables. This is useful because a
 !  lot of the same code is executed for the different types of variables.
 !\\
 !\\
@@ -928,16 +1244,16 @@ CONTAINS
 !
   SUBROUTINE Prepare_Get_Var(yml, var_name, var_type, var_size, ix)
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
     CHARACTER(LEN=*), INTENT(IN)    :: var_name
     INTEGER,          INTENT(IN)    :: var_type, var_size
 !
-! !INPUT/OUTPUT PARAMETERS: 
+! !INPUT/OUTPUT PARAMETERS:
 !
     TYPE(QFYAML_t),   INTENT(INOUT) :: yml
 !
-! !OUTPUT PARAMETERS: 
+! !OUTPUT PARAMETERS:
 !
     INTEGER,          INTENT(OUT)   :: ix
 !
@@ -987,16 +1303,16 @@ CONTAINS
 !
 ! !DESCRIPTION: Routine to ensure that enough storage is allocated for the
 !  configuration type. If not the new size will be twice as much as the
-!  current size. If no storage is allocated yet a minumum amount of storage 
-!  is allocated. 
+!  current size. If no storage is allocated yet a minumum amount of storage
+!  is allocated.
 !\\
 !\\
-! !INTERFACE: 
+! !INTERFACE:
 !
   SUBROUTINE ensure_free_storage(yml)
 
 !
-! !INPUT/OUTPUT PARAMETERS: 
+! !INPUT/OUTPUT PARAMETERS:
 !
     TYPE(QFYAML_t), INTENT(INOUT)   :: yml
 !
@@ -1036,7 +1352,7 @@ CONTAINS
 !------------------------------------------------------------------------------
 !BOP
 !
-! !IROUTINE: 
+! !IROUTINE:
 !
 ! !DESCRIPTION: Routine to find the indices of entries in a string
 !\\
@@ -1046,14 +1362,14 @@ CONTAINS
   SUBROUTINE get_fields_string(line_arg, delims,  brackets,          &
                                n_max,    n_found, ixs_start, ixs_end)
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
     CHARACTER(LEN=*), INTENT(IN)   :: line_arg         ! Line to read
     CHARACTER(LEN=*), INTENT(IN)   :: delims           ! Accepted delimiters
     CHARACTER(LEN=*), INTENT(IN)   :: brackets         ! brackets
     INTEGER,          INTENT(IN)   :: n_max            ! Max entries to read
 !
-! !INPUT/OUTPUT PARAMETERS: 
+! !INPUT/OUTPUT PARAMETERS:
 !
     INTEGER,         INTENT(INOUT) :: n_found          ! # of entries found
     INTEGER,         INTENT(INOUT) :: ixs_start(n_max) ! start pt. of ith entry
@@ -1074,7 +1390,7 @@ CONTAINS
     ! Strings
     CHARACTER(LEN=1            ) :: bkt
     CHARACTER(LEN=QFYAML_strlen) :: line
-    
+
     ! Initialize
     ix      = 0
     ix_prev = 0
@@ -1088,7 +1404,7 @@ CONTAINS
        IF ( ix > 0 ) line(ix:ix) = " "
     ENDDO
 
-    ! Parse the values 
+    ! Parse the values
     ix = 0
     DO WHILE (n_found < n_max)
 
@@ -1128,12 +1444,12 @@ CONTAINS
 !
   SUBROUTINE binary_search_variable(yml, var_name, ix)
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
     TYPE(QFYAML_t),   INTENT(IN)  :: yml
     CHARACTER(LEN=*), INTENT(IN)  :: var_name
 !
-! !OUTPUT PARAMETERS: 
+! !OUTPUT PARAMETERS:
 !
     INTEGER,          INTENT(OUT) :: ix
 !
@@ -1185,7 +1501,7 @@ CONTAINS
 !
   SUBROUTINE QFYAML_sort( yml )
 !
-! !INPUT/OUTPUT PARAMETERS: 
+! !INPUT/OUTPUT PARAMETERS:
 !
     TYPE(QFYAML_t), INTENT(INOUT) :: yml
 !
@@ -1216,7 +1532,7 @@ CONTAINS
 !
 ! !IROUTINE: qsort
 !
-! !DESCRIPTION: Simple implementation of quicksort algorithm to sort 
+! !DESCRIPTION: Simple implementation of quicksort algorithm to sort
 !  the variable list alphabetically.
 !\\
 !\\
@@ -1224,7 +1540,7 @@ CONTAINS
 !
   RECURSIVE SUBROUTINE qsort( list )
 !
-! !INPUT/OUTPUT PARAMETERS: 
+! !INPUT/OUTPUT PARAMETERS:
 !
     TYPE(QFYAML_var_t), INTENT(INOUT) :: list(:)
 !
@@ -1262,11 +1578,11 @@ CONTAINS
 !
   SUBROUTINE partition_var_list(list, marker)
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
     TYPE(QFYAML_var_t), INTENT(INOUT) :: list(:)
 !
-! !OUTPUT PARAMETERS: 
+! !OUTPUT PARAMETERS:
 !
     INTEGER,            INTENT(OUT)   :: marker
 !
@@ -1279,7 +1595,7 @@ CONTAINS
 !
 ! !LOCAL VARIABLES:
 !
-  
+
     INTEGER                        :: left, right, pivot_ix
     TYPE(QFYAML_var_t)                :: temp
     CHARACTER(LEN=QFYAML_namlen)    :: pivot_value
@@ -1338,7 +1654,7 @@ CONTAINS
 !
     IMPLICIT NONE
 !
-! !INPUT/OUTPUT PARAMETERS: 
+! !INPUT/OUTPUT PARAMETERS:
 !
     TYPE(QFYAML_t), INTENT(INOUT) :: yml
 !
@@ -1361,7 +1677,7 @@ CONTAINS
 !------------------------------------------------------------------------------
 !BOP
 !
-! !IROUTINE: 
+! !IROUTINE:
 !
 ! !DESCRIPTION: Get the size of a variable
 
@@ -1371,12 +1687,12 @@ CONTAINS
 !
   SUBROUTINE QFYAML_Get_Size(yml, var_name, res)
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
     TYPE(QFYAML_t),   INTENT(IN)  :: yml
     CHARACTER(LEN=*), INTENT(IN)  :: var_name
 !
-! !OUTPUT PARAMETERS: 
+! !OUTPUT PARAMETERS:
 !
     INTEGER,          INTENT(OUT) :: res
 !
@@ -1414,12 +1730,12 @@ CONTAINS
 !
   SUBROUTINE QFYAML_Get_Type(yml, var_name, res)
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
     TYPE(QFYAML_t),   INTENT(IN)  :: yml
     CHARACTER(LEN=*), INTENT(IN)  :: var_name
 !
-! !OUTPUT PARAMETERS: 
+! !OUTPUT PARAMETERS:
 !
     INTEGER,          INTENT(OUT) :: res
 !
@@ -1751,7 +2067,7 @@ CONTAINS
   SUBROUTINE Add_Get_Int(yml, var_name, int_data, comment)
     TYPE(QFYAML_t),   INTENT(INOUT) :: yml
     CHARACTER(LEN=*), INTENT(IN   ) :: var_name
-    INTEGER,          INTENT(INOUT) :: int_data    
+    INTEGER,          INTENT(INOUT) :: int_data
     CHARACTER(LEN=*), INTENT(IN   ) :: comment
 
     CALL Add_Int(yml, var_name, int_data, comment)

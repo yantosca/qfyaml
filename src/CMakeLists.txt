@@ -29,5 +29,6 @@ install(
 )
 install(
   FILES species_database_test.yml
+  FILES species_database.yml
   DESTINATION ${CMAKE_INSTALL_PREFIX}
 )

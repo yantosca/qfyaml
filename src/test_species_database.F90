@@ -28,6 +28,7 @@ PROGRAM Test_QFYAML
   INTEGER                     :: S
   INTEGER                     :: RC
   REAL(yp)                    :: v_real
+  REAL(yp)                    :: mw_g
 
   ! Strings
   CHARACTER(LEN=14)           :: tag
@@ -37,14 +38,16 @@ PROGRAM Test_QFYAML
   CHARACTER(LEN=255)          :: fileName
 
   ! Arrays
-  REAL(yp),       ALLOCATABLE :: a_real(:)
+  REAL(yp)                    :: a_real_2(2)
+  REAL(yp)                    :: a_real_3(3)
 
   ! String arrays
-  CHARACTER(LEN=14)           :: tags(41)
-  CHARACTER(LEN=14)           :: species(4)
+  CHARACTER(LEN=17)           :: tags(44)
+  CHARACTER(LEN=14)           :: species(7)
 
   ! Objects
   TYPE(QFYAML_t)              :: yml
+  TYPE(QFYAML_t)              :: yml_anchored
 !
 ! !DEFINED PARAMETERS:
 !
@@ -54,6 +57,7 @@ PROGRAM Test_QFYAML
   LOGICAL,          PARAMETER :: MISSING_BOOL = .FALSE.
   REAL(yp),         PARAMETER :: MISSING_VV   = 1.0e-20_yp
   REAL(yp),         PARAMETER :: ZERO         = 0.0_yp
+  REAL(yp),         PARAMETER :: ONE          = 1.0_yp
   CHARACTER(LEN=7), PARAMETER :: MISSING_STR  = 'UNKNOWN'
 !
 ! !REVISION HISTORY:
@@ -66,38 +70,44 @@ PROGRAM Test_QFYAML
   ! Test_QFYAML begins here!
   !=========================================================================
 
-  RC = QFYAML_SUCCESS
-  
-  tags = (/ "Name          ", "FullName      ", "Formula       ",           &
-            "Notes         ", "Is_Advected   ", "Is_Aero       ",           &
-            "Is_DryAlt     ", "Is_DryDep     ", "Is_Gas        ",           &
-            "Is_HygroGrowth", "Is_ActiveChem ", "Is_FixedChem  ",           &
-            "Is_Kpp        ", "Is_Photolysis ", "Is_WetDep     ",           &
-            "Is_InRestart  ", "MW_g          ", "EmMW_g        ",           &
-            "MolecRatio    ", "BackgroundVV  ", "Density       ",           &
-            "Radius        ", "Henry_K0      ", "Henry_CR      ",           &
-            "Henry_PKA     ", "DD_AeroDryDep ", "DD_DustDryDep ",           &
-            "DD_DvzAerSnow ", "DD_DvzMinVal  ", "DD_F0         ",           &
-            "DD_KOA        ", "WD_LiqAndGas  ", "WD_ConvFacI2G ",           &
-            "WD_RetFactor  ", "WD_Is_H2SO4   ", "WD_Is_HNO3    ",           &
-            "WD_Is_SO2     ", "WD_CoarseAer  ", "WD_AerScavEff ",           &
-            "WD_KcScaleFac ", "WD_RainoutEff "                            /)
-
-  ! Read the YAML file into a config object
-  fileName = "species_database_test.yml"
-  PRINT*, "### Reading " // TRIM( fileName )
-  CALL QFYAML_Init( fileName, yml, RC ) 
-
-  ! FORMAT statements
-10 FORMAT( a30, " | ", a    )
-20 FORMAT( a30, " | ", L7   )
-30 FORMAT( a30, " | ", i7   )
-40 FORMAT( a30, " | ", f7.2 )
-
+  RC         = QFYAML_SUCCESS
+  mw_g       = MISSING_INT
   species(1) = "ACET"
   species(2) = "ALD2"
   species(3) = "ALK4"
   species(4) = "ASOA1"
+  species(5) = "ASOA2"
+  species(6) = "Be7"
+  species(7) = "Be10"
+
+  tags = (/ "Name             ", "FullName         ", "Formula          ",   &
+            "Notes            ", "Is_Advected      ", "Is_Aero          ",   &
+            "Is_DryAlt        ", "Is_DryDep        ", "Is_Gas           ",   &
+            "Is_HygroGrowth   ", "Is_ActiveChem    ", "Is_FixedChem     ",   &
+            "Is_Kpp           ", "Is_Photolysis    ", "Is_WetDep        ",   &
+            "Is_InRestart     ", "MW_g             ", "EmMW_g           ",   &
+            "MolecRatio       ", "BackgroundVV     ", "Density          ",   &
+            "Radius           ", "Henry_K0         ", "Henry_CR         ",   &
+            "Henry_PKA        ", "DD_AeroDryDep    ", "DD_DustDryDep    ",   &
+            "DD_DvzAerSnow    ", "DD_DvzMinVal     ", "DD_F0            ",   &
+            "DD_KOA           ", "WD_LiqAndGas     ", "WD_ConvFacI2G    ",   &
+            "WD_RetFactor     ", "WD_Is_H2SO4      ", "WD_Is_HNO3       ",   &
+            "WD_Is_SO2        ", "WD_CoarseAer     ", "WD_AerScavEff    ",   &
+            "WD_KcScaleFac    ", "WD_RainoutEff    ", "WD_RainoutEff_Luo",   &
+            "WD_KcScaleFac_Luo", "DD_Hstar         "                       /)
+
+  ! Read the YAML file into a config object
+  fileName = "species_database.yml"
+  PRINT*, "### Reading " // TRIM( fileName )
+  CALL QFYAML_Init( fileName, yml, yml_anchored, RC )
+
+  ! FORMAT statements
+10 FORMAT( a30, " | ", a      )
+20 FORMAT( a30, " | ", L10    )
+30 FORMAT( a30, " | ", f10.2  )
+31 FORMAT( a30, " | ", 2f10.2 )
+32 FORMAT( a30, " | ", 3f10.2 )
+40 FORMAT( a30, " | ", i10    )
 
   ! Loop over the number of species
   DO S = 1, SIZE( species )
@@ -106,70 +116,179 @@ PROGRAM Test_QFYAML
      spc = species(S)
 
      ! Loop over the number of tags in the species database
-     DO N = 1, SIZE( tags ) 
-     
-        ! Set intial values to missing values
-        v_bool = MISSING_BOOL
-        v_int  = MISSING_INT
-        v_real = MISSING_REAL
-        v_str  = MISSING_STR
+     DO N = 1, SIZE( tags )
+
+        ! Set intial values to default "missing" values
+        ! This will force creation of variables with these values
+        a_real_2 = MISSING_REAL
+        a_real_3 = MISSING_REAL
+        v_bool   = MISSING_BOOL
+        v_int    = MISSING_INT
+        v_real   = MISSING_REAL
+        v_str    = MISSING_STR
 
         ! Search key
         key = TRIM( spc ) // '%' // TRIM( tags(N) )
 
-        ! strings
-        IF ( INDEX( key, "Fullname" ) > 0 ) THEN
+        IF ( INDEX( key, "%DD_AeroDryDep" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           WRITE( 6, 20 ) TRIM( key ), v_bool
+
+        ELSE IF ( INDEX( key, "%DD_DustDryDep" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           WRITE( 6, 20 ) TRIM( key ), v_bool
+
+        ELSE IF ( INDEX( key, "%DD_DvzAerSnow" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           WRITE( 6, 30 ) TRIM( key ), v_real
+
+        ELSE IF ( INDEX( key, "%DD_DvzMinVal" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, a_real_2, "" )
+           WRITE( 6, 31 ) TRIM( key ), a_real_2
+
+        ELSE IF ( INDEX( key, "%DD_F0" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           WRITE( 6, 30 ) TRIM( key ), v_real
+
+        ELSE IF ( INDEX( key, "%DD_Hstar" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           WRITE( 6, 30 ) TRIM( key ), v_real
+
+        ELSE IF ( INDEX( key, "%Density" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           WRITE( 6, 30 ) TRIM( key ), v_real
+
+        ELSE IF ( INDEX( key, "%Formula" ) > 0 ) THEN
+           IF ( INDEX( key, "Be7"  ) > 0 ) CYCLE
+           IF ( INDEX( key, "Be10" ) > 0 ) CYCLE
            CALL QFYAML_Add_Get( yml, key, v_str, "" )
            WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
 
-        ELSE IF ( INDEX( key, "Formula" ) > 0 ) THEN 
+        ELSE IF ( INDEX( key, "%Fullname" ) > 0 ) THEN
+           IF ( INDEX( key, "Be7"  ) > 0 ) CYCLE
+           IF ( INDEX( key, "Be10" ) > 0 ) CYCLE
            CALL QFYAML_Add_Get( yml, key, v_str, "" )
-           WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )          
+           WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
 
-        ! booleans
-        ELSE IF ( INDEX( key, "Is_Advected" ) > 0 ) THEN 
+        ELSE IF ( INDEX( key, "%Is_Advected" ) > 0 ) THEN
            CALL QFYAML_Add_Get( yml, key, v_bool, "" )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
-        ELSE IF ( INDEX( key, "Is_Aero" ) > 0 ) THEN 
+        ELSE IF ( INDEX( key, "%Is_Aero" ) > 0  ) THEN
            CALL QFYAML_Add_Get( yml, key, v_bool, "" )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
-        ELSE IF ( INDEX( key, "Is_DryAlt" ) > 0 ) THEN 
+        ELSE IF ( INDEX( key, "%Is_DryAlt" ) > 0 ) THEN
            CALL QFYAML_Add_Get( yml, key, v_bool, "" )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
-        ELSE IF ( INDEX( key, "Is_DryDep" ) > 0 ) THEN 
+        ELSE IF ( INDEX( key, "%Is_DryDep" ) > 0 ) THEN
            CALL QFYAML_Add_Get( yml, key, v_bool, "" )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
-        ELSE IF ( INDEX( key, "Is_HygroGrowth" ) > 0 ) THEN 
+        ELSE IF ( INDEX( key, "%Is_HygroGrowth" ) > 0 ) THEN
            CALL QFYAML_Add_Get( yml, key, v_bool, "" )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
-        ELSE IF ( INDEX( key, "Is_Gas" ) > 0 ) THEN 
+        ELSE IF ( INDEX( key, "%Is_Gas" ) > 0 ) THEN
            CALL QFYAML_Add_Get( yml, key, v_bool, "" )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
-        ELSE IF ( INDEX( key, "Is_Photolysis" ) > 0 ) THEN 
+        ELSE IF ( INDEX( key, "%Is_Photolysis" ) > 0 ) THEN
            CALL QFYAML_Add_Get( yml, key, v_bool, "" )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
-        ELSE IF ( INDEX( key, "Is_WetDep" ) > 0 ) THEN 
+        ELSE IF ( INDEX( key, "%Is_WetDep" ) > 0 ) THEN
            CALL QFYAML_Add_Get( yml, key, v_bool, "" )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
-        ELSE IF ( INDEX( key, "Is_Hg0" ) > 0 ) THEN 
+        ELSE IF ( INDEX( key, "%Is_Hg0" ) > 0 ) THEN
            CALL QFYAML_Add_Get( yml, key, v_bool, "" )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
-        ELSE IF ( INDEX( key, "Is_Hg2" ) > 0 ) THEN 
+        ELSE IF ( INDEX( key, "%Is_Hg2" ) > 0 ) THEN
            CALL QFYAML_Add_Get( yml, key, v_bool, "" )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
-        ELSE IF ( INDEX( key, "Is_HgP" ) > 0 ) THEN 
+        ELSE IF ( INDEX( key, "%Is_HgP" ) > 0 ) THEN
            CALL QFYAML_Add_Get( yml, key, v_bool, "" )
            WRITE( 6, 20 ) TRIM( key ), v_bool
+
+        ELSE IF ( INDEX( key, "%Henry_K0" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           WRITE( 6, 30 ) TRIM( key ), v_real
+
+        ELSE IF ( INDEX( key, "%Henry_CR" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           WRITE( 6, 30 ) TRIM( key ), v_real
+
+        ELSE IF ( INDEX( key, "%Henry_pKa" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           WRITE( 6, 30 ) TRIM( key ), v_real
+
+        ELSE IF ( INDEX( key, "%MP_SizeResAer" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           WRITE( 6, 20 ) TRIM( key ), v_bool
+
+        ELSE IF ( INDEX( key, "%MP_SizeResNum" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           WRITE( 6, 20 ) TRIM( key ), v_bool
+
+        ELSE IF ( INDEX( key, "%MolecRatio" ) > 0 ) THEN
+           v_real = ONE                                  ! Set default to 1
+           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           WRITE( 6, 30 ) TRIM( key ), v_real
+
+        ELSE IF ( INDEX( key, "%MW_g" ) > 0 ) THEN
+           IF ( INDEX( key, "Be7"  ) > 0 ) CYCLE
+           IF ( INDEX( key, "Be10" ) > 0 ) CYCLE
+           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           WRITE( 6, 30 ) TRIM( key ), v_real
+           mw_g = v_real                                 ! Default for EmMw_g
+
+        ELSE IF ( INDEX( key, "%EmMW_g" ) > 0 ) THEN
+           IF ( INDEX( key, "Be7"  ) > 0 ) CYCLE
+           IF ( INDEX( key, "Be10" ) > 0 ) CYCLE
+           v_real = mw_g
+           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           WRITE( 6, 30 ) TRIM( key ), v_real
+           mw_g = MISSING_REAL                           ! Reset for next spc
+
+        ELSE IF ( INDEX( key, "%DD_Radius" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           WRITE( 6, 30 ) TRIM( key ), v_real
+
+        ELSE IF ( INDEX( key, "%WD_AerScavEff" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           WRITE( 6, 30 ) TRIM( key ), v_real
+
+        ELSE IF ( INDEX( key, "%WD_CoarseAer" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           WRITE( 6, 20 ) TRIM( key ), v_bool
+
+        ELSE IF ( INDEX( key, "%WD_ConvFacI2G" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           WRITE( 6, 30 ) TRIM( key ), v_real
+
+        ELSE IF ( INDEX( key, "%WD_KcScaleFac" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, a_real_3, "" )
+           WRITE( 6, 32 ) TRIM( key ), a_real_3
+
+        ELSE IF ( INDEX( key, "%WD_KcScaleFac_Luo" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, a_real_3, "" )
+           WRITE( 6, 32 ) TRIM( key ), a_real_3
+
+        ELSE IF ( INDEX( key, "%WD_LiqAndGas" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           WRITE( 6, 20 ) TRIM( key ), v_bool
+
+        ELSE IF ( INDEX( key, "%WD_RainoutEff" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, a_real_3, "" )
+           WRITE( 6, 32 ) TRIM( key ), a_real_3
+
+        ELSE IF ( INDEX( key, "%WD_RainoutEff_Luo" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, a_real_3, "" )
+           WRITE( 6, 32 ) TRIM( key ), a_real_3
 
         ELSE
            ! Pass
@@ -181,8 +300,54 @@ PROGRAM Test_QFYAML
      print*, "###"
   ENDDO
 
+  !========================================================================
+  ! Add a couple of variables manually
+  ! that the anchors can't handle
+  !========================================================================
+  key   = "Be7%Formula"
+  v_str = "Be7"
+  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
+
+  key   = "Be7Strat%Formula"
+  v_str = "Be7"
+  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
+
+  key   = "Be10%Formula"
+  v_str = "Be10"
+  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
+
+  key   = "Be10Strat%Formula"
+  v_str = "Be10"
+  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
+
+  key   = "Be10%Fullname"
+  v_str = "Berylliium-7 isotope"
+  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
+
+
+  key   = "Be10%Fullname"
+  v_str = "Berylliium-10 isotope"
+  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
+
+  key   = "Be7Strat%Fullname"
+  v_str = "Beryllium-7 isotope in stratosphere"
+  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
+
+  key   = "Be10Strat%Fullname"
+  v_str = "Beryllium-10 isotope in stratosphere"
+  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
+
   ! Finalize the config object
   print*, "### finishing"
-  CALL QFYAML_CleanUp( yml )
+  CALL QFYAML_CleanUp( yml          )
+  CALL QFYAML_CleanUp( yml_anchored )
 
 END PROGRAM test_qfyaml

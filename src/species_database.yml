@@ -162,8 +162,6 @@ Be: &Beproperties
   DD_DvzAerSnow: 0.03
   DD_F0: 0.0
   DD_HStar: 0.0
-  Formula: Be
-  Fullname: Beryllium
   Is_Advected: true
   Is_Drydep: true
   Is_Gas: true
@@ -251,7 +249,7 @@ BrO:
 BRO2:
   Fullname: Peroxy radical from BENZ oxidation
   Is_Gas: true
-  MW_g: NEEDED
+  MW_g: 1.0  #NEEDED
 BrSALA:
   >> : *SALAproperties
   Formula: Br
@@ -291,11 +289,11 @@ C3H8:
 C4HVP1:
   Fullname: C4 hydroxy-vinyl peroxy radicals from HPALDS
   Is_Gas: true
-  MW_g: NEEDED
+  MW_g: 1.0 # NEEDED
 C4HVP2:
   Fullname: C4 hydroxy-vinyl peroxy radicals from HPALDS
   Is_Gas: true
-  MW_g: NEEDED
+  MW_g: 1.0 #NEEDED
 CCl4:
   Formula: CCl4
   Fullname: Carbon tetrachloride
@@ -1880,7 +1878,7 @@ IHPOO3:
 INA:
   Fullname: Alkoxy radical from INO2D
   Is_Gas: true
-  MW_g: NEEDED
+  MW_g: 1.0  #NEEDED
 INDIOL:
   DD_DvzAerSnow: 0.03
   DD_F0: 0.0
@@ -1904,11 +1902,11 @@ INO:
 INO2B:
   Fullname: beta-peroxy radicals from isoprene + NO3
   Is_Gas: true
-  MW_g: NEEDED
+  MW_g: 1.0 #NEEDED
 INO2D:
   Fullname: delta-peroxy radicals from isoprene + NO3
   Is_Gas: true
-  MW_g: NEEDED
+  MW_g: 1.0 #NEEDED
 INPB:
   DD_F0: 1.0
   DD_Hstar: 2.0e+6
@@ -2061,7 +2059,7 @@ ITHN:
 KO2:
   Fullname: Peroxy radical from >3 ketones
   Is_Gas: true
-  MW_g: NEEDED
+  MW_g: 1.0 #NEEDED
 LBRO2H:
   Fullname: Dummy species to track oxidation of BRO2 by HO2
 LBRO2N:
@@ -2256,7 +2254,7 @@ MCRHP:
 MCROHOO:
   Fullname: Peroxy radical from MACR + OH
   Is_Gas: true
-  MW_g: NEEDED
+  MW_g: 1.0 #NEEDED
 MEK:
   EmMW_g: 12.0
   Formula: RC(O)R
@@ -2849,11 +2847,11 @@ OIO:
 OLND:
   Fullname: Monoterpene-derived NO3-alkene adduct
   Is_Gas: true
-  MW_g: NEEDED
+  MW_g: 1.0 #NEEDED
 OLNN:
   Fullname: Monoterpene-derived NO3 adduct
   Is_Gas: true
-  MW_g: NEEDED
+  MW_g: 1.0 #NEEDED
 OPOA1:
   DD_DvzAerSnow: 0.03
   DD_F0: 0.0
@@ -2903,7 +2901,7 @@ OPOG2:
 OTHRO2:
   Fullname: Other C2 RO2 not from C2H6 oxidation
   Is_Gas: true
-  MW_g: NEEDED
+  MW_g: 1.0 #NEEDED
 PAN:
   DD_F0: 1.0
   DD_Hstar: 3.6
@@ -3320,7 +3318,7 @@ PYAC:
 R4N1:
   Fullname: Peroxy radical from R4N2
   Is_Gas: true
-  MW_g: NEEDED
+  MW_g: 1.0 #NEEDED
 R4N2:
   DD_F0: 1.0
   DD_Hstar: 1.7e+4
@@ -3338,7 +3336,7 @@ R4N2:
 R4O2:
   Fullname: Peroxy radical from ALK4
   Is_Gas: true
-  MW_g: NEEDED
+  MW_g: 1.0 #NEEDED
 R4P:
   DD_F0: 1.0
   DD_Hstar: 2.94e+2
@@ -3647,7 +3645,7 @@ TOLU:
 TRO2:
   Fullname: Peroxy radical from TOLU oxidation
   Is_Gas: true
-  MW_g: NEEDED
+  MW_g: 1.0 #NEEDED
 TSOA0: &TSOAproperties
   DD_DvzAerSnow: 0.03
   DD_F0: 0.0
@@ -3690,7 +3688,7 @@ TSOG3:
 XRO2:
   Fullname: Peroxy radical from TOLU oxidation
   Is_Gas: true
-  MW_g: NEEDED
+  MW_g: 1.0 #NEEDED
 XYLE:
   EmMW_g: 12.0
   Formula: C8H10
