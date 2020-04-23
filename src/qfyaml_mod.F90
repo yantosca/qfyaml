@@ -35,12 +35,11 @@ MODULE QFYAML_Mod
   ! Public methods
   PUBLIC :: QFYAML_Add
   PUBLIC :: QFYAML_Add_Get
+  PUBLIC :: QFYAML_CleanUp
   PUBLIC :: QFYAML_Get
-  PUBLIC :: QFYAML_Get_Size
-  PUBLIC :: QFYAML_Get_Type
   PUBLIC :: QFYAML_Check
   PUBLIC :: QFYAML_Init
-  PUBLIC :: QFYAML_CleanUp
+  PUBLIC :: QFYAML_Update
 !
 ! !REMARKS:
 !  QFYAML -- The Quick Fortran YAML parser!
@@ -166,6 +165,14 @@ MODULE QFYAML_Mod
      MODULE PROCEDURE  Add_Get_Bool,   Add_Get_Bool_Array
      MODULE PROCEDURE  Add_Get_String, Add_Get_String_Array
   END INTERFACE QFYAML_Add_Get
+
+  ! Interface to get variables from the configuration
+  INTERFACE QFYAML_Update
+     MODULE PROCEDURE  Update_Real,   Update_Real_Array
+     MODULE PROCEDURE  Update_Int,    Update_Int_Array
+     MODULE PROCEDURE  Update_Bool,   Update_Bool_Array
+     MODULE PROCEDURE  Update_String, Update_String_Array
+  END INTERFACE QFYAML_Update
 
 CONTAINS
 !EOC
@@ -2095,5 +2102,117 @@ CONTAINS
     CALL add_string(yml, var_name, string_data, comment)
     CALL Get_String(yml, var_name, string_data)
   END SUBROUTINE Add_Get_String
+
+  ! Get or add a real array of a given name
+  SUBROUTINE Update_Real_Array(yml, var_name, real_data)
+    TYPE(QFYAML_t),   INTENT(INOUT) :: yml
+    CHARACTER(LEN=*), INTENT(IN   ) :: var_name
+    REAL(yp),         INTENT(INOUT) :: real_data(:)
+    INTEGER                         :: ix
+
+    CALL Get_Var_Index(yml, var_name, ix)
+    IF ( ix > 0 ) THEN 
+       yml%vars(ix)%real_data = real_data
+       real_data = yml%vars(ix)%real_data
+    ENDIF
+  END SUBROUTINE Update_Real_Array
+
+  ! Get or add a INTEGER array of a given name
+  SUBROUTINE Update_Int_Array(yml, var_name, int_data)
+    TYPE(QFYAML_t),   INTENT(INOUT) :: yml
+    CHARACTER(LEN=*), INTENT(IN   ) :: var_name
+    INTEGER,          INTENT(INOUT) :: int_data(:)
+    INTEGER                         :: ix
+
+    CALL Get_Var_Index(yml, var_name, ix)
+    IF ( ix > 0 ) THEN 
+       yml%vars(ix)%int_data = int_data
+       int_data = yml%vars(ix)%int_data
+    ENDIF
+  END SUBROUTINE Update_Int_Array
+
+  ! Get or add a character array of a given name
+  SUBROUTINE Update_String_Array(yml, var_name, char_data)
+    TYPE(QFYAML_t),   INTENT(INOUT) :: yml
+    CHARACTER(LEN=*), INTENT(IN   ) :: var_name
+    CHARACTER(LEN=*), INTENT(INOUT) :: char_data(:)
+    INTEGER                         :: ix
+
+    CALL Get_Var_Index(yml, var_name, ix)
+    IF ( ix > 0 ) THEN 
+       yml%vars(ix)%char_data = char_data
+       char_data = yml%vars(ix)%char_data
+    ENDIF
+  END SUBROUTINE Update_String_Array
+
+  ! Get or add a LOGICAL array of a given name
+  SUBROUTINE Update_Bool_Array(yml, var_name, bool_data)
+    TYPE(QFYAML_t),   INTENT(INOUT) :: yml
+    CHARACTER(LEN=*), INTENT(IN   ) :: var_name
+    LOGICAL,          INTENT(INOUT) :: bool_data(:)
+    INTEGER                         :: ix
+
+    CALL Get_Var_Index(yml, var_name, ix)
+    IF ( ix > 0 ) THEN 
+       yml%vars(ix)%bool_data = bool_data
+       bool_data = yml%vars(ix)%bool_data
+    ENDIF
+  END SUBROUTINE Update_Bool_Array
+
+  ! Get or add a real value of a given name
+  SUBROUTINE Update_Real(yml, var_name, real_data)
+    TYPE(QFYAML_t),   INTENT(INOUT) :: yml
+    CHARACTER(LEN=*), INTENT(IN   ) :: var_name
+    REAL(yp),         INTENT(INOUT) :: real_data
+    INTEGER                         :: ix
+
+    CALL Get_Var_Index(yml, var_name, ix)
+    IF ( ix > 0 ) THEN 
+       yml%vars(ix)%real_data(1) = real_data
+       real_data = yml%vars(ix)%real_data(1)
+    ENDIF
+  END SUBROUTINE Update_Real
+
+  ! Get or add a INTEGER value of a given name
+  SUBROUTINE Update_Int(yml, var_name, int_data)
+    TYPE(QFYAML_t),   INTENT(INOUT) :: yml
+    CHARACTER(LEN=*), INTENT(IN   ) :: var_name
+    INTEGER,          INTENT(INOUT) :: int_data
+    INTEGER                         :: ix
+
+    CALL Get_Var_Index(yml, var_name, ix)
+    IF ( ix > 0 ) THEN 
+       yml%vars(ix)%int_data(1) = int_data
+       int_data = yml%vars(ix)%int_data(1)
+    ENDIF
+  END SUBROUTINE Update_Int
+
+  ! Get or add a LOGICAL value of a given name
+  SUBROUTINE Update_Bool(yml, var_name, bool_data)
+    TYPE(QFYAML_t),   INTENT(INOUT) :: yml
+    CHARACTER(LEN=*), INTENT(IN   ) :: var_name
+    LOGICAL,          INTENT(INOUT) :: bool_data
+    INTEGER                         :: ix
+
+    CALL Get_Var_Index(yml, var_name, ix)
+    IF ( ix > 0 ) THEN 
+       yml%vars(ix)%bool_data(1) = bool_data
+       bool_data = yml%vars(ix)%bool_data(1)
+    ENDIF
+  END SUBROUTINE Update_Bool
+
+  ! Get a character value of a given name
+  SUBROUTINE Update_String(yml, var_name, string_data)
+    TYPE(QFYAML_t),   INTENT(INOUT) :: yml
+    CHARACTER(LEN=*), INTENT(IN   ) :: var_name
+    CHARACTER(LEN=*), INTENT(INOUT) :: string_data
+    INTEGER                         :: ix
+    
+    CALL Get_Var_Index(yml, var_name, ix)
+    IF ( ix > 0 ) THEN 
+       yml%vars(ix)%char_data(1) = string_data
+       string_data = yml%vars(ix)%char_data(1)
+    ENDIF
+  END SUBROUTINE Update_String
 
 END MODULE QFYAML_Mod

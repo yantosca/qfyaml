@@ -43,7 +43,7 @@ PROGRAM Test_QFYAML
 
   ! String arrays
   CHARACTER(LEN=17)           :: tags(44)
-  CHARACTER(LEN=14)           :: species(7)
+  CHARACTER(LEN=14)           :: species(9)
 
   ! Objects
   TYPE(QFYAML_t)              :: yml
@@ -79,6 +79,8 @@ PROGRAM Test_QFYAML
   species(5) = "ASOA2"
   species(6) = "Be7"
   species(7) = "Be10"
+  species(8) = "Be7Strat"
+  species(9) = "Be10Strat"
 
   tags = (/ "Name             ", "FullName         ", "Formula          ",   &
             "Notes            ", "Is_Advected      ", "Is_Aero          ",   &
@@ -159,14 +161,10 @@ PROGRAM Test_QFYAML
            WRITE( 6, 30 ) TRIM( key ), v_real
 
         ELSE IF ( INDEX( key, "%Formula" ) > 0 ) THEN
-           IF ( INDEX( key, "Be7"  ) > 0 ) CYCLE
-           IF ( INDEX( key, "Be10" ) > 0 ) CYCLE
            CALL QFYAML_Add_Get( yml, key, v_str, "" )
            WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
 
         ELSE IF ( INDEX( key, "%Fullname" ) > 0 ) THEN
-           IF ( INDEX( key, "Be7"  ) > 0 ) CYCLE
-           IF ( INDEX( key, "Be10" ) > 0 ) CYCLE
            CALL QFYAML_Add_Get( yml, key, v_str, "" )
            WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
 
@@ -240,15 +238,11 @@ PROGRAM Test_QFYAML
            WRITE( 6, 30 ) TRIM( key ), v_real
 
         ELSE IF ( INDEX( key, "%MW_g" ) > 0 ) THEN
-           IF ( INDEX( key, "Be7"  ) > 0 ) CYCLE
-           IF ( INDEX( key, "Be10" ) > 0 ) CYCLE
            CALL QFYAML_Add_Get( yml, key, v_real, "" )
            WRITE( 6, 30 ) TRIM( key ), v_real
            mw_g = v_real                                 ! Default for EmMw_g
 
         ELSE IF ( INDEX( key, "%EmMW_g" ) > 0 ) THEN
-           IF ( INDEX( key, "Be7"  ) > 0 ) CYCLE
-           IF ( INDEX( key, "Be10" ) > 0 ) CYCLE
            v_real = mw_g
            CALL QFYAML_Add_Get( yml, key, v_real, "" )
            WRITE( 6, 30 ) TRIM( key ), v_real
@@ -304,48 +298,69 @@ PROGRAM Test_QFYAML
   ! Add a couple of variables manually
   ! that the anchors can't handle
   !========================================================================
-  key   = "Be7%Formula"
-  v_str = "Be7"
-  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  key   = "Be7%Fullname"
+  v_str = "Beryllium-7 isotope"
+  CALL QFYAML_Update( yml, key, v_str )
   WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
 
-  key   = "Be7Strat%Formula"
-  v_str = "Be7"
-  CALL QFYAML_Add_Get( yml, key, v_str, "" )
-  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
+!  key    = "Be7%MW_g"
+!  v_real = 7.0
+!  CALL QFYAML_Update( yml, key, v_real )
+!  WRITE( 6, 30 ) TRIM( key ), v_real
 
-  key   = "Be10%Formula"
-  v_str = "Be10"
-  CALL QFYAML_Add_Get( yml, key, v_str, "" )
-  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
-
-  key   = "Be10Strat%Formula"
-  v_str = "Be10"
-  CALL QFYAML_Add_Get( yml, key, v_str, "" )
-  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
-
-  key   = "Be10%Fullname"
-  v_str = "Berylliium-7 isotope"
-  CALL QFYAML_Add_Get( yml, key, v_str, "" )
-  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
-
-
-  key   = "Be10%Fullname"
-  v_str = "Berylliium-10 isotope"
-  CALL QFYAML_Add_Get( yml, key, v_str, "" )
-  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
+!  key    = "Be7%EmMW_g"
+!  v_real = 7.0
+!  CALL QFYAML_Update( yml, key, v_real )
+!  WRITE( 6, 30 ) TRIM( key ), v_real
 
   key   = "Be7Strat%Fullname"
   v_str = "Beryllium-7 isotope in stratosphere"
-  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  CALL QFYAML_Update( yml, key, v_str )
   WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
+
+!  key    = "Be7Strat%MW_g"
+!  v_real = 7.0
+!  CALL QFYAML_Update( yml, key, v_real )
+!  WRITE( 6, 30 ) TRIM( key ), v_real
+
+!  key    = "Be7Strat%EmMW_g"
+!  v_real = 7.0
+!  CALL QFYAML_Update( yml, key, v_real )
+!  WRITE( 6, 30 ) TRIM( key ), v_real
+
+  key   = "Be10%Fullname"
+  v_str = "Beryllium-10 isotope"
+  CALL QFYAML_Update( yml, key, v_str )
+  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
+
+!  key    = "Be10%MW_g"
+!  v_real = 7.0
+!  CALL QFYAML_Update( yml, key, v_real )
+!  WRITE( 6, 30 ) TRIM( key ), v_real
+
+!  key    = "Be10%EmMW_g"
+!  v_real = 7.0
+!  CALL QFYAML_Update( yml, key, v_real )
+!  WRITE( 6, 30 ) TRIM( key ), v_real
 
   key   = "Be10Strat%Fullname"
   v_str = "Beryllium-10 isotope in stratosphere"
-  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  CALL QFYAML_Update( yml, key, v_str )
   WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
 
-  ! Finalize the config object
+!  key    = "Be10Strat%MW_g"
+!  v_real = 7.0
+!  CALL QFYAML_Update( yml, key, v_real )
+!  WRITE( 6, 30 ) TRIM( key ), v_real
+
+!  key    = "Be10Strat%EmMW_g"
+!  v_real = 7.0
+!  CALL QFYAML_Update( yml, key, v_real )
+!  WRITE( 6, 30 ) TRIM( key ), v_real
+
+  !=========================================================================
+  ! Finalize the config objects
+  !=========================================================================
   print*, "### finishing"
   CALL QFYAML_CleanUp( yml          )
   CALL QFYAML_CleanUp( yml_anchored )
