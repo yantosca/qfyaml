@@ -213,11 +213,10 @@ CONTAINS
     ! Handle_Error begins here!
     !=======================================================================
     WRITE( 6, "(a)" ) REPEAT( "=", 79 )
-    WRITE( 6, "(a)" ) "The following error occured in qfyaml_mod.F90:"
-    WRITE( 6, "(a)" )
-    WRITE( 6, "(a)" ) TRIM( errMsg )
+    WRITE( 6, "(a)" ) "QFYAML error: " // TRIM( errMsg )
     IF ( PRESENT( thisLoc ) ) WRITE( 6, '(a)' ) TRIM( thisLoc )
     WRITE( 6, "(a)" ) REPEAT( "=", 79 )
+    WRITE( 6, "(a)" )
 
     ! Return failure
     RC = QFYAML_FAILURE
@@ -1043,6 +1042,10 @@ CONTAINS
     ! Strings
     CHARACTER(LEN=QFYAML_strlen) :: errMsg
     CHARACTER(LEN=QFYAML_strlen) :: thisLoc
+    CHARACTER(LEN=QFYAML_strlen) :: s1
+    CHARACTER(LEN=QFYAML_strlen) :: s2
+    CHARACTER(LEN=QFYAML_strlen) :: s3
+    CHARACTER(LEN=QFYAML_strlen) :: s4
 
     !=======================================================================
     ! Read_Variable begins here!
@@ -1103,22 +1106,21 @@ CONTAINS
           CASE( QFYAML_string_type )
              var%char_data(n) = TRIM( var%stored_data(ix_start(n):ix_end(n)) )
 
-          CASE (QFYAML_bool_type)
+          CASE( QFYAML_bool_type )
              READ( var%stored_data(ix_start(n):ix_end(n)), *, iostat=stat )  &
                   var%bool_data(n)
        END SELECT
 
        ! Exit with error if the variable can't be read properly
        IF ( stat /= 0 ) THEN
-          WRITE(6, *) "** QFYAML error **"
-          WRITE(6, *) "reading variable: ",  TRIM(var%var_name)
-          WRITE(6, *) "variable type:    ",                                  &
-               TRIM(QFYAML_type_names(var%var_type))
-          WRITE(6, *) "parsing value:    ",                                  &
-               var%stored_data(ix_start(n):ix_end(n))
-          WRITE(6, "(A,I0)") " iostat value:     ", stat
-
-          errMsg = ""
+          s1 = "Error parsing YAML file!"
+          s2 = "Reading variable : " // var%var_name 
+          s3 = "Variable type    : " // QFYAML_type_names(var%var_type)
+          s4 = "Parsing value    : " // var%stored_data(ix_start(n):ix_end(n))
+          errMsg = TRIM( s1 ) // NEW_LINE( 'a' ) //                          &
+                   TRIM( s2 ) // NEW_LINE( 'a' ) //                          &
+                   TRIM( s3 ) // NEW_LINE( 'a' ) //                          &
+                   TRIM( s4 )
           CALL Handle_Error( errMsg, RC, thisLoc )
           RETURN
        ENDIF
