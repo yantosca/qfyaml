@@ -60,44 +60,44 @@ PROGRAM Test_QFYAML
 
   key   = "author%age"
   v_int = -999
-  CALL QFYAML_Add_Get( yml, key, v_int, "" )
+  CALL QFYAML_Add_Get( yml, key, v_int, "", RC )
   WRITE( 6, "(a30, "" | "", i7)") TRIM(key), v_int
 
   key    = "author%fav_reals"
   ALLOCATE( a_real(2) )
   a_real = -999.0_yp
-  CALL QFYAML_Add_Get( yml, key, a_real, "" )
+  CALL QFYAML_Add_Get( yml, key, a_real, "", RC )
   WRITE( 6, "(a30, "" | "", 2f7.2)") TRIM(key), a_real
   DEALLOCATE( a_real )
 
   key    = "author%lots_of_work"
   v_bool = .FALSE.
-  CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+  CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
   WRITE( 6, "(a30, "" | "", l7)") TRIM(key), v_bool
 
   key    = "author_name%first"
   v_str  = ""
-  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
   WRITE( 6, "(a30, "" | "", a)") TRIM(key), TRIM(v_str)
 
   key    = "author_name%full"
   v_str  = ""
-  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
   WRITE( 6, "(a30, "" | "", a)") TRIM(key), TRIM(v_str)
 
   key    = "filename"
   v_str = ""
-  CALL QFYAML_Add_Get( yml, key, v_str, "" )
+  CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
   WRITE( 6, "(a30, "" | "", a)") TRIM(key), TRIM(v_str)
 
   key    = "weather%humidity"
   v_real = -999.0_yp
-  CALL QFYAML_Add_Get( yml, key, v_real, "" )
+  CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
   WRITE( 6, "(a30, "" | "", f13.6)") TRIM(key), v_real
 
   key    = "weather%temperature"
   v_real = -999.0_yp
-  CALL QFYAML_Add_Get( yml, key, v_real, "" )
+  CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
   WRITE( 6, "(a30, "" | "", f13.6)") TRIM(key), v_real
 
   ! Finalize the config object

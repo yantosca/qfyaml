@@ -133,155 +133,155 @@ PROGRAM Test_QFYAML
         key = TRIM( spc ) // '%' // TRIM( tags(N) )
 
         IF ( INDEX( key, "%DD_AeroDryDep" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%DD_DustDryDep" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%DD_DvzAerSnow" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
            WRITE( 6, 30 ) TRIM( key ), v_real
 
         ELSE IF ( INDEX( key, "%DD_DvzMinVal" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, a_real_2, "" )
+           CALL QFYAML_Add_Get( yml, key, a_real_2, "", RC )
            WRITE( 6, 31 ) TRIM( key ), a_real_2
 
         ELSE IF ( INDEX( key, "%DD_F0" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
            WRITE( 6, 30 ) TRIM( key ), v_real
 
         ELSE IF ( INDEX( key, "%DD_Hstar" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
            WRITE( 6, 30 ) TRIM( key ), v_real
 
         ELSE IF ( INDEX( key, "%Density" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
            WRITE( 6, 30 ) TRIM( key ), v_real
 
         ELSE IF ( INDEX( key, "%Formula" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_str, "" )
+           CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
            WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
 
         ELSE IF ( INDEX( key, "%Fullname" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_str, "" )
+           CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
            WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
 
         ELSE IF ( INDEX( key, "%Is_Advected" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%Is_Aero" ) > 0  ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%Is_DryAlt" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%Is_DryDep" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%Is_HygroGrowth" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%Is_Gas" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%Is_Photolysis" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%Is_WetDep" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%Is_Hg0" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%Is_Hg2" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%Is_HgP" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%Henry_K0" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
            WRITE( 6, 30 ) TRIM( key ), v_real
 
         ELSE IF ( INDEX( key, "%Henry_CR" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
            WRITE( 6, 30 ) TRIM( key ), v_real
 
         ELSE IF ( INDEX( key, "%Henry_pKa" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
            WRITE( 6, 30 ) TRIM( key ), v_real
 
         ELSE IF ( INDEX( key, "%MP_SizeResAer" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%MP_SizeResNum" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%MolecRatio" ) > 0 ) THEN
            v_real = ONE                                  ! Set default to 1
-           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
            WRITE( 6, 30 ) TRIM( key ), v_real
 
         ELSE IF ( INDEX( key, "%MW_g" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
            WRITE( 6, 30 ) TRIM( key ), v_real
            mw_g = v_real                                 ! Default for EmMw_g
 
         ELSE IF ( INDEX( key, "%EmMW_g" ) > 0 ) THEN
            v_real = mw_g
-           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
            WRITE( 6, 30 ) TRIM( key ), v_real
            mw_g = MISSING_REAL                           ! Reset for next spc
 
         ELSE IF ( INDEX( key, "%DD_Radius" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
            WRITE( 6, 30 ) TRIM( key ), v_real
 
         ELSE IF ( INDEX( key, "%WD_AerScavEff" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
            WRITE( 6, 30 ) TRIM( key ), v_real
 
         ELSE IF ( INDEX( key, "%WD_CoarseAer" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%WD_ConvFacI2G" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_real, "" )
+           CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
            WRITE( 6, 30 ) TRIM( key ), v_real
 
         ELSE IF ( INDEX( key, "%WD_KcScaleFac" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, a_real_3, "" )
+           CALL QFYAML_Add_Get( yml, key, a_real_3, "", RC )
            WRITE( 6, 32 ) TRIM( key ), a_real_3
 
         ELSE IF ( INDEX( key, "%WD_KcScaleFac_Luo" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, a_real_3, "" )
+           CALL QFYAML_Add_Get( yml, key, a_real_3, "", RC )
            WRITE( 6, 32 ) TRIM( key ), a_real_3
 
         ELSE IF ( INDEX( key, "%WD_LiqAndGas" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, v_bool, "" )
+           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
            WRITE( 6, 20 ) TRIM( key ), v_bool
 
         ELSE IF ( INDEX( key, "%WD_RainoutEff" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, a_real_3, "" )
+           CALL QFYAML_Add_Get( yml, key, a_real_3, "", RC )
            WRITE( 6, 32 ) TRIM( key ), a_real_3
 
         ELSE IF ( INDEX( key, "%WD_RainoutEff_Luo" ) > 0 ) THEN
-           CALL QFYAML_Add_Get( yml, key, a_real_3, "" )
+           CALL QFYAML_Add_Get( yml, key, a_real_3, "", RC )
            WRITE( 6, 32 ) TRIM( key ), a_real_3
 
         ELSE
