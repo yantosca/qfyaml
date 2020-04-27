@@ -28,7 +28,8 @@ install(
   RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}
 )
 install(
-  FILES species_database_test.yml
   FILES species_database.yml
+  FILES species_database_apm.yml
+  FILES species_database_tomas.yml
   DESTINATION ${CMAKE_INSTALL_PREFIX}
 )
