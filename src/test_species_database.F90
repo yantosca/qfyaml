@@ -3,14 +3,15 @@
 !------------------------------------------------------------------------------
 !BOP
 !
-! !IROUTINE: Test_QFYAML
+! !IROUTINE: Test_Species_Database
 !
-! !DESCRIPTION: Test program for developing QFYAML features.
+! !DESCRIPTION: Test program for reading the GEOS-Chem species database
+!  in YAML format.
 !\\
 !\\
 ! !INTERFACE:
 !
-PROGRAM Test_QFYAML
+PROGRAM Test_Species_Database
 !
 ! !USES:
 !
@@ -92,8 +93,8 @@ PROGRAM Test_QFYAML
   tags = (/ "BackgroundVV     ", "DD_AeroDryDep    ", "DD_DustDryDep    ",   &
             "DD_DvzAerSnow    ", "DD_DvzMinVal     ", "DD_F0            ",   &
             "DD_Hstar         ", "DD_KOA           ", "Density          ",   &
-            "Formula          ", "Fullname         ", "Is_ActiveChem    ",   &
-            "Is_Advected      ", "Is_Aero          ", "Is_DryAlt        ",   &
+            "Formula          ", "FullName         ", "Is_ActiveChem    ",   &
+            "Is_Advected      ", "Is_Aerosol       ", "Is_DryAlt        ",   &
             "Is_DryDep        ", "Is_FixedChem     ", "Is_HygroGrowth   ",   &
             "Is_Kpp           ", "Is_Gas           ", "Is_Hg0           ",   &
             "Is_Hg2           ", "Is_HgP           ", "Is_Photolysis    ",   &
@@ -107,7 +108,7 @@ PROGRAM Test_QFYAML
 
   ! Read the YAML file into a config object
   fileName = "species_database.yml"
-  !PRINT*, "### Reading " // TRIM( fileName )
+  PRINT*, "### Reading " // TRIM( fileName )
   CALL QFYAML_Init( fileName, yml1, yml1_anchored, RC )
   IF ( RC /= QFYAML_Success ) STOP
 
@@ -120,8 +121,6 @@ PROGRAM Test_QFYAML
   ! Merge two YAML objects into a single object
   CALL QFYAML_Merge( yml1, yml2, yml, RC )
 
-  yml = yml1
-
   ! FORMAT statements
 10 FORMAT( a30, " | ", a      )
 20 FORMAT( a30, " | ", L10    )
@@ -131,7 +130,7 @@ PROGRAM Test_QFYAML
 40 FORMAT( a30, " | ", i10    )
 
   ! Loop over the number of species
-  DO S = 1, 2 !SIZE( species )
+  DO S = 1, SIZE( species )
 
      ! Species name
      spc = species(S)
@@ -356,30 +355,6 @@ PROGRAM Test_QFYAML
      print*, "###"
   ENDDO
 
-  !========================================================================
-  ! Add a couple of variables manually
-  ! that the anchors can't handle
-  !========================================================================
-!  key   = "Be7%Fullname"
-!  v_str = "Beryllium-7 isotope"
-!  CALL QFYAML_Update( yml, key, v_str )
-!  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
-!
-!  key   = "Be7Strat%Fullname"
-!  v_str = "Beryllium-7 isotope in stratosphere"
-!  CALL QFYAML_Update( yml, key, v_str )
-!  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
-!
-!  key   = "Be10%Fullname"
-!  v_str = "Beryllium-10 isotope"
-!  CALL QFYAML_Update( yml, key, v_str )
-!  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
-!
-!  key   = "Be10Strat%Fullname"
-!  v_str = "Beryllium-10 isotope in stratosphere"
-!  CALL QFYAML_Update( yml, key, v_str )
-!  WRITE( 6, 10 ) TRIM( key ), TRIM( v_str )
-
   !=========================================================================
   ! Finalize the config objects
   !=========================================================================
@@ -391,4 +366,4 @@ PROGRAM Test_QFYAML
   CALL QFYAML_CleanUp( yml2_anchored )
   CALL QFYAML_CleanUp( yml           )
 
-END PROGRAM test_qfyaml
+END PROGRAM Test_Species_Database

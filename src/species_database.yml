@@ -1,3 +1,5 @@
+# GEOS-Chem Species Database (28 Apr 2020)
+# Core species only (neglecting microphysics)
 A3O2:
   Formula: CH3CH2CH2OO
   FullName: Primary peroxy radical from C3H8
@@ -2074,12 +2076,16 @@ KO2:
   MW_g: 101.09
 LBRO2H:
   FullName: Dummy species to track oxidation of BRO2 by HO2
+  Is_Gas: true
 LBRO2N:
   FullName: Dummy species to track oxidation of BRO2 by NO
+  Is_Gas: true
 LCH4:
   FullName: Dummy species to track loss rate of CH4
+  Is_Gas: true
 LCO:
   FullName: Dummy species to track loss rate of CO
+  Is_Gas: true
 LIMO:
   DD_F0: 0.0
   DD_Hstar: 7.0e-2
@@ -2100,14 +2106,19 @@ LIMO2:
   MW_g: 185.27
 LISOPNO3:
   FullName: Dummy species to track oxidation of ISOP by NO3
+  Is_Gas: true
 LISOPOH:
   FullName: Dummy species to track oxidation of ISOP by OH
-LOX:
+  Is_Gas: true
+LOx:
   FullName: Dummy species to track loss rate of Ox
+  Is_Gas: true
 LTRO2H:
   FullName: Dummy species to track oxidation of TRO2 by HO2
+  Is_Gas: true
 LTRO2N:
   FullName: Dummy species to track oxidation of TRO2 by NO
+  Is_Gas: true
 LVOC:
   DD_F0: 1.0
   DD_Hstar: 1.0e+8
@@ -2137,8 +2148,10 @@ LVOCOA:
   WD_RainoutEff: [0.8, 0.0, 0.8]
 LXRO2H:
   FullName: Dummy species to track oxidation of XRO2 by HO2
+  Is_Gas: true
 LXRO2N:
   FullName: Dummy species to track oxidation of XRO2 by NO
+  Is_Gas: true
 MACR:
   DD_F0: 1.0
   DD_Hstar: 6.5
@@ -2958,6 +2971,7 @@ Pb210Strat:
   FullName: Lead-210 isotope in stratosphere
 PCO:
   FullName: Dummy species to track production rate of CO
+  Is_Gas: true 
 pFe:
   DD_F0: 0.0
   DD_Hstar: 0.0
@@ -2973,6 +2987,7 @@ pFe:
   WD_RainoutEff: [1.0, 0.0, 1.0]
 PH2O2:
   FullName: Dummy species to track production rate of H2O2
+  Is_Gas: true
 PIO2:
   Formula: C10H17O3
   FullName: Peroxy radical from MTPA
@@ -3243,8 +3258,9 @@ POPOCPO_PYR:
   WD_AerScavEff: 1.0
   WD_KcScaleFac: [0.5, 0.5, 0.5]
   WD_RainoutEff: [0.0, 0.0, 0.0]
-POX:
+POx:
   FullName: Dummy species to track production rate of Ox
+  Is_Gas: true
 PP:
   DD_F0: 1.0
   DD_Hstar: 2.94e+2
@@ -3319,6 +3335,7 @@ PRPN:
   WD_RetFactor: 2.0e-2
 PSO4:
   FullName: Dummy species to track production of SO4
+  Is_Aerosol: true
 PYAC:
   DD_F0: 1.0
   DD_Hstar: 3.14e+5
