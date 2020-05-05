@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/yantosca/yaml_test/blob/master/LICENSE.txt)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/yantosca/qfyaml/blob/master/LICENSE.txt)
 
 # qfyaml: Quick Fortran YAML parser
 

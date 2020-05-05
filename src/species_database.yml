@@ -1,4 +1,4 @@
-# GEOS-Chem Species Database (29 Apr 2020)
+# GEOS-Chem Species Database (05 May 2020)
 # Core species only (neglecting microphysics)
 # NOTE: Anchors must be defined before any variables that reference them
 A3O2:
@@ -17,6 +17,7 @@ ACET:
   Is_Advected: true
   Is_DryDep: true
   Is_Gas: true
+  Is_Photolysis: true
   MolecRatio: 3.0
   MW_g: 58.09
 ACTA:
@@ -54,7 +55,7 @@ ALD2:
   Formula: CH3CHO
   FullName: Acetaldehyde
   Henry_CR: 5900.0
-  Henry_K0: 13.2e+1
+  Henry_K0: 1.32e+1
   Is_Advected: true
   Is_DryDep: true
   Is_Gas: true
@@ -187,7 +188,7 @@ Be10Strat:
   Formula: Be10
   FullName: Beryllium-10 isotope in stratosphere
   MW_g: 10.0
-Be7: 
+Be7:
   << : *Beproperties
   Formula: Be7
   FullName: Beryllium-7 isotope
@@ -240,6 +241,8 @@ BrNO2:
   Is_Photolysis: true
   MW_g: 125.91
 BrNO3:
+  DD_F0: 0.0
+  DD_Hstar: 1.0e+20
   Formula: BrNO3
   FullName: Bromine nitrate
   Is_Advected: true
@@ -267,9 +270,7 @@ SALA_PROP: &SALAproperties
   Is_Advected: true
   Is_Aerosol: true
   Is_DryDep: true
-  Is_HygroGrowth: true
   Is_WetDep: true
-  MW_g: 31.4
   Radius: 2.55e-7
   WD_AerScavEff: 1.0
   WD_KcScaleFac: [1.0, 0.5, 1.0]
@@ -288,12 +289,9 @@ SALC_PROP: &SALCproperties
   Is_Advected: true
   Is_Aerosol: true
   Is_DryDep: true
-  Is_HygroGrowth: true
   Is_WetDep: true
-  MW_g: 31.4
   Radius: 4.25e-6
   WD_AerScavEff: 1.0
-  WD_CoarseAer: true
   WD_KcScaleFac: [1.0, 0.5, 1.0]
   WD_RainoutEff: [1.0, 0.0, 1.0]
 BrSALC:
@@ -302,6 +300,7 @@ BrSALC:
   FullName: Coarse sea salt bromine
   Is_HygroGrowth: false
   MW_g: 79.90
+  WD_CoarseAer: true
 C:
   Formula: C
   FullName: Atomic carbon
@@ -483,7 +482,7 @@ CH3ITracer:
   Is_Gas: true
   MW_g: 141.94
 CH4_PROP: &CH4properties
-  BackgroundVV: 1.7e-6
+  Background_VV: 1.7e-6
   Formula: CH4
   Is_Advected: true
   Is_Gas: true
@@ -493,59 +492,59 @@ CH4:
   FullName: Methane
 CH4_BBN:
   << : *CH4properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Methane from biomass burning emissions
 CH4_COL:
   << : *CH4properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Methane from coal emissions
 CH4_GAS:
   << : *CH4properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Methane from gas emissions
 CH4_LAK:
   << : *CH4properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Methane from lake emissions
 CH4_LDF:
   << : *CH4properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Methane from landfill emissions
 CH4_LIV:
   << : *CH4properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Methane from livestock emissions
 CH4_OIL:
   << : *CH4properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Methane from oil emissions
 CH4_OTA:
   << : *CH4properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Methane from other anthropogenic emissions
 CH4_RIC:
   << : *CH4properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Methane from rice emissions
 CH4_SAB:
   << : *CH4properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Methane from soil absorption
 CH4_SEE:
   << : *CH4properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Methane from geological seep emissions
 CH4_TER:
   << : *CH4properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Methane from termite emissions
 CH4_WST:
   << : *CH4properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Methane from waste emissions
 CH4_WTL:
   << : *CH4properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Methane from wetland emissions
 CHBr3:
   Formula: CHBr3
@@ -591,6 +590,8 @@ ClNO2:
   Is_Photolysis: true
   MW_g: 81.45
 ClNO3:
+  DD_F0: 0.0
+  DD_Hstar: 1.0e+20
   Formula: ClNO3
   FullName: Chlorine nitrate
   Is_Advected: true
@@ -613,11 +614,13 @@ ClOO:
   Is_Photolysis: true
   MW_g: 67.45
 CO2_PROP: &CO2properties
-  BackgroundVV: 3.55e-4
   Formula: CO2
-  FullName: Carbon dioxide
   Is_Gas: true
   MW_g: 44.01
+CO2:
+  << : *CO2properties
+  Background_VV: 3.55e-4
+  FullName: Carbon dioxide
 CO2AV:
   << : *CO2properties
   Background_VV: 1.0e-20
@@ -666,86 +669,86 @@ CO_PROP: &COproperties
 CO:
   << : *COproperties
   FullName: Carbon monoxide
-  BackgroundVV: 1.0e-7
+  Background_VV: 1.0e-7
 COACET:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: CO produced from acetone oxidation
 COAnthroEmis25dayTracer:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Anthropogenic_CO_with_25day_lifetime
 COAnthroEmis50dayTracer:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Anthropogenic_CO_with_50day_lifetime
 COASIA:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Anthropogenic + biofuel CO emitted over Asia
 COBBAF:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Biomass burning CO emitted over Africa
 COBBAM:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Biomass burning CO emitted over South America
 COBBAS:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Biomass burning CO emitted over Asia
 COBBEU:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Biomass burning CO emitted over Europe
 COBBOC:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Biomass burning CO emitted over Oceania
 COBBOTH:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Biomass burning CO emitted everywhere else
 COBIOF:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: CO produced from biofuels (whole world)
 COCH4:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: CO produced from methane oxidation
 COEUR:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Anthropogenic + biofuel CO emitted over Europe
 COISOP:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: CO produced from isoprene oxidation
 COMEOH:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: CO produced from methanol oxidation
 COMONO:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: CO produced from monoterpene oxidation
 CONMVOC:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: CO produced from NMVOC oxidation
 COOTH:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Anthropogenic + biofuel CO emitted everywhere else
 COUniformEmis25dayTracer:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: CO_with_uniform_emission_and_25day_lifetime
 COUS:
   << : *COproperties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Anthropogenic + biofuel CO emitted over the USA
 DMS:
   Formula: (CH3)2S
@@ -951,7 +954,7 @@ H1301:
   Is_Photolysis: true
   MW_g: 148.91
 H2:
-  BackgroundVV: 5.0e-7
+  Background_VV: 5.0e-7
   Formula: H2
   FullName: Molecular hydrogen
   Is_Gas: true
@@ -964,14 +967,14 @@ H2402:
   Is_Photolysis: true
   MW_g: 259.82
 H2O:
-  BackgroundVV: 1.839e-2
+  Background_VV: 1.839e-2
   Formula: H2O
   FullName: Water vapor
   Is_Advected: true
   Is_Gas: true
   MW_g: 18.02
 H2O2:
-  BackgroundVV: 4.0e-15
+  Background_VV: 4.0e-15
   DD_F0: 1.0
   DD_Hstar: 5.0e+7
   Formula: H2O2
@@ -1013,7 +1016,7 @@ HBr:
   Is_Gas: true
   Is_WetDep: true
   MW_g: 80.91
-  WD_RetFactor: 2.0e-2
+  WD_RetFactor: 1.0e+0
 HC5A:
   DD_F0: 0.0
   DD_Hstar: 7.8e+3
@@ -1068,7 +1071,7 @@ HCl:
   Is_Gas: true
   Is_WetDep: true
   MW_g: 36.45
-  WD_RetFactor: 2.0e-2
+  WD_RetFactor: 1.0e+0
 HCOOH:
   DD_F0: 1.0
   DD_Hstar: 8.90e+3
@@ -1418,8 +1421,9 @@ HMML:
   Is_Gas: true
   Is_WetDep: true
   MW_g: 102.10
+  WD_RetFactor: 2.0e-2
 HNO2:
-  BackgroundVV: 4.0e-15
+  Background_VV: 4.0e-15
   Formula: HNO2
   FullName: Nitrous acid
   Is_Advected: true
@@ -1427,7 +1431,7 @@ HNO2:
   Is_Photolysis: true
   MW_g: 47.01
 HNO3:
-  BackgroundVV: 4.0e-15
+  Background_VV: 4.0e-15
   DD_F0: 0.0
   DD_Hstar: 1.0e+14
   Formula: HNO3
@@ -1435,18 +1439,20 @@ HNO3:
   Henry_CR: 7400.0
   Henry_K0: 8.3e+4
   Is_Advected: true
+  Is_DryAlt: true
   Is_DryDep: true
   Is_Gas: true
   Is_Photolysis: true
   Is_WetDep: true
   MW_g: 63.01
   WD_AerScavEff: 1.0
+  WD_Is_HNO3: true
   WD_KcScaleFac: [1.0, 1.0, 1.0]
   WD_KcScaleFac_Luo: [1.0, 0.5, 1.0]
   WD_RainoutEff: [1.0, 1.0, 1.0]
   WD_RainoutEff_Luo: [1.0, 0.0, 1.0]
 HNO4:
-  BackgroundVV: 4.0e-15
+  Background_VV: 4.0e-15
   Formula: HNO4
   FullName: Peroxynitric acid
   Is_Advected: true
@@ -1454,7 +1460,7 @@ HNO4:
   Is_Photolysis: true
   MW_g: 79.01
 HO2:
-  BackgroundVV: 4.0e-15
+  Background_VV: 4.0e-15
   Formula: HO2
   FullName: Hydroperoxyl radical
   Is_Gas: true
@@ -1597,6 +1603,7 @@ I2:
   Is_Photolysis: true
   Is_WetDep: true
   MW_g: 253.80
+  WD_RetFactor: 0.0
 I2O2:
   DD_F0: 0.0
   DD_Hstar: 1.0e+20
@@ -1733,7 +1740,7 @@ IDCHP:
   Formula: C5H8O5
   FullName: Isoprene dicarbonyl hydroxy dihydroperoxide
   Henry_CR: 7200.0
-  Henry_K0: 1.8e+8
+  Henry_K0: 1.0e+8
   Is_Advected: true
   Is_DryDep: true
   Is_Gas: true
@@ -1771,23 +1778,26 @@ IDHNDOO2:
   Is_Gas: true
   MW_g: 196.16
 IDHPE:
+  DD_F0: 1.0
+  DD_Hstar: 1.0e+8
   Formula: C5H10O5
   FullName: Isoprene dihydroxy hydroperoxy epoxide
   Henry_CR: 7200.0
-  Henry_K0: 100000000.0
+  Henry_K0: 1.0e+8
   Is_Advected: true
   Is_DryDep: true
   Is_Gas: true
   Is_Photolysis: true
   Is_WetDep: true
   MW_g: 150.15
+  WD_RetFactor: 2.0e-2
 IDN:
   DD_F0: 1.0
   DD_Hstar: 1.0e+8
   Formula: C5H8N2O6
   FullName: Lumped isoprene dinitrates
   Henry_CR: 7200.0
-  Henry_K0: 1.0e-8
+  Henry_K0: 1.0e+8
   Is_Advected: true
   Is_DryDep: true
   Is_Gas: true
@@ -2075,6 +2085,7 @@ ISALC:
   FullName: Coarse sea salt iodine
   Is_HygroGrowth: false
   MW_g: 126.90
+  WD_CoarseAer: true
 ISOP:
   EmMW_g: 12.0
   Formula: CH2=C(CH3)CH=CH2
@@ -2375,7 +2386,7 @@ MGLY:
   MW_g: 72.07
   WD_RetFactor: 2.0e-2
 MO2:
-  BackgroundVV: 4.0e-2
+  Background_VV: 4.0e-15
   Formula: CH3O2
   FullName: Methylperoxy radical
   Is_Gas: true
@@ -2466,7 +2477,7 @@ MOPI:
   WD_KcScaleFac: [0.5, 0.5, 0.5]
   WD_RainoutEff: [0.0, 0.0, 0.0]
 MP:
-  BackgroundVV: 4.0e-15
+  Background_VV: 4.0e-15
   Formula: CH3OOH
   FullName: Methyl hydro peroxide
   Henry_CR: 5200.0
@@ -2645,18 +2656,19 @@ MVKPC:
   MW_g: 118.10
   WD_RetFactor: 2.0e-2
 N:
-  BackgroundVV: 4.0e-20
+  Background_VV: 4.0e-20
   Formula: N
   FullName: Atomic nitrogen
   Is_Gas: true
   MW_g: 14.01
 N2:
+  Background_VV: 7.808e-1
   Formula: N2
   FullName: Molecular nitrogen
   Is_Gas: true
   MW_g: 28.02
 N2O:
-  BackgroundVV: 3.0e-7
+  Background_VV: 3.0e-7
   Formula: N2O
   FullName: Nitrous oxide
   Is_Advected: true
@@ -2664,7 +2676,7 @@ N2O:
   Is_Photolysis: true
   MW_g: 44.02
 N2O5:
-  BackgroundVV: 4.0e-15
+  Background_VV: 4.0e-15
   DD_F0: 0.0
   DD_Hstar: 1.0e+14
   Formula: N2O5
@@ -2747,10 +2759,10 @@ NITD4:
 NITs:
   << : *SALCproperties
   FullName: Inorganic nitrates on surface of seasalt aerosol
-  Is_HygroGrowth: false
-  WD_CoarseAer: false
+  Is_Photolysis: true
+  MW_g: 31.4
 'NO':
-  BackgroundVV: 4.0e-13
+  Background_VV: 4.0e-13
   Formula: 'NO'
   FullName: Nitrogen oxide
   Is_Advected: true
@@ -2758,7 +2770,7 @@ NITs:
   Is_Photolysis: true
   MW_g: 30.01
 NO2:
-  BackgroundVV: 4.0e-13
+  Background_VV: 4.0e-13
   DD_F0: 0.1
   DD_Hstar: 1.0e-2
   Formula: NO2
@@ -2769,7 +2781,7 @@ NO2:
   Is_Photolysis: true
   MW_g: 46.01
 NO3:
-  BackgroundVV: 4.0e-15
+  Background_VV: 4.0e-15
   Formula: NO3
   FullName: Nitrate radical
   Is_Advected: true
@@ -2794,13 +2806,13 @@ O:
   Is_Gas: true
   MW_g: 16.00
 O1D:
-  BackgroundVV: 1.0e-15
+  Background_VV: 1.0e-15
   Formula: O(1D)
   FullName: Excited atomic oxygen (1D)
   Is_Gas: true
   MW_g: 16.00
 O2:
-  BackgroundVV: 2.095e-1
+  Background_VV: 2.095e-1
   Formula: O2
   FullName: Molecular oxygen
   Is_Gas: true
@@ -2818,55 +2830,56 @@ O3_PROP: &O3properties
   MW_g: 48.00
 O3:
   << : *O3properties
-  BackgroundVV: 2.0e-8
+  Background_VV: 2.0e-8
   FullName: Ozone
+  Is_DryAlt: true
 O3AFBL:
   << : *O3properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Ozone produced in the African boundary layer
 O3ASBL:
   << : *O3properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Ozone produced in the Asian boundary layer
 O3ATBL:
   << : *O3properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Ozone produced in the Atlantic Ocean boundary layer
 O3EUBL:
   << : *O3properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Ozone produced in the European boundary layer
 O3INIT:
   << : *O3properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Ozone from the initial condition
 O3MT:
   << : *O3properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Ozone produced in the middle troposphere
 O3NABL:
   << : *O3properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Ozone produced in the North America boundary layer
 O3PCBL:
   << : *O3properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Ozone produced in the Pacific Ocean boundary layer
 O3ROW:
   << : *O3properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Ozone produced in the rest of the world
 O3STRAT:
   << : *O3properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Ozone produced in the stratosphere
 O3USA:
   << : *O3properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Ozone produced over the United States in PBL
 O3UT:
   << : *O3properties
-  BackgroundVV: 1.0e-20
+  Background_VV: 1.0e-20
   FullName: Ozone produced in the upper troposphere
 OClO:
   Formula: OClO
@@ -2887,7 +2900,7 @@ OCPI:
   Is_HygroGrowth: true
   Is_WetDep: true
   MW_g: 12.01
-  WD_aerScavEff: 1.0
+  WD_AerScavEff: 1.0
   WD_KcScaleFac: [1.0, 0.5, 1.0]
   WD_KcScaleFac_Luo: [0.5, 0.25, 0.5]
   WD_RainoutEff: [1.0, 0.0, 1.0]
@@ -2904,12 +2917,12 @@ OCPO:
   Is_DryDep: true
   Is_WetDep: true
   MW_g: 12.01
-  WD_aerScavEff: 1.0
+  WD_AerScavEff: 1.0
   WD_KcScaleFac: [0.5, 0.5, 0.5]
   WD_KcScaleFac_Luo: [0.0, 0.0, 0.0]
   WD_RainoutEff: [0.0, 0.0, 0.0]
 OCS:
-  BackgroundVV: 9.0e-15
+  Background_VV: 9.0e-15
   Formula: COS
   FullName: Carbonyl sulfide
   Is_Advected: true
@@ -2917,7 +2930,7 @@ OCS:
   Is_Photolysis: true
   MW_g: 60.07
 OH:
-  BackgroundVV: 4.0e-15
+  Background_VV: 4.0e-15
   Formula: OH
   FullName: Hydroxyl radical
   Is_Gas: true
@@ -3003,7 +3016,7 @@ PAN:
   Is_Photolysis: true
   Is_WetDep: true
   MW_g: 121.06
-  WD_RetFaxtor: 2.0e-2
+  WD_RetFactor: 2.0e-2
 PassiveTracer:
   FullName: Passive tracer for mass conservation evaluation
   Is_Advected: true
@@ -3030,7 +3043,7 @@ Pb210Strat:
   FullName: Lead-210 isotope in stratosphere
 PCO:
   FullName: Dummy species to track production rate of CO
-  Is_Gas: true 
+  Is_Gas: true
 pFe:
   DD_F0: 0.0
   DD_Hstar: 0.0
@@ -3394,7 +3407,7 @@ PRPN:
   WD_RetFactor: 2.0e-2
 PSO4:
   FullName: Dummy species to track production of SO4
-  Is_Aerosol: true
+  Is_Gas: true
 PYAC:
   DD_F0: 1.0
   DD_Hstar: 3.14e+5
@@ -3583,9 +3596,14 @@ S:
 SALA:
   << : *SALAproperties
   FullName: Fine (0.01-0.05 microns) sea salt aerosol
+  Is_HygroGrowth: true
+  MW_g: 31.4
 SALC:
   << : *SALCproperties
   FullName: Coarse (0.5-8 microns) sea salt aerosol
+  Is_HygroGrowth: true
+  MW_g: 31.4
+  WD_CoarseAer: true
 SF6Tracer:
   Formula: SF6
   FullName: Sulfur_hexafluoride
@@ -3610,6 +3628,7 @@ SO2:
   Is_WetDep: true
   MW_g: 64.04
   WD_AerScavEff: 1.0
+  WD_Is_SO2: true
   WD_KcScaleFac: [1.0, 0.5, 1.0]
   WD_RainoutEff: [1.0, 0.0, 1.0]
 SO4:
@@ -3655,8 +3674,7 @@ SO4H2:
 SO4s:
   << : *SALCproperties
   FullName: Sulfate on surface of seasalt aerosol
-  Is_HygroGrowth: false
-  WD_CoarseAer: false
+  MW_g: 31.4
 SOAGX:
   DD_DvzAerSnow: 0.03
   DD_F0: 0.0
@@ -3738,7 +3756,6 @@ TSOA2:
 TSOA3:
   << : *TSOAproperties
 TSOG_PROP: &TSOGproperties
-  DD_DvzAerSnow: 0.03
   DD_F0: 0.0
   DD_Hstar: 1.0e+5
   EmMW_g: 150.0
@@ -3751,6 +3768,8 @@ TSOG_PROP: &TSOGproperties
   Is_WetDep: true
   MW_g: 150.0
   WD_RetFactor: 2.0e-2
+TSOG0:
+  << : *TSOGproperties
 TSOG1:
   << : *TSOGproperties
 TSOG2:
