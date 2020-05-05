@@ -43,7 +43,7 @@ PROGRAM Test_Species_Database
   REAL(yp)                    :: a_real_3(3)
 
   ! String arrays
-  CHARACTER(LEN=17)           :: tags(45)
+  CHARACTER(LEN=17)           :: tags(46)
   CHARACTER(LEN=14)           :: species(11)
 
   ! Objects
@@ -77,7 +77,7 @@ PROGRAM Test_Species_Database
 
   RC         = QFYAML_SUCCESS
   mw_g       = MISSING_INT
-  species(1) = "NO"
+  species(1) = "ACTA"
   species(2) = "ALD2"
   species(3) = "ALK4"
   species(4) = "ASOA1"
@@ -90,7 +90,7 @@ PROGRAM Test_Species_Database
   species(11) = "AW2"
 
   ! Species database tags to match
-  tags = (/ "BackgroundVV     ", "DD_AeroDryDep    ", "DD_DustDryDep    ",   &
+  tags = (/ "Background_VV    ", "DD_AeroDryDep    ", "DD_DustDryDep    ",   &
             "DD_DvzAerSnow    ", "DD_DvzMinVal     ", "DD_F0            ",   &
             "DD_Hstar         ", "DD_KOA           ", "Density          ",   &
             "Formula          ", "FullName         ", "Is_ActiveChem    ",   &
@@ -104,7 +104,8 @@ PROGRAM Test_Species_Database
             "Radius           ", "WD_AerScavEff    ", "WD_CoarseAer     ",   &
             "WD_ConvFacI2G    ", "WD_KcScaleFac    ", "WD_KcScaleFac_Luo",   &
             "WD_Is_H2SO4      ", "WD_Is_HNO3       ", "WD_Is_SO2        ",   &
-            "WD_LiqAndGas     ", "WD_RainoutEff    ", "WD_RainoutEff_Luo"  /)
+            "WD_LiqAndGas     ", "WD_RainoutEff    ", "WD_RainoutEff_Luo",   &
+            "WD_RetFactor     "/)
 
   ! Read the YAML file into a config object
   fileName = "species_database.yml"
@@ -151,7 +152,7 @@ PROGRAM Test_Species_Database
         key = TRIM( spc ) // '%' // TRIM( tags(N) )
 
         ! Save into the proper field of the species database
-        IF ( INDEX( key, "%BackgroundVV" ) > 0 ) THEN
+        IF ( INDEX( key, "%Background_VV" ) > 0 ) THEN
            CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
            IF ( RC /= QFYAML_Success ) GOTO 999
            WRITE( 6, 30 ) TRIM( key ), v_real
@@ -344,6 +345,11 @@ PROGRAM Test_Species_Database
            CALL QFYAML_Add_Get( yml, key, a_real_3, "", RC )
            IF ( RC /= QFYAML_Success ) GOTO 999
            WRITE( 6, 32 ) TRIM( key ), a_real_3
+
+        ELSE IF ( INDEX( key, "%WD_RetFactor" ) > 0 ) THEN
+           CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
+           IF ( RC /= QFYAML_Success ) GOTO 999
+           WRITE( 6, 30 ) TRIM( key ), v_real
 
         ELSE
            ! Pass
