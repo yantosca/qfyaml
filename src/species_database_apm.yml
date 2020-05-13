@@ -1,4 +1,4 @@
-# GEOS-Chem Species Database (29 Apr 2020)
+# GEOS-Chem Species Database (13 May 2020)
 # APM microphysics species only
 # NOTE: Anchors must be defined before any variables that reference them
 APMAMINE1:
@@ -49,13 +49,12 @@ APMAMINE3:
   WD_RetFactor: 5.0e-2
   WD_LiqAndGas: true
   WD_ConvFacI2G: 6.17395e-1
-APMBCBIN_PROP: &APMBC1properties
+APMBCBIN01_PROP: &APMBC1properties
   DD_DvzAerSnow: 0.03
   DD_F0: 0.0
   DD_Hstar: 0.0
   Density: 1800.0
   Formula: C
-  FullName: APM black carbon, size bin = 01
   Is_Advected: true
   Is_Aerosol: true
   Is_DryDep: true
@@ -88,7 +87,7 @@ APMBCBIN06_PROP: &APMBC6properties
   Is_Advected: true
   Is_Aerosol: true
   Is_DryDep: true
-  Is_Hygrogrowth: true
+  Is_HygroGrowth: true
   Is_WetDep: true
   MW_g: 12.01
   WD_AerScavEff: 1.0
@@ -133,7 +132,7 @@ APMCTBC1:
   Is_Advected: true
   Is_Aerosol: true
   Is_DryDep: true
-  Is_Hygrogrowth: true
+  Is_HygroGrowth: true
   Is_WetDep: true
   MW_g: 96.0
   WD_AerScavEff: 1.0
@@ -148,7 +147,7 @@ APMCTBC2:
   Is_Advected: true
   Is_Aerosol: true
   Is_DryDep: true
-  Is_Hygrogrowth: true
+  Is_HygroGrowth: true
   Is_WetDep: true
   MW_g: 181.0
   WD_AerScavEff: 1.0
@@ -199,7 +198,7 @@ APMCTOC1:
   Is_Advected: true
   Is_Aerosol: true
   Is_DryDep: true
-  Is_Hygrogrowth: true
+  Is_HygroGrowth: true
   Is_WetDep: true
   MW_g: 96.0
   WD_AerScavEff: 1.0
@@ -214,7 +213,7 @@ APMCTOC2:
   Is_Advected: true
   Is_Aerosol: true
   Is_DryDep: true
-  Is_Hygrogrowth: true
+  Is_HygroGrowth: true
   Is_WetDep: true
   MW_g: 181.0
   WD_AerScavEff: 1.0
@@ -263,6 +262,7 @@ APMDSTBIN_PROP: &APMDSTproperties
   DD_F0: 0.0
   DD_Hstar: 0.0
   Density: 2650.0
+  Formula: Dust
   Is_Advected: true
   Is_Aerosol: true
   Is_DryDep: true
@@ -270,7 +270,7 @@ APMDSTBIN_PROP: &APMDSTproperties
   MP_SizeResAer: true
   MW_g: 29.0
   Radius: 4.5e-6
-  WD_AerScavEff: 1.0
+  WD_AerScavEff: 0.0
   WD_CoarseAer: true
   WD_KcScaleFac: [1.0, 0.5, 0.0]
   WD_RainoutEff: [1.0, 0.5, 0.0]
@@ -319,21 +319,6 @@ APMDSTBIN14:
 APMDSTBIN15:
   << : *APMDSTproperties
   FullName: APM dust, size bin = 15
-APMDSTBIN16:
-  << : *APMDSTproperties
-  FullName: APM dust, size bin = 16
-APMDSTBIN17:
-  << : *APMDSTproperties
-  FullName: APM dust, size bin = 17
-APMDSTBIN18:
-  << : *APMDSTproperties
-  FullName: APM dust, size bin = 18
-APMDSTBIN19:
-  << : *APMDSTproperties
-  FullName: APM dust, size bin = 19
-APMDSTBIN20:
-  << : *APMDSTproperties
-  FullName: APM dust, size bin = 20
 APMH2SO4:
   DD_DvzAerSnow: 0.03
   DD_DvzMinVal: [0.01, 0.01]
@@ -362,6 +347,7 @@ APMLVSOA:
   Is_DryDep: true
   Is_HygroGrowth: true
   Is_WetDep: true
+  MP_SizeResAer: true
   MW_g: 181.0
   Radius: 5.0e-7
   WD_AerScavEff: 1.0
@@ -374,9 +360,10 @@ APMLVSOG:
   DD_Hstar: 0.0
   Density: 1800.0
   FullName: APM LV secondary organic gas
+  Is_Aerosol: true    # APMLVSOG is aerosol in Ref code, ask Gan Luo
   Is_Advected: true
   Is_DryDep: true
-  Is_Gas: true
+  #Is_Gas: true       # APMLVSOG is aerosol in Ref code, ask Gan Luo
   Is_WetDep: true
   MW_g: 181.0
   WD_AerScavEff: 1.0
@@ -420,7 +407,7 @@ APMOCBIN06_PROP: &APMOC6properties
   Is_Advected: true
   Is_Aerosol: true
   Is_DryDep: true
-  Is_Hygrogrowth: true
+  Is_HygroGrowth: true
   Is_WetDep: true
   MW_g: 12.01
   WD_AerScavEff: 1.0
@@ -541,6 +528,7 @@ APMSPBIN_PROP: &APMSPproperties
   Is_Advected: true
   Is_Aerosol: true
   Is_DryDep: true
+  Is_HygroGrowth: true
   Is_WetDep: true
   MP_SizeResAer: true
   MW_g: 96.0

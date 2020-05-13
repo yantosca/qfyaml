@@ -1,4 +1,4 @@
-# GEOS-Chem Species Database (29 Apr 2020)
+# GEOS-Chem Species Database (13 May 2020)
 # TOMAS microphysics species only
 # NOTE: Anchors must be defined before any variables that reference them
 AW_PROP: &AWproperties
@@ -529,7 +529,7 @@ ECOB40:
   FullName: Hydrophobic elemental carbon, size bin = 40
 H2SO4:
   DD_F0: 0.0
-  DD_Hstar: 1.0
+  DD_Hstar: 1.0e5
   Formula: H2SO4
   FullName: Sulfuric acid
   Is_Advected: true
@@ -539,9 +539,11 @@ H2SO4:
   MP_SizeResAer: true
   MW_g: 98.0
   WD_AerScavEff: 1.0
+  WD_Is_H2SO4: true
   WD_KcScaleFac: [1.0, 0.5, 1.0]
   WD_RainoutEff: [1.0, 0.0, 1.0]
 NK_PROP: &NKproperties
+  DD_DustDryDep: true
   DD_DvzAerSnow: 0.03
   DD_F0: 0.0
   DD_Hstar: 0.0
@@ -550,7 +552,7 @@ NK_PROP: &NKproperties
   Is_Aerosol: true
   Is_DryDep: true
   Is_WetDep: true
-  MP_SizeResAer: true
+  MP_SizeResNum: true
   MW_g: 1.0
   WD_AerScavEff: 1.0
   WD_KcScaleFac: [1.0, 0.5, 1.0]
