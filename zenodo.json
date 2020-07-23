@@ -1,13 +1,11 @@
 {
-	"description": "<p>qfyaml: Quick Fortran YAML parser</p>",
-	"license": "MIT license",
-	"title": "ryantosca/qfyaml",
-	"version": "v0.2.4",
-	"upload_type": "software",
-	"publication_date": "2020-07-15",
-	"creators": {
-		"affiliation": "Harvard John A. Paulson School of Engineering and Applied Sciences",
-		"name": "Robert Yantosca"
-	},
-	"access_right": "open"
+    "license": "MIT License",
+    "upload_type": "software",
+    "creators": {
+	"affiliation": "Harvard John A. Paulson School of Engineering and Applied Sciences",
+	"name": "Robert Yantosca"
+    },
+    "keywords": ["yaml", "yml", "fortran"],
+    "access_right": "open"
+    "additional_notes:": "Please see the LICENSE.txt and AUTHORS.txt files in the root folder for the QFYAML license description (based on the MIT license) and a complete list of authors. For more information about GEOS-Chem in general, please see www.geos-chem.org and wiki.geos-chem.org.",
 }
