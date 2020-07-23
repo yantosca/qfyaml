@@ -1,14 +1,18 @@
 {
-    "license": "MIT License",
-    "upload_type": "software",
     "creators": {
-	"affiliation": "Harvard John A. Paulson School of Engineering and Applied Sciences",
-	"name": "Robert Yantosca"
-    },
-    "keywords": ["yaml", 
-		 "yml", 
-		 "fortran"
-		],
+            "affiliation": "Harvard John A. Paulson School of Engineering and Applied Sciences",
+            "name": "Yantosca, Robert",
+            "orcid": "0000-0003-3781-1870"
+     },
+    "keywords": [
+        "yaml",
+        "yml",
+        "fortran-language",
+    ],
+    "license": {
+        "id": "MIT License"
+    }
     "access_right": "open",
+    "upload_type": "software",
     "notes:": "Please see the LICENSE.txt and AUTHORS.txt files in the root folder for the QFYAML license description (based on the MIT license) and a complete list of authors. For more information about GEOS-Chem in general, please see www.geos-chem.org and wiki.geos-chem.org."
 }
