@@ -1,12 +1,17 @@
 {
-    "keywords": [
-        "yaml",
-        "yml",
-        "fortran-language"
-    ],
-    "license": {
-        "id": "MIT License"
-    },
-    "access_right": "open",
-    "upload_type": "software",
+   "license": "MIT-License", 
+   "upload_type": "software", 
+   "publication_date": "2020-07-08", 
+   "creators": [
+      {
+         "name": "Robert Yantosca",
+         "affiliation": "Harvard!"
+      }
+   ],
+   "keywords": [
+      "fortran-language",
+      "yaml",
+   ],
+   "access_right": "open"
 }
+
