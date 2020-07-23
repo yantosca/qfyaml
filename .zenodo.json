@@ -1,11 +1,10 @@
 {
-   "license": "MIT-License", 
+   "license": "mit-license", 
    "upload_type": "software", 
-   "publication_date": "2020-07-08", 
    "creators": [
       {
          "name": "Robert Yantosca",
-         "affiliation": "Harvard!"
+         "affiliation": "Harvard John A. Paulson School of Engineering and Applied Sciences"
       }
    ],
    "keywords": [
