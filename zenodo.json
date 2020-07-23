@@ -1,0 +1,13 @@
+{
+	"description": "<p>qfyaml: Quick Fortran YAML parser</p>",
+	"license": "MIT license",
+	"title": "ryantosca/qfyaml",
+	"version": "v0.2.4",
+	"upload_type": "software",
+	"publication_date": "2020-07-15",
+	"creators": {
+		"affiliation": "Harvard John A. Paulson School of Engineering and Applied Sciences",
+		"name": "Robert Yantosca"
+	},
+	"access_right": "open"
+}
