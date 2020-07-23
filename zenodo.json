@@ -6,6 +6,6 @@
 	"name": "Robert Yantosca"
     },
     "keywords": ["yaml", "yml", "fortran"],
-    "access_right": "open"
+    "access_right": "open",
     "additional_notes:": "Please see the LICENSE.txt and AUTHORS.txt files in the root folder for the QFYAML license description (based on the MIT license) and a complete list of authors. For more information about GEOS-Chem in general, please see www.geos-chem.org and wiki.geos-chem.org.",
 }
