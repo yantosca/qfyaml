@@ -1,0 +1,15 @@
+{
+    "access_right": "open",
+    "creators": [
+	{
+	    "name": "Bob Yantosca"
+	}
+    ],
+    "description": "qfyaml: Quick Fortran YAML parser",
+    "keywords": [
+	"fortran-language",
+	"yaml"
+    ],
+    "license": "mit-license",
+    "upload_type": "software"
+}
