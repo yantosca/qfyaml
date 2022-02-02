@@ -1,0 +1,407 @@
+### GEOS-Chem main configuration file
+---
+simulation:
+  start: [20190701, 000000]
+  end: [20190801, 000000]
+  data_dir: /n/holyscratch01/external_repos/GEOS-CHEM/gcgrid/data/ExtData
+  met_field: MERRA2 
+  simulation_name: fullchem
+  species_database_file: species_database.yml
+  debug_printout: false
+  use_gcclassic_timers: false
+grid:
+  resolution: 0.5x0.625
+  longitude_range: [-140.0, -40.0]
+  center_lon_at_180: true
+  latitude_range: [-10.0, 70.0]
+  half_size_polar_boxes: true   
+  number_of_levels: 72
+  nested_grid_simulation: true
+  buffer_zone_NSEW: [3, 3, 3, 3]
+timesteps:
+  transport_and_convection: 300
+  chemistry_and_emissions: 600
+#operations:
+#  chemistry:
+#    activate: true
+#    linear_chemistry_aloft:
+#      activate: true
+#      use_linoz_for_O3: true
+#    use_static_H2O_bc: true
+#    gamma_HO2: 0.2
+#  convection:
+#    activate: true
+#  dry_deposition:
+#    activate: true
+#    co2_effect: false
+#    co2_level: 600.0
+#    reference_co2_level: 380.0
+#    diag_alt_above_sfc_in_m: 10
+#  pbl_mixing:
+#     activate: true
+#     use_non_local_pbl: true
+#  photolysis:
+#    input_directory: /n/holyscratch01/external_repos/GEOS-CHEM/gcgrid/data/ExtData/CHEM_INPUTS/FAST_JX/v2021-10/
+#    overhead_o3:
+#      use_online_O3_from_model: true
+#      use_column_O3_from_met: true
+#      use_TOMS_SBUV_O3: false   
+#  transport:
+#    activate: true
+#    fill_negative_values: true
+#    iord_jord_kord: [3, 3, 7]
+#  wet_deposition:
+#    activate: true
+#aerosols:
+#  carbon:
+#    activate: true
+#    brown_carbon: false   
+#  complex_soa:
+#    activate: true
+#    semivolatile_POA: false
+#  dust:
+#    activate: true
+#    acid_uptake_on_dust: false
+#  sea_salt:
+#    activate: true
+#    SALA_radius_bin_in_um: [0.01, 0.05]
+#    SALC_radius_bin_in_um: [0.5,  0.8 ]
+#    marine_organic_aerosols: false
+#  stratosphere:
+#    settle_strat_aerosol: true
+#    polar_strat_clouds:
+#      activate: true
+#      het_chem: true
+#    homogeneous_NAT: false
+#    NAT_supercooling_req_in_K: 3.0
+#    calc_strat_aero_optdepth: true
+#    enhance_bc_absorption:
+#      activate: true
+#      hydrophilic_bc: 1.5
+#      hydrophobic_bc: 1.0
+#    photolyze_nitrate:
+#      activate: true
+#      NITs_Jscale_JHNO3: 0.0
+#      NIT_Jscale_JHNO2: 0.0
+#      percent_channel_A_HONO: 66.667
+#      percent_channel_B_NO2: 33.333
+#  sulfate:
+#    activate: true
+#    metal_cat_SO2_oxidation: true
+#diagnostics:
+#  obspack:
+#    activate: false
+#    quiet_logfile_output: false
+#    input_file: ./obspack_co2_1_OCO2MIP_2018-11-28.YYYYMMDD.nc
+#    output_file: ./OutputDir/GEOSChem.ObsPack.YYYYMMDD_hhmmz.nc4
+#    output_species: [NO CO O3]
+#  planeflight:
+#    activate: false
+#    flight_track_file: Planeflight.dat.YYYYMMDD
+#    output_file: plane.log.YYYYMMDD
+#  rrtmg:
+#    activate: false
+#    aod_wavelength_in_nm: 550
+#    longwave_fluxes: false
+#    shortwave_fluxes: false
+#    clear_sky_flux: false
+#    all_sky_flux: false
+#    radiation_timestep_in_s: 10800
+##
+#-------+------------------------------------------------------
+#%%% OUTPUT MENU %%%     : 123456789.123456789.123456789.1--1=ZERO+2=BPCH
+#Schedule output for JAN : 3000000000000000000000000000000
+#Schedule output for FEB : 30000000000000000000000000000
+#Schedule output for MAR : 3000000000000000000000000000000
+#Schedule output for APR : 300000000000000000000000000000
+#Schedule output for MAY : 3000000000000000000000000000000
+#Schedule output for JUN : 300000000000000000000000000000
+#Schedule output for JUL : 3000000000000000000000000000000
+#Schedule output for AUG : 3000000000000000000000000000000
+#Schedule output for SEP : 300000000000000000000000000000
+#Schedule output for OCT : 3000000000000000000000000000000
+#Schedule output for NOV : 300000000000000000000000000000
+#Schedule output for DEC : 3000000000000000000000000000000
+#------------------------+------------------------------------------------------
+#%%% GAMAP MENU %%%      :
+#diaginfo.dat path       : diaginfo.dat
+#tracerinfo.dat path     : tracerinfo.dat
+#------------------------+------------------------------------------------------
+#%%% DIAGNOSTIC MENU %%% :
+#Binary punch file name  : ./OutputDir/GEOSChem.YYYYMMDD.bpch
+#Diagnostic Entries ---> :  L   Tracers to print out for each diagnostic
+#ND03: Hg emissions, P/L :  0   all
+#ND06: Dust aer source   :  1   all
+#ND44: Drydep flx/vel    :  1   all
+#ND53: POPs Emissions    :  0   all
+#ND59: TOMAS aerosol emis:  0   all
+#ND60: TOMAS rate        :  0   all
+#ND61: TOMAS 3D rate     :  0   all
+#-------------------------------------------------------------------------------
+#%%% ND51 MENU %%%       :
+#Turn on ND51 diagnostic : F
+#LT avg timeseries file  : ts_satellite.YYYYMMDD.bpch
+#Output as HDF5?         : F
+#Tracers to include      : 1 2 501
+#GMT Hour for disk write :   0
+#Avg Period [LT hours]   :   9  11
+#IMIN, IMAX of region    :   1  72
+#JMIN, JMAX of region    :   1  46
+#LMIN, LMAX of region    :   1  40
+#-------------------------------------------------------------------------------
+#%%% ND51b MENU %%%      :
+#Turn on ND51b diagnstic : F
+#LT avg timeseries file  : ts_13_15.NA.YYYYMMDD.bpch
+#Output as HDF5?         : F
+#Tracers to include      : 1 2 501
+#GMT Hour for disk write :  1
+#Avg Period [LT hours]   :  13  15
+#IMIN, IMAX of region    :   1  72
+#JMIN, JMAX of region    :   1  46
+#LMIN, LMAX of region    :   1   1
+#-------------------------------------------------------------------------------
+#%%% PROD & LOSS MENU %%%: ### ONLY NEEDED FOR TOMAS ###
+#Turn on P/L (ND65) diag?: T
+## of levels for ND65    : 72
+#------------------------+------------------------------------------------------
+#END OF FILE             :
+#------------------------+------------------------------------------------------
+#
+#
+#
+#advected_species:
+#  -  ACET
+#  -  ACTA
+#  -  AERI
+#  -  ALD2
+#  -  ALK4
+#  -  ASOA1
+#  -  ASOA2
+#  -  ASOA3
+#  -  ASOAN
+#  -  ASOG1
+#  -  ASOG2
+#  -  ASOG3
+#  -  AONITA
+#  -  AROMP4
+#  -  AROMP5
+#  -  ATOOH
+#  -  BALD
+#  -  BCPI
+#  -  BCPO
+#  -  BENZ
+#  -  BENZP
+#  -  Br
+#  -  Br2
+#  -  BrCl
+#  -  BrNO2
+#  -  BrNO3
+#  -  BrO
+#  -  BrSALA
+#  -  BrSALC
+#  -  BZCO3H
+#  -  BZPAN
+#  -  C2H2
+#  -  C2H4
+#  -  C2H6
+#  -  C3H8
+#  -  CCl4
+#  -  CFC11
+#  -  CFC113
+#  -  CFC114
+#  -  CFC115
+#  -  CFC12
+#  -  CH2Br2
+#  -  CH2Cl2
+#  -  CH2I2
+#  -  CH2IBr
+#  -  CH2ICl
+#  -  CH2O
+#  -  CH3Br
+#  -  CH3CCl3
+#  -  CH3Cl
+#  -  CH3I
+#  -  CH4
+#  -  CHBr3
+#  -  CHCl3
+#  -  Cl
+#  -  Cl2
+#  -  Cl2O2
+#  -  ClNO2
+#  -  ClNO3
+#  -  ClO
+#  -  ClOO
+#  -  CLOCK
+#  -  CO
+#  -  CSL
+#  -  DMS
+#  -  DST1
+#  -  DST2
+#  -  DST3
+#  -  DST4
+#  -  EOH
+#  -  ETHLN
+#  -  ETHN
+#  -  ETHP
+#  -  ETNO3
+#  -  ETP
+#  -  GLYC
+#  -  GLYX
+#  -  H1211
+#  -  H1301
+#  -  H2402
+#  -  H2O
+#  -  H2O2
+#  -  HAC
+#  -  HBr
+#  -  HC5A
+#  -  HCFC123
+#  -  HCFC141b
+#  -  HCFC142b
+#  -  HCFC22
+#  -  HCl
+#  -  HCOOH
+#  -  HI
+#  -  HMHP
+#  -  HMML
+#  -  HMS
+#  -  HNO2
+#  -  HNO3
+#  -  HNO4
+#  -  HOBr
+#  -  HOCl
+#  -  HOI
+#  -  HONIT
+#  -  HPALD1
+#  -  HPALD2
+#  -  HPALD3
+#  -  HPALD4
+#  -  HPETHNL
+#  -  I
+#  -  I2
+#  -  I2O2
+#  -  I2O3
+#  -  I2O4
+#  -  IBr
+#  -  ICHE
+#  -  ICl 
+#  -  ICN
+#  -  ICPDH
+#  -  IDC
+#  -  IDCHP
+#  -  IDHDP
+#  -  IDHPE
+#  -  IDN
+#  -  IEPOXA
+#  -  IEPOXB
+#  -  IEPOXD
+#  -  IHN1
+#  -  IHN2
+#  -  IHN3
+#  -  IHN4
+#  -  INDIOL
+#  -  INO
+#  -  INPB
+#  -  INPD
+#  -  IO
+#  -  IONITA
+#  -  IONO
+#  -  IONO2
+#  -  IPRNO3
+#  -  ISALA
+#  -  ISALC
+#  -  ISOP
+#  -  ITCN
+#  -  ITHN
+#  -  LIMO
+#  -  LVOC
+#  -  LVOCOA
+#  -  MACR
+#  -  MACR1OOH
+#  -  MAP
+#  -  MCRDH
+#  -  MCRENOL
+#  -  MCRHN
+#  -  MCRHNB
+#  -  MCRHP
+#  -  MCT
+#  -  MEK
+#  -  MENO3
+#  -  MGLY
+#  -  MOH
+#  -  MONITA
+#  -  MONITS
+#  -  MONITU
+#  -  MP
+#  -  MPAN
+#  -  MPN
+#  -  MSA
+#  -  MTPA
+#  -  MTPO
+#  -  MVK
+#  -  MVKDH
+#  -  MVKHC
+#  -  MVKHCB
+#  -  MVKHP
+#  -  MVKN
+#  -  MVKPC
+#  -  N2O
+#  -  N2O5
+#  -  NH3
+#  -  NH4
+#  -  NIT
+#  -  NITs
+#  -  'NO'
+#  -  NO2
+#  -  NO3
+#  -  NPHEN
+#  -  NPRNO3
+#  -  O3
+#  -  OClO
+#  -  OCPI
+#  -  OCPO
+#  -  OCS
+#  -  OIO
+#  -  PAN
+#  -  pFe
+#  -  PHEN
+#  -  PIP
+#  -  PP
+#  -  PPN
+#  -  PROPNN
+#  -  PRPE
+#  -  PRPN
+#  -  PYAC
+#  -  R4N2
+#  -  R4P
+#  -  RA3P
+#  -  RB3P
+#  -  RCHO
+#  -  RIPA
+#  -  RIPB
+#  -  RIPC
+#  -  RIPD
+#  -  RP
+#  -  SALA
+#  -  SALAAL
+#  -  SALACL
+#  -  SALC
+#  -  SALCAL
+#  -  SALCCL
+#  -  SO2
+#  -  SO4
+#  -  SO4s
+#  -  SOAGX
+#  -  SOAIE
+#  -  SOAP
+#  -  SOAS
+#  -  TOLU
+#  -  TSOA0
+#  -  TSOA1
+#  -  TSOA2
+#  -  TSOA3
+#  -  TSOG0
+#  -  TSOG1
+#  -  TSOG2
+#  -  TSOG3
+#  -  XYLE

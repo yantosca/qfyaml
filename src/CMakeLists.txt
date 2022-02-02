@@ -33,3 +33,21 @@ install(
   FILES species_database_tomas.yml
   DESTINATION ${CMAKE_INSTALL_PREFIX}
 )
+
+
+### GEOSCHEM CONFIG EXAMPLE
+
+add_executable(test_geoschem_config.x
+  precision_mod.F90
+  roundoff_mod.F90
+  qfyaml_mod.F90
+  test_geoschem_config.F90
+)
+install(
+  TARGETS test_geoschem_config.x
+  RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}
+)
+install(
+  FILES geoschem_config.yml
+  DESTINATION ${CMAKE_INSTALL_PREFIX}
+)
