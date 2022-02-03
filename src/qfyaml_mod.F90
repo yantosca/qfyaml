@@ -715,19 +715,28 @@ CONTAINS
 ! !LOCAL VARIABLES:
 !
     ! Scalars
-    LOGICAL                      :: append
-    INTEGER                      :: ix
-    INTEGER                      :: ampsnd_ix
-    INTEGER                      :: anchor_ix
-    INTEGER                      :: colon_ix
-    INTEGER                      :: star_ix
-    INTEGER                      :: trim_len
+    LOGICAL                            :: append
+    INTEGER                            :: ix
+    INTEGER                            :: ampsnd_ix
+    INTEGER                            :: anchor_ix
+    INTEGER                            :: colon_ix
+    INTEGER                            :: star_ix
+    INTEGER                            :: trim_len
+    INTEGER                            :: indent
+    INTEGER                            :: pos
+    INTEGER                            :: C
 
     ! Strings
-    CHARACTER(LEN=QFYAML_namlen) :: var_name
-    CHARACTER(LEN=QFYAML_strlen) :: errMsg
-    CHARACTER(LEN=QFYAML_strlen) :: line
-    CHARACTER(LEN=QFYAML_strlen) :: thisLoc
+    CHARACTER(LEN=QFYAML_namlen)       :: var_name
+    CHARACTER(LEN=QFYAML_strlen)       :: errMsg
+    CHARACTER(LEN=QFYAML_strlen)       :: line
+    CHARACTER(LEN=QFYAML_strlen)       :: thisLoc
+
+    ! SAVEd variables 
+    INTEGER,                      SAVE :: cat_index      = 0
+    INTEGER,                      SAVE :: cat_last_pos   = 0
+    INTEGER,                      SAVE :: cat_indent(20) = 0
+    CHARACTER(LEN=QFYAML_strlen), SAVE :: cat_stack(20)  = ""
 
     !=======================================================================
     ! Parse_Line begins here!
@@ -751,25 +760,57 @@ CONTAINS
 
     ! Get the length of the line (excluding trailing whitespace)
     trim_len  = LEN_TRIM( line )
+    
+    ! Get the position of the first non-whitespace character in the line
+    pos       = First_Char_Pos( line )
 
     ! Look for the positions of certain characters
     colon_ix  = INDEX( line, ":" )
     ampsnd_ix = INDEX( line, "&" )
     star_ix   = INDEX( line, "*" )
 
+    !========================================================================
+    ! Handling for categories and YAML anchors
+    !========================================================================
+
     ! If the text is flush with the first column
     ! and has a colon in the line, then it's a category
-    ! FUTURE TODO: Check the indentation level to add nested categories
-    IF ( line(1:1) /= "" .and. colon_ix > 0 ) THEN
+    IF ( line(pos:pos) /= "" .and. colon_ix > 0 ) THEN
 
-       ! If there is nothing after the colon ...
+       ! If there is nothing after the colon, then this indicates 
+       ! a category (without an anchor) rather than a variable
        IF ( colon_ix == trim_len ) THEN
+          
+          ! Keep track of the category depth in the stack
+          IF ( pos > cat_last_pos            ) THEN
+             cat_index  = cat_index + 1
+             cat_indent = cat_indent + 1
+          ENDIF
+          IF ( pos < cat_last_pos            ) THEN
+             cat_index  = cat_index  - 1
+             cat_indent = cat_indent - 1
+          ENDIF
+          IF ( cat_index <= 0  .or. pos == 1 ) THEN
+             cat_index  = 1
+             cat_indent = 1
+          ENDIF
 
           ! Then this indicates a category name, so return
           ! and there is no anchor present
-          anchor_tgt = ""
-          category   = line(1:colon_ix-1)
+          anchor_tgt           = ""
+          category             = line(pos:colon_ix-1)
+          cat_stack(cat_index) = category
           IF ( category == "'NO'" ) category = "NO"   ! Avoid clash w/ FALSE
+
+          ! Also preface the nested entries
+          DO C = cat_index-1, 1, -1
+             category = TRIM( cat_stack(C) )      // &
+                        QFYAML_category_separator // &
+                        TRIM( category ) 
+          ENDDO
+
+          ! Update the category starting position for next time
+          cat_last_pos = pos
           RETURN
 
        ! If there is an ampersand following the colon
@@ -777,31 +818,50 @@ CONTAINS
        ELSE IF ( colon_ix > 0 .and. ampsnd_ix > 0 ) THEN
 
           ! Return anchor target and category name
+          ! Also save the category start position for next time
           anchor_tgt = line(ampsnd_ix+1:trim_len)
-          category   = line(1:colon_ix-1)
+          category   = line(pos:colon_ix-1)
           IF ( category == "'NO'" ) category = "NO"   ! Avoid clash w/ FALSE
+          cat_last_pos = pos
           RETURN
        ENDIF
     ENDIF
 
-    ! ... otherwise we'll use a category of "" for the variable name
+    !========================================================================
+    ! Handling for variables
+    !========================================================================
 
     ! define the variable name
     append = .FALSE.
-    var_name = line(1:colon_ix-1)
-
-    ! If there are less than two spaces or a tab, reset to no category
-    IF (var_name(1:2) /= " " .and. var_name(1:1) /= tab_char) THEN
-       category = ""
+  
+    IF ( pos >= cat_last_pos ) THEN
+       var_index    = var_index + 1
+       var_last_pos = pos
     ENDIF
 
+    ! If the variable's starting position is less than or equal to the
+    ! last category, then its category is one further back in the stack
+    IF ( pos <= cat_last_pos ) THEN
+       cat_index = cat_index - 1 
+       category  = cat_stack(cat_index)
+    ENDIF 
+  
+    ! If the variable starts in the first column, it has no category
+    IF ( cat_index <= 0 .or. pos == 1 ) THEN
+       cat_index = 0
+       category  = ""
+    ENDIF
+
+    ! Get the variable name
+    var_name = line(pos:colon_ix-1)
+    
     ! Replace leading tabs by spaces
     ix = VERIFY(var_name, tab_char) ! Find first non-tab character
     var_name(1:ix-1) = ""
 
     ! Remove leading blanks
     var_name = ADJUSTL(var_name)
-
+   
     ! Test if the variable is a YAML anchor
     IF ( var_name == "<<" ) THEN
 
@@ -824,7 +884,7 @@ CONTAINS
        CALL Add_Variable( yml            = yml_anchored,                     &
                           append         = append,                           &
                           set_by         = set_by,                           &
-                          line_arg       = "",                               &
+                          line_arg       = line,                             &
                           anchor_ptr_arg = anchor_ptr,                       &
                           anchor_tgt_arg = anchor_tgt,                       &
                           category_arg   = category,                         &
@@ -3166,5 +3226,18 @@ CONTAINS
     ENDIF
 
   END SUBROUTINE Update_String
+
+  FUNCTION First_Char_Pos( str ) RESULT( pos )
+    !
+    ! Returns the position of the first non-whitespace character in a string
+    !
+    CHARACTER(LEN=*), INTENT(IN) :: str
+    INTEGER                      :: pos
+    !
+    CHARACTER(LEN=255)           :: temp
+    !
+    temp = ADJUSTL( str )
+    pos  = INDEX( str, temp(1:1) ) 
+  END FUNCTION First_Char_Pos
 
 END MODULE QFYAML_Mod

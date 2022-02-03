@@ -80,6 +80,13 @@ PROGRAM Test_GeosChem_Config
        CALL EXIT( -1 )
     ENDIF
 
+    ! Parse the simulation section
+    CALL Parse_Operations( yml, RC )
+    IF ( RC /= QFYAML_Success ) THEN
+       PRINT*, 'Error encountered in Parse_Operations!'
+       CALL EXIT( -1 )
+    ENDIF
+
     print*, "### finishing"
     CALL QFYAML_CleanUp( yml          )
     CALL QFYAML_CleanUp( yml_anchored )
@@ -146,7 +153,7 @@ CONTAINS
        
        ! Search key
        key = "simulation" // TRIM( tags(N) )
-
+       
        ! Save into the proper field of the species database
        IF ( INDEX( key, "%start" ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, a_int_2, "", RC )
@@ -373,5 +380,142 @@ CONTAINS
 310 FORMAT( a45, " | ", i10    )
 
   END SUBROUTINE Parse_Timesteps
+
+  SUBROUTINE Parse_Operations( yml, RC )
+    !
+    TYPE(QFYAML_t),  INTENT(INOUT)  :: yml
+    INTEGER,         INTENT(OUT) :: RC
+    ! 
+    INTEGER            :: N
+    CHARACTER(LEN=80)  :: tags(21)
+    CHARACTER(LEN=80)  :: key
+    LOGICAL            :: v_bool
+    INTEGER            :: v_int
+    CHARACTER(LEN=255) :: v_str
+    REAL(yp)           :: v_real
+
+    !
+    RC       = QFYAML_Success
+    tags(1)  = "%chemistry%activate"
+    tags(2)  = "%chemistry%linear_chemistry_aloft%activate"
+    tags(3)  = "%chemistry%linear_chemistry_aloft%use_linoz_for_O3"
+    tags(4)  = "%chemistry%use_static_H2O_bc"
+    tags(5)  = "%chemistry%gamma_HO2"
+    tags(6)  = "%convection%activate"
+    tags(7)  = "%dry_deposition%activate"
+    tags(8)  = "%dry_deposition%co2_effect"
+    tags(9)  = "%dry_deposition%co2_level"
+    tags(10) = "%dry_deposition%reference_co2_level"
+    tags(11) = "%dry_deposition%diag_alt_above_sfc_in_m"
+    tags(12) = "%pbl_mixing%activate"
+    tags(13) = "%pbl_mixing%use_non_local_pbl"
+    tags(14) = "%photolysis%input_directory"
+    tags(15) = "%photolysis%overhead_O3%use_online_O3_from_model"
+    tags(16) = "%photolysis%overhead_O3%use_column_O3_from_met"
+    tags(17) = "%photolysis%overhead_O3%use_TOMS_SBUV_O3"
+    tags(18) = "%transport%activate"
+    tags(19) = "%transport%fill_negative_values"
+    tags(20) = "%transport%iord_jord_kord"
+    tags(21) = "%transport%activate"
+    
+    ! Loop over the number of tags in the species database
+    DO N = 1, 1  !SIZE( tags )
+
+       ! Set intial values to default "missing" values
+       ! This will force creation of variables with these values
+        ! Set intial values to default "missing" values
+       ! This will force creation of variables with these values
+       v_bool   = MISSING_BOOL
+       v_real   = MISSING_REAL
+       v_str    = MISSING_STR
+       v_int    = MISSING_INT
+       
+       ! Search key
+       key = "operations" // TRIM( tags(N) )
+       print*, trim(key)
+
+       ! %chemistry%activate
+       IF ( INDEX( key, tags(1) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          print*, '### v_bool', v_bool
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 210 ) TRIM( key ), v_bool
+
+!       ! %chemistry%linear_chemistry_aloft%activate"
+!       ELSE IF ( INDEX( key, tags(2) ) > 0 ) THEN
+!          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+!          IF ( RC /= QFYAML_Success ) GOTO 999
+!          WRITE( 6, 210 ) TRIM( key ), v_bool
+!
+!       ! %chemistry%linear_chemistry_aloft%use_linoz_for_O3"
+!       ELSE IF ( INDEX( key, tags(3) ) > 0 ) THEN
+!          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+!          IF ( RC /= QFYAML_Success ) GOTO 999
+!          WRITE( 6, 210 ) TRIM( key ), v_bool
+!
+!       ! %chemistry%use_static_H2O_bc
+!       ELSE IF ( INDEX( key, tags(4) ) > 0 ) THEN
+!          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+!          IF ( RC /= QFYAML_Success ) GOTO 999
+!          WRITE( 6, 210 ) TRIM( key ), v_bool
+!
+!       ! %chemistry%gamma_HO2
+!       ELSE IF ( INDEX( key, tags(5) ) > 0 ) THEN
+!          CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
+!          IF ( RC /= QFYAML_Success ) GOTO 999
+!          WRITE( 6, 410 ) TRIM( key ), v_bool
+!
+!       ! %convection%activate
+!       ELSE IF ( INDEX( key, tags(6) ) > 0 ) THEN
+!          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+!          IF ( RC /= QFYAML_Success ) GOTO 999
+!          WRITE( 6, 210 ) TRIM( key ), v_bool
+!
+!       ! %chemistry%linear_chemistry_aloft%activate"
+!       ELSE IF ( INDEX( key, tags(2) ) > 0 ) THEN
+!          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+!          IF ( RC /= QFYAML_Success ) GOTO 999
+!          WRITE( 6, 210 ) TRIM( key ), v_bool
+!
+!       ! %chemistry%linear_chemistry_aloft%activate"
+!       ELSE IF ( INDEX( key, tags(2) ) > 0 ) THEN
+!          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+!          IF ( RC /= QFYAML_Success ) GOTO 999
+!          WRITE( 6, 210 ) TRIM( key ), v_bool
+!
+!       ! %chemistry%linear_chemistry_aloft%activate"
+!       ELSE IF ( INDEX( key, tags(2) ) > 0 ) THEN
+!          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+!          IF ( RC /= QFYAML_Success ) GOTO 999
+!          WRITE( 6, 210 ) TRIM( key ), v_bool
+ 
+       ELSE
+          ! Pass
+          
+       ENDIF
+    ENDDO
+
+    print*, '---'
+    RETURN
+
+999 CONTINUE
+    RC = QFYAML_Failure
+    print*, "Error in Parse_Grid!"
+    RETURN
+
+    ! FORMAT statements (for use in code below)
+    ! FORMAT statements (for use in code below)
+110 FORMAT( a60, " | ", a      )
+210 FORMAT( a60, " | ", L10    )
+310 FORMAT( a60, " | ", i10    )
+320 FORMAT( a60, " | ", 2i10   )
+330 FORMAT( a60, " | ", 3i10   )
+340 FORMAT( a60, " | ", 4i10   )
+410 FORMAT( a60, " | ", f10.2  )
+420 FORMAT( a60, " | ", 2f10.2 )
+430 FORMAT( a60, " | ", 3f10.2 )
+440 FORMAT( a60, " | ", 3f10.2 )
+
+  END SUBROUTINE Parse_Operations
 
 END PROGRAM Test_GeosChem_Config

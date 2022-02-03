@@ -1,15 +1,24 @@
-author:
-    age: 29                          # Age of the author of this code:
-    fav_reals: [1.0, 2.0]            # My favorite numbers: 
-    lots_of_work: false              # Whether I have a lot of work to do:
+---
+# Going back & forth between levels
+weather:
+  humidity: 99.85858265
+  temperature:
+    daily: 23.0434356
+      weekly:
+        units: K
+  pressure: 1013.25
 
+# Different types of input
+author:
+  age: 29
+  fav_reals: [1.0, 2.0]
+  lots_of_work: false
+
+# Strings
 author_name:
   first: J
   full: H.J. Teunissen
 
+# Variable without a category
 filename: another_file
-
-weather:
-    humidity: 99.85858265
-    temperature: 23.0434356
-
+    

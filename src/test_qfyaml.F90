@@ -95,7 +95,17 @@ PROGRAM Test_QFYAML
   CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
   WRITE( 6, "(a30, "" | "", f13.6)") TRIM(key), v_real
 
-  key    = "weather%temperature"
+  key    = "weather%temperature%daily"
+  v_real = -999.0_yp
+  CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
+  WRITE( 6, "(a30, "" | "", f13.6)") TRIM(key), v_real
+
+  key    = "weather%temperature%weekly%units"
+  v_real = -999.0_yp
+  CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
+  WRITE( 6, "(a30, "" | "", a)") TRIM(key), TRIM(v_str)
+
+  key    = "weather%pressure"
   v_real = -999.0_yp
   CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
   WRITE( 6, "(a30, "" | "", f13.6)") TRIM(key), v_real
