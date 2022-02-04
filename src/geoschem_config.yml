@@ -4,7 +4,7 @@ simulation:
   start: [20190701, 000000]
   end: [20190801, 000000]
   data_dir: /n/holyscratch01/external_repos/GEOS-CHEM/gcgrid/data/ExtData
-  met_field: MERRA2 
+  met_field: MERRA2
   simulation_name: fullchem
   species_database_file: species_database.yml
   debug_printout: false
@@ -14,7 +14,7 @@ grid:
   longitude_range: [-140.0, -40.0]
   center_lon_at_180: true
   latitude_range: [-10.0, 70.0]
-  half_size_polar_boxes: true   
+  half_size_polar_boxes: true
   number_of_levels: 72
   nested_grid_simulation: true
   buffer_zone_NSEW: [3, 3, 3, 3]
@@ -45,7 +45,7 @@ operations:
     overhead_O3:
       use_online_O3_from_model: true
       use_column_O3_from_met: true
-      use_TOMS_SBUV_O3: false   
+      use_TOMS_SBUV_O3: false
   transport:
     activate: true
     fill_negative_values: true
@@ -55,7 +55,7 @@ operations:
 aerosols:
   carbon:
     activate: true
-    brown_carbon: false   
+    brown_carbon: false
   complex_soa:
     activate: true
     semivolatile_POA: false
@@ -222,7 +222,7 @@ advected_species:
   -  I2O4
   -  IBr
   -  ICHE
-  -  ICl 
+  -  ICl
   -  ICN
   -  ICPDH
   -  IDC

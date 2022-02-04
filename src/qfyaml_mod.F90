@@ -725,17 +725,19 @@ CONTAINS
     INTEGER                            :: indent
     INTEGER                            :: pos
     INTEGER                            :: C
+    INTEGER                            :: CC
 
     ! Strings
     CHARACTER(LEN=QFYAML_namlen)       :: var_name
     CHARACTER(LEN=QFYAML_strlen)       :: errMsg
     CHARACTER(LEN=QFYAML_strlen)       :: line
     CHARACTER(LEN=QFYAML_strlen)       :: thisLoc
+    CHARACTER(LEN=QFYAML_strlen)       :: last_cat
 
-    ! SAVEd variables 
+    ! SAVEd variables
+    INTEGER,                      SAVE :: last_pos       = 0
+    INTEGER,                      SAVE :: cat_pos(20)    = 0
     INTEGER,                      SAVE :: cat_index      = 0
-    INTEGER,                      SAVE :: cat_last_pos   = 0
-    INTEGER,                      SAVE :: cat_indent(20) = 0
     CHARACTER(LEN=QFYAML_strlen), SAVE :: cat_stack(20)  = ""
 
     !=======================================================================
@@ -756,13 +758,15 @@ CONTAINS
     CALL Trim_Comment(line, '#;')
 
     ! Skip empty lines
-    IF ( line == "" ) RETURN
+    IF ( line == ""    ) RETURN
+    IF ( line == "---" ) RETURN
 
     ! Get the length of the line (excluding trailing whitespace)
     trim_len  = LEN_TRIM( line )
-    
+
     ! Get the position of the first non-whitespace character in the line
     pos       = First_Char_Pos( line )
+    indent    = ( pos - 1 ) + 1
 
     ! Look for the positions of certain characters
     colon_ix  = INDEX( line, ":" )
@@ -777,52 +781,64 @@ CONTAINS
     ! and has a colon in the line, then it's a category
     IF ( line(pos:pos) /= "" .and. colon_ix > 0 ) THEN
 
-       ! If there is nothing after the colon, then this indicates 
+       !---------------------------------------------------------------------
+       ! Categories
+       !
+       ! If there is nothing after the colon, then this indicates
        ! a category (without an anchor) rather than a variable
+       !---------------------------------------------------------------------
        IF ( colon_ix == trim_len ) THEN
-          
-          ! Keep track of the category depth in the stack
-          IF ( pos > cat_last_pos            ) THEN
-             cat_index  = cat_index + 1
-             cat_indent = cat_indent + 1
+
+          ! If this category starts further along the line than the last
+          ! category, then increment index and add its position to the stack.
+          IF ( pos > last_pos ) THEN
+             cat_index          = cat_index + 1
+             cat_pos(cat_index) = pos
           ENDIF
-          IF ( pos < cat_last_pos            ) THEN
-             cat_index  = cat_index  - 1
-             cat_indent = cat_indent - 1
+
+          ! If this category starts earlier along the line than the last
+          ! category, then decrement index and add its position to the stack.
+          ! last category, then this
+          IF ( pos < last_pos ) THEN
+             cat_index          = cat_index - 1
+             cat_pos(cat_index) = pos
           ENDIF
-          IF ( cat_index <= 0  .or. pos == 1 ) THEN
+
+          ! If the index is negative or the category begins at the first
+          ! character of the line, then set index to 1 and store its
+          ! starting position in the first element of the stack.
+          IF ( cat_index <= 0 .or. pos == 1 ) THEN
              cat_index  = 1
-             cat_indent = 1
+             cat_pos(1) = pos
           ENDIF
 
-          ! Then this indicates a category name, so return
-          ! and there is no anchor present
-          anchor_tgt           = ""
-          category             = line(pos:colon_ix-1)
-          cat_stack(cat_index) = category
+          ! Extract the category name and add it to the stack
+          anchor_tgt = ""
+          category   = line(pos:colon_ix-1)
           IF ( category == "'NO'" ) category = "NO"   ! Avoid clash w/ FALSE
+          cat_stack(cat_index) = category
 
-          ! Also preface the nested entries
-          DO C = cat_index-1, 1, -1
-             category = TRIM( cat_stack(C) )      // &
-                        QFYAML_category_separator // &
-                        TRIM( category ) 
-          ENDDO
-
-          ! Update the category starting position for next time
-          cat_last_pos = pos
+          ! Update the category starting position for the next iteration
+          last_pos = pos
           RETURN
 
+       !---------------------------------------------------------------------
+       ! YAML Anchors
+       !
        ! If there is an ampersand following the colon
        ! then this denotes a YAML anchor
+       !
+       ! For simplicity, assume anchors are always at level 1.
+       !---------------------------------------------------------------------
        ELSE IF ( colon_ix > 0 .and. ampsnd_ix > 0 ) THEN
 
           ! Return anchor target and category name
           ! Also save the category start position for next time
-          anchor_tgt = line(ampsnd_ix+1:trim_len)
-          category   = line(pos:colon_ix-1)
+          anchor_tgt   = line(ampsnd_ix+1:trim_len)
+          category     = line(pos:colon_ix-1)
+          cat_stack(1) = category
           IF ( category == "'NO'" ) category = "NO"   ! Avoid clash w/ FALSE
-          cat_last_pos = pos
+          last_pos     = pos
           RETURN
        ENDIF
     ENDIF
@@ -833,35 +849,58 @@ CONTAINS
 
     ! define the variable name
     append = .FALSE.
-  
-    IF ( pos >= cat_last_pos ) THEN
-       var_index    = var_index + 1
-       var_last_pos = pos
-    ENDIF
 
-    ! If the variable's starting position is less than or equal to the
-    ! last category, then its category is one further back in the stack
-    IF ( pos <= cat_last_pos ) THEN
-       cat_index = cat_index - 1 
-       category  = cat_stack(cat_index)
-    ENDIF 
-  
-    ! If the variable starts in the first column, it has no category
-    IF ( cat_index <= 0 .or. pos == 1 ) THEN
-       cat_index = 0
-       category  = ""
-    ENDIF
-
-    ! Get the variable name
+     ! Get the variable name
     var_name = line(pos:colon_ix-1)
-    
+
     ! Replace leading tabs by spaces
     ix = VERIFY(var_name, tab_char) ! Find first non-tab character
     var_name(1:ix-1) = ""
 
     ! Remove leading blanks
     var_name = ADJUSTL(var_name)
-   
+
+    ! Find the category that goes with this variable
+    category = ""
+    DO C = cat_index, 1, -1
+
+       ! If the variable starts at position 1, then it has no category.
+       IF ( pos == 1 ) THEN
+          category = ""
+          last_cat = ""
+          EXIT
+       ENDIF
+
+       ! If the variable starts beyond the highest category's
+       ! starting position, then it belongs to that category.
+       ! Also reference the category from the start.
+       IF ( pos > cat_pos(C) ) THEN
+          category = cat_stack(C)
+          IF ( C > 1 ) THEN
+             DO CC = C-1, 1, -1
+                category = TRIM( cat_stack(CC) ) // &
+                           QFYAML_Category_Separator // &
+                           TRIM( category )
+             ENDDO
+          ENDIF
+          EXIT
+       ENDIF
+
+       ! If the variable starts at the same position as the highest
+       ! category, then it belongs to the previous category
+       IF ( pos == cat_pos(C) ) THEN
+          category = cat_stack( MAX( C-1, 1 ) )
+          IF ( C-1 > 1 ) THEN
+             DO CC = C-2, 1, -1
+                category = TRIM( cat_stack(CC) ) // &
+                           QFYAML_Category_Separator // &
+                           TRIM( category )
+             ENDDO
+          ENDIF
+          EXIT
+       ENDIF
+    ENDDO
+
     ! Test if the variable is a YAML anchor
     IF ( var_name == "<<" ) THEN
 
@@ -3237,7 +3276,7 @@ CONTAINS
     CHARACTER(LEN=255)           :: temp
     !
     temp = ADJUSTL( str )
-    pos  = INDEX( str, temp(1:1) ) 
+    pos  = INDEX( str, temp(1:1) )
   END FUNCTION First_Char_Pos
 
 END MODULE QFYAML_Mod

@@ -124,7 +124,7 @@ CONTAINS
     !
     TYPE(QFYAML_t),  INTENT(INOUT)  :: yml
     INTEGER,         INTENT(OUT) :: RC
-    ! 
+    !
     INTEGER            :: N
     LOGICAL            :: v_bool
     CHARACTER(LEN=30)  :: tags(8)
@@ -141,7 +141,7 @@ CONTAINS
     tags(6) = "%species_database_file"
     tags(7) = "%debug_printout"
     tags(8) = "%use_gcclassic_timers"
-    
+
     ! Loop over the number of tags in the species database
     DO N = 1, SIZE( tags )
 
@@ -150,41 +150,41 @@ CONTAINS
        a_int_2 = MISSING_INT
        v_bool  = MISSING_BOOL
        v_str   = MISSING_STR
-       
+
        ! Search key
        key = "simulation" // TRIM( tags(N) )
-       
+
        ! Save into the proper field of the species database
        IF ( INDEX( key, "%start" ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, a_int_2, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           WRITE( 6, 320 ) TRIM( key ), a_int_2
-          
+
        ELSE IF ( INDEX( key, "%end" ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, a_int_2, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           WRITE( 6, 320 ) TRIM( key ), a_int_2
-          
+
        ELSE IF ( INDEX( key, "%met_field" ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           WRITE( 6, 110 ) TRIM( key ), TRIM( v_str )
-          
+
        ELSE IF ( INDEX( key, "%name" ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           WRITE( 6, 110 ) TRIM( key ), TRIM( v_str )
-          
+
        ELSE IF ( INDEX( key, "%species_database_file" ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           WRITE( 6, 110 ) TRIM( key ), TRIM( v_str )
-          
+
        ELSE IF ( INDEX( key, "%debug_printout" ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           WRITE( 6, 210 ) TRIM( key ), v_bool
-          
+
        ELSE IF ( INDEX( key, "%use_gcclassic_timers" ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
@@ -192,7 +192,7 @@ CONTAINS
 
        ELSE
           ! Pass
-          
+
        ENDIF
     ENDDO
 
@@ -222,7 +222,7 @@ CONTAINS
     !
     TYPE(QFYAML_t),  INTENT(INOUT)  :: yml
     INTEGER,         INTENT(OUT) :: RC
-    ! 
+    !
     INTEGER            :: N
     LOGICAL            :: v_bool
     CHARACTER(LEN=30)  :: tags(8)
@@ -242,7 +242,7 @@ CONTAINS
     tags(6) = "%number_of_levels"
     tags(7) = "%nested_grid_simulation"
     tags(8) = "%buffer_zone_NSEW"
-    
+
     ! Loop over the number of tags in the species database
     DO N = 1, SIZE( tags )
 
@@ -253,7 +253,7 @@ CONTAINS
        a_real_2 = MISSING_REAL
        v_bool   = MISSING_BOOL
        v_str    = MISSING_STR
-       
+
        ! Search key
        key = "grid" // TRIM( tags(N) )
 
@@ -262,32 +262,32 @@ CONTAINS
           CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           WRITE( 6, 110 ) TRIM( key ), TRIM( v_str )
-          
+
        ELSE IF ( INDEX( key, "%longitude_range" ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, a_real_2, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           WRITE( 6, 420 ) TRIM( key ), a_real_2
-          
+
        ELSE IF ( INDEX( key, "%center_lon_at_180" ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           WRITE( 6, 210 ) TRIM( key ), v_bool
-          
+
        ELSE IF ( INDEX( key, "%latitude_range" ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, a_real_2, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           WRITE( 6, 420 ) TRIM( key ), a_real_2
-          
+
        ELSE IF ( INDEX( key, "%half_size_polar_boxes" ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           WRITE( 6, 210 ) TRIM( key ), v_bool
-          
+
        ELSE IF ( INDEX( key, "%number_of_levels" ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_int, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           WRITE( 6, 310 ) TRIM( key ), v_int
-          
+
        ELSE IF ( INDEX( key, "%nested_grid_simulation" ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
@@ -300,7 +300,7 @@ CONTAINS
 
        ELSE
           ! Pass
-          
+
        ENDIF
     ENDDO
 
@@ -330,7 +330,7 @@ CONTAINS
     !
     TYPE(QFYAML_t),  INTENT(INOUT)  :: yml
     INTEGER,         INTENT(OUT) :: RC
-    ! 
+    !
     INTEGER            :: N
     LOGICAL            :: v_bool
     CHARACTER(LEN=30)  :: tags(2)
@@ -340,14 +340,14 @@ CONTAINS
     RC      = QFYAML_Success
     tags(1) = "%transport_and_convection"
     tags(2) = "%chemistry_and_emissions"
-    
+
     ! Loop over the number of tags in the species database
     DO N = 1, SIZE( tags )
 
        ! Set intial values to default "missing" values
        ! This will force creation of variables with these values
        v_int = MISSING_INT
-       
+
        ! Search key
        key = "timesteps" // TRIM( tags(N) )
 
@@ -356,15 +356,15 @@ CONTAINS
           CALL QFYAML_Add_Get( yml, key, v_int, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           WRITE( 6, 310 ) TRIM( key ), v_int
-          
+
        ELSE IF ( INDEX( key, "%chemistry_and_emissions" ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_int, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           WRITE( 6, 310 ) TRIM( key ), v_int
- 
+
        ELSE
           ! Pass
-          
+
        ENDIF
     ENDDO
 
@@ -385,10 +385,11 @@ CONTAINS
     !
     TYPE(QFYAML_t),  INTENT(INOUT)  :: yml
     INTEGER,         INTENT(OUT) :: RC
-    ! 
+    !
     INTEGER            :: N
-    CHARACTER(LEN=80)  :: tags(21)
-    CHARACTER(LEN=80)  :: key
+    CHARACTER(LEN=255) :: tags(21)
+    CHARACTER(LEN=255) :: key
+    INTEGER            :: a_int_3(3)
     LOGICAL            :: v_bool
     INTEGER            :: v_int
     CHARACTER(LEN=255) :: v_str
@@ -416,82 +417,151 @@ CONTAINS
     tags(18) = "%transport%activate"
     tags(19) = "%transport%fill_negative_values"
     tags(20) = "%transport%iord_jord_kord"
-    tags(21) = "%transport%activate"
-    
+    tags(21) = "%wet_deposition%activate"
+
     ! Loop over the number of tags in the species database
-    DO N = 1, 1  !SIZE( tags )
+    DO N = 1, SIZE( tags )
 
        ! Set intial values to default "missing" values
        ! This will force creation of variables with these values
-        ! Set intial values to default "missing" values
-       ! This will force creation of variables with these values
-       v_bool   = MISSING_BOOL
-       v_real   = MISSING_REAL
-       v_str    = MISSING_STR
-       v_int    = MISSING_INT
-       
+       a_int_3 = MISSING_INT
+       v_bool  = MISSING_BOOL
+       v_real  = MISSING_REAL
+       v_str   = MISSING_STR
+       v_int   = MISSING_INT
+
        ! Search key
        key = "operations" // TRIM( tags(N) )
-       print*, trim(key)
 
        ! %chemistry%activate
-       IF ( INDEX( key, tags(1) ) > 0 ) THEN
+       IF ( INDEX( key, TRIM( tags(1) ) ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
-          print*, '### v_bool', v_bool
           IF ( RC /= QFYAML_Success ) GOTO 999
           WRITE( 6, 210 ) TRIM( key ), v_bool
 
-!       ! %chemistry%linear_chemistry_aloft%activate"
-!       ELSE IF ( INDEX( key, tags(2) ) > 0 ) THEN
-!          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
-!          IF ( RC /= QFYAML_Success ) GOTO 999
-!          WRITE( 6, 210 ) TRIM( key ), v_bool
-!
-!       ! %chemistry%linear_chemistry_aloft%use_linoz_for_O3"
-!       ELSE IF ( INDEX( key, tags(3) ) > 0 ) THEN
-!          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
-!          IF ( RC /= QFYAML_Success ) GOTO 999
-!          WRITE( 6, 210 ) TRIM( key ), v_bool
-!
-!       ! %chemistry%use_static_H2O_bc
-!       ELSE IF ( INDEX( key, tags(4) ) > 0 ) THEN
-!          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
-!          IF ( RC /= QFYAML_Success ) GOTO 999
-!          WRITE( 6, 210 ) TRIM( key ), v_bool
-!
-!       ! %chemistry%gamma_HO2
-!       ELSE IF ( INDEX( key, tags(5) ) > 0 ) THEN
-!          CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
-!          IF ( RC /= QFYAML_Success ) GOTO 999
-!          WRITE( 6, 410 ) TRIM( key ), v_bool
-!
-!       ! %convection%activate
-!       ELSE IF ( INDEX( key, tags(6) ) > 0 ) THEN
-!          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
-!          IF ( RC /= QFYAML_Success ) GOTO 999
-!          WRITE( 6, 210 ) TRIM( key ), v_bool
-!
-!       ! %chemistry%linear_chemistry_aloft%activate"
-!       ELSE IF ( INDEX( key, tags(2) ) > 0 ) THEN
-!          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
-!          IF ( RC /= QFYAML_Success ) GOTO 999
-!          WRITE( 6, 210 ) TRIM( key ), v_bool
-!
-!       ! %chemistry%linear_chemistry_aloft%activate"
-!       ELSE IF ( INDEX( key, tags(2) ) > 0 ) THEN
-!          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
-!          IF ( RC /= QFYAML_Success ) GOTO 999
-!          WRITE( 6, 210 ) TRIM( key ), v_bool
-!
-!       ! %chemistry%linear_chemistry_aloft%activate"
-!       ELSE IF ( INDEX( key, tags(2) ) > 0 ) THEN
-!          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
-!          IF ( RC /= QFYAML_Success ) GOTO 999
-!          WRITE( 6, 210 ) TRIM( key ), v_bool
- 
+       ! %chemistry%linear_chemistry_aloft%activate"
+       ELSE IF ( INDEX( key, TRIM( tags(2) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 210 ) TRIM( key ), v_bool
+
+       ! %chemistry%linear_chemistry_aloft%use_linoz_for_O3"
+       ELSE IF ( INDEX( key, TRIM( tags(3) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 210 ) TRIM( key ), v_bool
+
+       ! %chemistry%use_static_H2O_bc
+       ELSE IF ( INDEX( key, TRIM( tags(4) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 210 ) TRIM( key ), v_bool
+
+       ! %chemistry%gamma_HO2
+       ELSE IF ( INDEX( key, TRIM( tags(5) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 410 ) TRIM( key ), v_real
+
+       ! %convection%activate
+       ELSE IF ( INDEX( key, TRIM( tags(6) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 210 ) TRIM( key ), v_bool
+
+       ! %dry_deposition%activate
+       ELSE IF ( INDEX( key, TRIM( tags(7) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 210 ) TRIM( key ), v_bool
+
+       ! %dry_deposition%co2_effect
+       ELSE IF ( INDEX( key, TRIM( tags(8) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 210 ) TRIM( key ), v_bool
+
+       ! %dry_deposition%co2_level
+       ELSE IF ( INDEX( key, TRIM( tags(9) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 410 ) TRIM( key ), v_real
+
+       ! %dry_deposition%reference_co2_level"
+       ELSE IF ( INDEX( key, TRIM( tags(10) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 410 ) TRIM( key ), v_real
+
+       ! %dry_deposition%diag_alt_above_sfc_in_m
+       ELSE IF ( INDEX( key, TRIM( tags(11) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 410 ) TRIM( key ), v_real
+
+       ! %pbl_mixing%activate
+       ELSE IF ( INDEX( key, TRIM( tags(12) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 210 ) TRIM( key ), v_bool
+
+       ! %pbl_mixing%use_non_local_pbl
+       ELSE IF ( INDEX( key, TRIM( tags(13) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 210 ) TRIM( key ), v_bool
+
+       ! %photolysis%input_directory"
+       ELSE IF ( INDEX( key, TRIM( tags(14) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 110 ) TRIM( key ), TRIM( v_str )
+
+       ! %photolysis%overhead_O3%use_online_O3_from_model
+       ELSE IF ( INDEX( key, TRIM( tags(15) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 210 ) TRIM( key ), v_bool
+
+       ! %photolysis%overhead_O3%use_column_O3_from_met
+       ELSE IF ( INDEX( key, TRIM( tags(16) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 210 ) TRIM( key ), v_bool
+
+       ! %photolysis%use_TOMS_SBUV_O3
+       ELSE IF ( INDEX( key, TRIM( tags(17) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 210 ) TRIM( key ), v_bool
+
+       ! %transport%activate"
+       ELSE IF ( INDEX( key, TRIM( tags(18) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 210 ) TRIM( key ), v_bool
+
+       ! %transport%fill_negative_values
+       ELSE IF ( INDEX( key, TRIM( tags(19) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 210 ) TRIM( key ), v_bool
+
+       ! %transport%iord_jord_kord
+       ELSE IF ( INDEX( key, TRIM( tags(20) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, a_int_3, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 330 ) TRIM( key ), a_int_3
+
+       ! %wet_deposition%activate
+       ELSE IF ( INDEX( key, TRIM( tags(21) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          WRITE( 6, 210 ) TRIM( key ), v_bool
+
        ELSE
           ! Pass
-          
+
        ENDIF
     ENDDO
 
@@ -503,7 +573,6 @@ CONTAINS
     print*, "Error in Parse_Grid!"
     RETURN
 
-    ! FORMAT statements (for use in code below)
     ! FORMAT statements (for use in code below)
 110 FORMAT( a60, " | ", a      )
 210 FORMAT( a60, " | ", L10    )
