@@ -98,11 +98,11 @@ MODULE QFYAML_Mod
   INTEGER, PARAMETER :: QFYAML_set_by_file    =  3
 
   ! Other constants
-  INTEGER, PARAMETER :: QFYAML_NamLen         =  80    ! Max len for names
-  INTEGER, PARAMETER :: QFYAML_StrLen         =  255   ! Max len for strings
+  INTEGER, PARAMETER :: QFYAML_MaxStack       =  20    ! Max cat_stack size
+  INTEGER, PARAMETER :: QFYAML_NamLen         =  100   ! Max len for names
+  INTEGER, PARAMETER :: QFYAML_StrLen         =  512   ! Max len for strings
   INTEGER, PARAMETER :: QFYAML_MaxArr         =  1000  ! Max entries per array
   INTEGER, PARAMETER :: QFYAML_MaxDataLen     =  40000 ! Max stored data size
-  INTEGER, PARAMETER :: QFYAML_MaxStack       =  20    ! Max cat_stack size
 
   CHARACTER(LEN=7), PARAMETER :: QFYAML_type_names(0:QFYAML_num_types) = &
       (/ 'storage', 'integer', 'real   ', 'string ', 'bool   ' /)
@@ -155,7 +155,7 @@ MODULE QFYAML_Mod
      MODULE PROCEDURE  Add_Bool,       Add_Bool_Array
   END INTERFACE QFYAML_Add
 
-  ! Interface to get variables from the configuration
+  ! INTERFACE to get variables from the configuration
   INTERFACE QFYAML_Get
      MODULE PROCEDURE  Get_Real,       Get_Real_Array
      MODULE PROCEDURE  Get_Int,        Get_Int_Array
@@ -787,8 +787,8 @@ CONTAINS
        is_list_var  = .FALSE.
        append       = .FALSE.
     ENDIF
- 
-    ! If the text is flush with the first column and has a colon 
+
+    ! If the text is flush with the first column and has a colon
     ! in the line, then it's a category or a YAML anchor
     IF ( line(pos:pos) /= "" .and. colon_ix > 0 ) THEN
 
@@ -862,7 +862,7 @@ CONTAINS
     append = .FALSE.
 
     !-----------------------------------------------------------------------
-    ! Special handling for YAML sequences 
+    ! Special handling for YAML sequences
     ! (i.e. free lists where each element starts with -)
     !-----------------------------------------------------------------------
 
@@ -874,14 +874,8 @@ CONTAINS
 
        ! Compute the variable name for the sequence
        ! NOTE: The variable name has the category prefixed to it!
-       CALL Get_Sequence_VarName( cat_index, cat_stack, var_name, append )
-
-       print*
-       print*, '###########################################'
-       print*, '### category: ', trim( category )
-       print*, '### var_name: ', trim( var_name )
-       print*, '### append  : ', append
-       print*, '### line    : ', trim(line(pos+1:))
+       CALL Get_Sequence_VarName( cat_index, cat_stack,                      &
+                                  category,  var_name, append )
 
        ! Add the YAML sequence variable to the YML object
        CALL Add_Variable( yml            = yml,                              &
@@ -906,11 +900,11 @@ CONTAINS
 
     ! Get the variable name
     var_name = line(pos:colon_ix-1)
-    
+
     ! Replace leading tabs by spaces
     ix = VERIFY(var_name, tab_char) ! Find first non-tab character
     var_name(1:ix-1) = ""
-       
+
     ! Remove leading blanks
     var_name = ADJUSTL(var_name)
 
@@ -953,7 +947,7 @@ CONTAINS
           EXIT
        ENDIF
     ENDDO
-       
+
 
     ! Test if the variable is a YAML anchor
     IF ( var_name == "<<" ) THEN
@@ -1114,8 +1108,6 @@ CONTAINS
 
        ! Store the value of the mapping in the "stored_data" field
        yml%vars(ix)%stored_data = TRIM( line_arg )
-       print*, '@@@@@@ var_name   : ', TRIM( yml%vars(ix)%var_name    )
-       print*, '@@@@@@ stored_data: ', TRIM( yml%vars(ix)%stored_data )
 
     ELSE
 
@@ -1134,8 +1126,6 @@ CONTAINS
           yml%vars(ix)%stored_data = line_arg
 
        ENDIF
-       print*, '%%%%%% var_name   : ', TRIM( yml%vars(ix)%var_name    )
-       print*, '%%%%%% stored_data: ', TRIM( yml%vars(ix)%stored_data )
 
        ! If type is known, read in values
        IF ( yml%vars(ix)%var_type /= QFYAML_unknown_type ) THEN
@@ -1758,6 +1748,7 @@ CONTAINS
     errMsg  = ""
     thisLoc = " -> at Prepare_Get_Var (in module qfyaml_mod.F90)"
 
+    ! Get the variable index from the name
     CALL Get_Var_Index( yml, var_name, ix )
 
     IF ( ix == QFYAML_Failure ) THEN
@@ -2346,7 +2337,7 @@ CONTAINS
 !
 ! !IROUTINE: First_Char_Pos
 !
-! !DESCRIPTION:Returns the position of the first non-whitespace 
+! !DESCRIPTION:Returns the position of the first non-whitespace
 !  character in a string
 !\\
 !\\
@@ -2374,7 +2365,7 @@ CONTAINS
 
     ! Remove leading whitespace and store in str
     temp = ADJUSTL( str )
- 
+
     ! Return the location of the first non-whitespace character
     pos  = INDEX( str, temp(1:1) )
 
@@ -2393,7 +2384,8 @@ CONTAINS
 !\\
 ! !INTERFACE:
 !
-  SUBROUTINE Get_Sequence_VarName( cat_index, cat_stack, var_name, append )
+  SUBROUTINE Get_Sequence_VarName( cat_index, cat_stack,                     &
+                                   category,  var_name,  append             )
 !
 ! !INPUT PARAMETERS:
 !
@@ -2402,6 +2394,7 @@ CONTAINS
 !
 ! !OUTPUT PARAMETERS:
 !
+    CHARACTER(LEN=QFYAML_NamLen), INTENT(OUT) :: category
     CHARACTER(LEN=QFYAML_NamLen), INTENT(OUT) :: var_name
     LOGICAL,                      INTENT(OUT) :: append
 !
@@ -2415,21 +2408,25 @@ CONTAINS
 !
     INTEGER                            :: C
     CHARACTER(LEN=QFYAML_NamLen), SAVE :: last_var = ""
-    
+
     ! Get the variable name for YAML sequences, which includes
     ! the category prefixed to it.
+    category = ""
     var_name = ""
     IF ( cat_index == 1 ) THEN
+       category = ""
        var_name = cat_stack(1)
     ELSE
-       DO C = 1, cat_index
-          var_name = TRIM( var_name ) // TRIM( cat_stack(C) )
-          IF ( C < cat_index ) THEN
-             var_name = TRIM( var_name ) // QFYAML_category_separator
+       DO C = 1, cat_index-1
+          category = TRIM( category ) // TRIM( cat_stack(C) )
+          IF ( C < cat_index-1 ) THEN
+             category = TRIM( category ) // QFYAML_category_separator
           ENDIF
        ENDDO
+       var_name = TRIM( category             )                            // &
+                  QFYAML_category_separator                               // &
+                  TRIM( cat_stack(cat_index) )
     ENDIF
-    print*, '---> var_name: ', trim(var_name)
 
     ! If this variable name is the same as on the last call, then set
     ! append=T.  This will tell Add_Variable to append the value into the
@@ -2443,7 +2440,7 @@ CONTAINS
   END SUBROUTINE Get_Sequence_VarName
 !EOC
 !############################################################################
-!### HERE FOLLOWS OVERLOADED MODULE PROCEDURES.  
+!### HERE FOLLOWS OVERLOADED MODULE PROCEDURES.
 !### THESE ARE SIMPLE ROUTINES, SO WE WILL OMIT ADDING SUBROUTINE HEADERS
 !############################################################################
 
@@ -3429,4 +3426,3 @@ CONTAINS
   END SUBROUTINE Update_String
 
 END MODULE QFYAML_Mod
-

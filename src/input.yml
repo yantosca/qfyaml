@@ -1,5 +1,7 @@
 ---
-# Going back & forth between levels
+#### input.yml - Input for test_qfyaml.F90
+
+#### Test going back & forth between levels
 weather:
   humidity: 99.85858265
   temperature:
@@ -8,14 +10,15 @@ weather:
         units: K
   pressure: 1013.25
 
-# Different types of input
+#### Test parsing different types of input
 author:
   age: 29
   fav_reals: [1.0, 2.0]
   more_reals: 3.14159 2.78128 8.5739 101.325
   lots_of_work: false
 
-# Testing YAML sequences
+#### Testing YAML sequences with various nesting levels
+
 fruits:
   - Apples
   - Bananas
@@ -33,14 +36,14 @@ even_more_fruits:
     hard_to_find:
       - Kumquats
       - Kiwi
-      - Passion fruit
-      - Star fruit
-      - Durians
+      - Passion_fruit     # NOTE: use underscores for multiple words,
+      - Star_fruit        # as there an issue in parsing spaces in YAML
+      - Durians           # sequences, to be addressed in future.
 
-# Variable without a category
+#### Test parsing a variable without a category
 filename: another_file
-    
-# Strings
+
+#### Test parsing strings
 author_name:
   first: Homer
   full: Homer J. Simpson
