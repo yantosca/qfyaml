@@ -12,12 +12,35 @@ weather:
 author:
   age: 29
   fav_reals: [1.0, 2.0]
+  more_reals: 3.14159 2.78128 8.5739 101.325
   lots_of_work: false
 
-# Strings
-author_name:
-  first: J
-  full: H.J. Teunissen
+# Testing YAML sequences
+fruits:
+  - Apples
+  - Bananas
+  - Oranges
+
+more_fruits:
+  p_fruits:
+    - Pears
+    - Plums
+    - Peaches
+    - Pomegranites
+
+even_more_fruits:
+  exotic_fruits:
+    hard_to_find:
+      - Kumquats
+      - Kiwi
+      - Passion fruit
+      - Star fruit
+      - Durians
 
 # Variable without a category
 filename: another_file
+    
+# Strings
+author_name:
+  first: Homer
+  full: Homer J. Simpson

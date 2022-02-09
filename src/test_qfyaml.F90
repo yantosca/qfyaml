@@ -22,22 +22,26 @@ PROGRAM Test_QFYAML
 ! !LOCAL VARIABLES:
 !
   ! Scalars
-  REAL(yp)              :: v_real
-  LOGICAL               :: v_bool
-  INTEGER               :: v_int
-  INTEGER               :: RC
+  REAL(yp)                        :: v_real
+  LOGICAL                         :: v_bool
+  INTEGER                         :: v_int
+  INTEGER                         :: RC
+  INTEGER                         :: N
 
   ! Strings
-  CHARACTER(LEN=255)    :: v_str
-  CHARACTER(LEN=255)    :: key
-  CHARACTER(LEN=255)    :: fileName
+  CHARACTER(LEN=255)              :: v_str
+  CHARACTER(LEN=255)              :: key
+  CHARACTER(LEN=255)              :: fileName
 
   ! Arrays
-  REAL(yp), allocatable :: a_real(:)
+  REAL(yp),           ALLOCATABLE :: a_real(:)
+  CHARACTER(LEN=255)              :: a_str_3(3)
+  CHARACTER(LEN=255)              :: a_str_4(4)
+  CHARACTER(LEN=255)              :: a_str_5(5)
 
   ! Objects
-  TYPE(QFYAML_t)        :: yml
-  TYPE(QFYAML_t)        :: yml_anchored
+  TYPE(QFYAML_t)                  :: yml
+  TYPE(QFYAML_t)                  :: yml_anchored
 !
 ! !REVISION HISTORY:
 !  06 Jan 2015 - R. Yantosca - Initial version
@@ -68,6 +72,13 @@ PROGRAM Test_QFYAML
   a_real = -999.0_yp
   CALL QFYAML_Add_Get( yml, key, a_real, "", RC )
   WRITE( 6, "(a30, "" | "", 2f7.2)") TRIM(key), a_real
+  DEALLOCATE( a_real )
+
+  key    = "author%more_reals"
+  ALLOCATE( a_real(4) )
+  a_real = -999.0_yp
+  CALL QFYAML_Add_Get( yml, key, a_real, "", RC )
+  WRITE( 6, "(a30, "" | "", 4f11.6)") TRIM(key), a_real
   DEALLOCATE( a_real )
 
   key    = "author%lots_of_work"
@@ -109,6 +120,32 @@ PROGRAM Test_QFYAML
   v_real = -999.0_yp
   CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
   WRITE( 6, "(a30, "" | "", f13.6)") TRIM(key), v_real
+
+  print*
+  print*, '### YAML SEQUENCES'
+  key     = "fruits"
+  a_str_3 = ""
+  CALL QFYAML_Add_Get( yml, key, a_str_3, "", RC )
+  WRITE( 6, "(a)" ) TRIM(key)
+  DO N = 1, SIZE( a_str_3 )
+     print*, N, TRIM( a_str_3(N) )
+  ENDDO
+
+  key     = "more_fruits%p_fruits"
+  a_str_4 = ""
+  CALL QFYAML_Add_Get( yml, key, a_str_4, "", RC )
+  WRITE( 6, "(a)" ) TRIM(key)
+  DO N = 1, SIZE( a_str_4 )
+     print*, N, TRIM( a_str_4(N) )
+  ENDDO
+
+  key     = "even_more_fruits%exotic_fruits%hard_to_find"
+  a_str_5 = ""
+  CALL QFYAML_Add_Get( yml, key, a_str_5, "", RC )
+  WRITE( 6, "(a)" ) TRIM(key)
+  DO N = 1, SIZE( a_str_5 )
+     print*, N, TRIM( a_str_5(N) )
+  ENDDO
 
   ! Finalize the config object
   print*, "### finishing"

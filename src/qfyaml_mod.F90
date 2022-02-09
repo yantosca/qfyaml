@@ -4,7 +4,7 @@
 !------------------------------------------------------------------------------
 !BOP
 !
-! !MODULE: yaml_mod.F90
+! !MODULE: qfyaml_mod.F90
 !
 ! !DESCRIPTION: Contains routines for reading a YAML file into Fortran,
 !  based off the "config_fortran" package of H. J. Teunissen.
@@ -97,10 +97,12 @@ MODULE QFYAML_Mod
   INTEGER, PARAMETER :: QFYAML_set_by_default =  1
   INTEGER, PARAMETER :: QFYAML_set_by_file    =  3
 
-  ! Maxima
+  ! Other constants
   INTEGER, PARAMETER :: QFYAML_NamLen         =  80    ! Max len for names
   INTEGER, PARAMETER :: QFYAML_StrLen         =  255   ! Max len for strings
   INTEGER, PARAMETER :: QFYAML_MaxArr         =  1000  ! Max entries per array
+  INTEGER, PARAMETER :: QFYAML_MaxDataLen     =  40000 ! Max stored data size
+  INTEGER, PARAMETER :: QFYAML_MaxStack       =  20    ! Max cat_stack size
 
   CHARACTER(LEN=7), PARAMETER :: QFYAML_type_names(0:QFYAML_num_types) = &
       (/ 'storage', 'integer', 'real   ', 'string ', 'bool   ' /)
@@ -129,7 +131,7 @@ MODULE QFYAML_Mod
      LOGICAL                                   :: dynamic_size
      LOGICAL                                   :: used
      INTEGER                                   :: set_by=QFYAML_set_by_default
-     CHARACTER(LEN=QFYAML_strlen)              :: stored_data
+     CHARACTER(LEN=QFYAML_maxDataLen)          :: stored_data
      CHARACTER(LEN=QFYAML_namlen)              :: anchor_ptr
      CHARACTER(LEN=QFYAML_namlen)              :: anchor_tgt
      REAL(yp),                     ALLOCATABLE :: real_data(:)
@@ -722,7 +724,6 @@ CONTAINS
     INTEGER                            :: colon_ix
     INTEGER                            :: star_ix
     INTEGER                            :: trim_len
-    INTEGER                            :: indent
     INTEGER                            :: pos
     INTEGER                            :: C
     INTEGER                            :: CC
@@ -731,14 +732,16 @@ CONTAINS
     CHARACTER(LEN=QFYAML_namlen)       :: var_name
     CHARACTER(LEN=QFYAML_strlen)       :: errMsg
     CHARACTER(LEN=QFYAML_strlen)       :: line
+    CHARACTER(LEN=QFYAML_strlen)       :: line2
     CHARACTER(LEN=QFYAML_strlen)       :: thisLoc
     CHARACTER(LEN=QFYAML_strlen)       :: last_cat
 
     ! SAVEd variables
-    INTEGER,                      SAVE :: last_pos       = 0
-    INTEGER,                      SAVE :: cat_pos(20)    = 0
-    INTEGER,                      SAVE :: cat_index      = 0
-    CHARACTER(LEN=QFYAML_strlen), SAVE :: cat_stack(20)  = ""
+    LOGICAL,                      SAVE :: is_list_var                = .FALSE.
+    INTEGER,                      SAVE :: last_pos                   = 0
+    INTEGER,                      SAVE :: cat_pos(20)                = 0
+    INTEGER,                      SAVE :: cat_index                  = 0
+    CHARACTER(LEN=QFYAML_NamLen), SAVE :: cat_stack(QFYAML_MaxStack) = ""
 
     !=======================================================================
     ! Parse_Line begins here!
@@ -766,7 +769,6 @@ CONTAINS
 
     ! Get the position of the first non-whitespace character in the line
     pos       = First_Char_Pos( line )
-    indent    = ( pos - 1 ) + 1
 
     ! Look for the positions of certain characters
     colon_ix  = INDEX( line, ":" )
@@ -777,8 +779,17 @@ CONTAINS
     ! Handling for categories and YAML anchors
     !========================================================================
 
-    ! If the text is flush with the first column
-    ! and has a colon in the line, then it's a category
+    !---------------------------------------------------------------------
+    ! Special handling for YAML sequences:
+    ! Set is_list_var = F once we encounter a new category or variable
+    !---------------------------------------------------------------------
+    IF ( is_list_var .and. line(pos:pos) /= "-" ) THEN
+       is_list_var  = .FALSE.
+       append       = .FALSE.
+    ENDIF
+ 
+    ! If the text is flush with the first column and has a colon 
+    ! in the line, then it's a category or a YAML anchor
     IF ( line(pos:pos) /= "" .and. colon_ix > 0 ) THEN
 
        !---------------------------------------------------------------------
@@ -808,8 +819,8 @@ CONTAINS
           ! character of the line, then set index to 1 and store its
           ! starting position in the first element of the stack.
           IF ( cat_index <= 0 .or. pos == 1 ) THEN
-             cat_index  = 1
-             cat_pos(1) = pos
+             cat_index          = 1
+             cat_pos(cat_index) = pos
           ENDIF
 
           ! Extract the category name and add it to the stack
@@ -850,17 +861,59 @@ CONTAINS
     ! define the variable name
     append = .FALSE.
 
-     ! Get the variable name
-    var_name = line(pos:colon_ix-1)
+    !-----------------------------------------------------------------------
+    ! Special handling for YAML sequences 
+    ! (i.e. free lists where each element starts with -)
+    !-----------------------------------------------------------------------
 
+    ! If the line begins with -, then it denotes an element of a sequence
+    IF ( line(pos:pos) == "-" ) THEN
+
+       ! Set flag to denote that we are in a YAML sequence
+       is_list_var = .TRUE.
+
+       ! Compute the variable name for the sequence
+       ! NOTE: The variable name has the category prefixed to it!
+       CALL Get_Sequence_VarName( cat_index, cat_stack, var_name, append )
+
+       print*
+       print*, '###########################################'
+       print*, '### category: ', trim( category )
+       print*, '### var_name: ', trim( var_name )
+       print*, '### append  : ', append
+       print*, '### line    : ', trim(line(pos+1:))
+
+       ! Add the YAML sequence variable to the YML object
+       CALL Add_Variable( yml            = yml,                              &
+                          append         = append,                           &
+                          set_by         = set_by,                           &
+                          line_arg       = line(pos+1:),                     &
+                          anchor_ptr_arg = anchor_ptr,                       &
+                          anchor_tgt_arg = anchor_tgt,                       &
+                          category_arg   = category,                         &
+                          var_name_arg   = var_name,                         &
+                          RC             = RC                               )
+
+       ! Return so that we can get the next line
+       RETURN
+    ENDIF
+
+    !-----------------------------------------------------------------------
+    ! Regular handling for all other variables
+    !-----------------------------------------------------------------------
+
+    append = .FALSE.
+
+    ! Get the variable name
+    var_name = line(pos:colon_ix-1)
+    
     ! Replace leading tabs by spaces
     ix = VERIFY(var_name, tab_char) ! Find first non-tab character
     var_name(1:ix-1) = ""
-
+       
     ! Remove leading blanks
     var_name = ADJUSTL(var_name)
 
-    ! Find the category that goes with this variable
     category = ""
     DO C = cat_index, 1, -1
 
@@ -900,6 +953,7 @@ CONTAINS
           EXIT
        ENDIF
     ENDDO
+       
 
     ! Test if the variable is a YAML anchor
     IF ( var_name == "<<" ) THEN
@@ -921,7 +975,7 @@ CONTAINS
        ! There we will create a new variable with all of the
        ! properties of the anchor target.
        CALL Add_Variable( yml            = yml_anchored,                     &
-                          append         = append,                           &
+                          append         = .FALSE.,                          &
                           set_by         = set_by,                           &
                           line_arg       = line,                             &
                           anchor_ptr_arg = anchor_ptr,                       &
@@ -953,7 +1007,7 @@ CONTAINS
 
        ! Add the variable to the config object
        CALL Add_Variable( yml            = yml,                              &
-                          append         = append,                           &
+                          append         = .FALSE.,                          &
                           set_by         = set_by,                           &
                           line_arg       = line,                             &
                           anchor_ptr_arg = anchor_ptr,                       &
@@ -1060,6 +1114,8 @@ CONTAINS
 
        ! Store the value of the mapping in the "stored_data" field
        yml%vars(ix)%stored_data = TRIM( line_arg )
+       print*, '@@@@@@ var_name   : ', TRIM( yml%vars(ix)%var_name    )
+       print*, '@@@@@@ stored_data: ', TRIM( yml%vars(ix)%stored_data )
 
     ELSE
 
@@ -1078,6 +1134,8 @@ CONTAINS
           yml%vars(ix)%stored_data = line_arg
 
        ENDIF
+       print*, '%%%%%% var_name   : ', TRIM( yml%vars(ix)%var_name    )
+       print*, '%%%%%% stored_data: ', TRIM( yml%vars(ix)%stored_data )
 
        ! If type is known, read in values
        IF ( yml%vars(ix)%var_type /= QFYAML_unknown_type ) THEN
@@ -2280,9 +2338,113 @@ CONTAINS
 
   END SUBROUTINE QFYAML_get_type
 !EOC
+!------------------------------------------------------------------------------
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
+! Based on existing package https://github.com/jannisteunissen/config_fortran
+!------------------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE: First_Char_Pos
+!
+! !DESCRIPTION:Returns the position of the first non-whitespace 
+!  character in a string
+!\\
+!\\
+! !INTERFACE:
+!
+  FUNCTION First_Char_Pos( str ) RESULT( pos )
+!
+! !INPUT PARAMETERS:
+!
+    CHARACTER(LEN=*), INTENT(IN) :: str
+!
+! !RETURN VALUE:
+!
+    INTEGER                      :: pos
+!
+! !REVISION HISTORY:
+!  09 Feb 2022- R. Yantosca - Initial version
+!  See the subsequent Git history with the gitk browser!
+!EOP
+!------------------------------------------------------------------------------
+!
+! !LOCAL VARIABLES:
+!
+    CHARACTER(LEN=QFYAML_strlen) :: temp
+
+    ! Remove leading whitespace and store in str
+    temp = ADJUSTL( str )
+ 
+    ! Return the location of the first non-whitespace character
+    pos  = INDEX( str, temp(1:1) )
+
+  END FUNCTION First_Char_Pos
+!EOC
+!------------------------------------------------------------------------------
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
+! Based on existing package https://github.com/jannisteunissen/config_fortran
+!------------------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE: Get_Sequence_VarName
+!
+! !DESCRIPTION:  Computes the category and varname from the category stack.
+!\\
+!\\
+! !INTERFACE:
+!
+  SUBROUTINE Get_Sequence_VarName( cat_index, cat_stack, var_name, append )
+!
+! !INPUT PARAMETERS:
+!
+    INTEGER,                      INTENT(IN)  :: cat_index
+    CHARACTER(LEN=QFYAML_NamLen), INTENT(IN)  :: cat_stack(QFYAML_MaxStack)
+!
+! !OUTPUT PARAMETERS:
+!
+    CHARACTER(LEN=QFYAML_NamLen), INTENT(OUT) :: var_name
+    LOGICAL,                      INTENT(OUT) :: append
+!
+! !REVISION HISTORY:
+!  09 Feb 2022- R. Yantosca - Initial version
+!  See the subsequent Git history with the gitk browser!
+!EOP
+!------------------------------------------------------------------------------
+!
+! !LOCAL VARIABLES:
+!
+    INTEGER                            :: C
+    CHARACTER(LEN=QFYAML_NamLen), SAVE :: last_var = ""
+    
+    ! Get the variable name for YAML sequences, which includes
+    ! the category prefixed to it.
+    var_name = ""
+    IF ( cat_index == 1 ) THEN
+       var_name = cat_stack(1)
+    ELSE
+       DO C = 1, cat_index
+          var_name = TRIM( var_name ) // TRIM( cat_stack(C) )
+          IF ( C < cat_index ) THEN
+             var_name = TRIM( var_name ) // QFYAML_category_separator
+          ENDIF
+       ENDDO
+    ENDIF
+    print*, '---> var_name: ', trim(var_name)
+
+    ! If this variable name is the same as on the last call, then set
+    ! append=T.  This will tell Add_Variable to append the value into the
+    ! same variable in the YAML object rather than saving it into a new
+    ! variable.
+    append = .FALSE.
+    IF ( TRIM( var_name ) == TRIM( last_var ) ) append = .TRUE.
+
+    ! Save for next iteration
+    last_var = var_name
+  END SUBROUTINE Get_Sequence_VarName
+!EOC
 !############################################################################
-!### HERE FOLLOWS OVERLOADED MODULE PROCEDURES.  THESE ARE SIMPLE SO
-!### WE WILL OMIT ADDING SUBROUTINE HEADERS
+!### HERE FOLLOWS OVERLOADED MODULE PROCEDURES.  
+!### THESE ARE SIMPLE ROUTINES, SO WE WILL OMIT ADDING SUBROUTINE HEADERS
 !############################################################################
 
   SUBROUTINE Add_Real( yml, var_name, real_data, comment, RC )
@@ -2922,8 +3084,8 @@ CONTAINS
 
   END SUBROUTINE Add_Get_Int_Array
 
-  SUBROUTINE Add_Get_String_Array( yml,     var_name,     char_data,         &
-                                   comment, dynamic_size, RC                )
+  SUBROUTINE Add_Get_String_Array( yml,     var_name, char_data,             &
+                                   comment, RC,       dynamic_size          )
     !
     ! Get or add a character array of a given name
     !
@@ -2931,7 +3093,7 @@ CONTAINS
     CHARACTER(LEN=*), INTENT(IN   ) :: var_name
     CHARACTER(LEN=*), INTENT(INOUT) :: char_data(:)
     CHARACTER(LEN=*), INTENT(IN   ) :: comment
-    LOGICAL,          optional      :: dynamic_size
+    LOGICAL,          OPTIONAL      :: dynamic_size
     INTEGER,          INTENT(OUT  ) :: RC
 
     CHARACTER(LEN=QFYAML_strlen)    :: errMsg
@@ -2958,8 +3120,8 @@ CONTAINS
 
   END SUBROUTINE Add_Get_String_Array
 
-  SUBROUTINE Add_Get_Bool_Array(yml,     var_name,     bool_data,            &
-                                comment, dynamic_size, RC                   )
+  SUBROUTINE Add_Get_Bool_Array(yml,     var_name, bool_data,                &
+                                comment, RC,       dynamic_size             )
     !
     ! Get or add a LOGICAL array of a given name
     !
@@ -3266,17 +3428,5 @@ CONTAINS
 
   END SUBROUTINE Update_String
 
-  FUNCTION First_Char_Pos( str ) RESULT( pos )
-    !
-    ! Returns the position of the first non-whitespace character in a string
-    !
-    CHARACTER(LEN=*), INTENT(IN) :: str
-    INTEGER                      :: pos
-    !
-    CHARACTER(LEN=255)           :: temp
-    !
-    temp = ADJUSTL( str )
-    pos  = INDEX( str, temp(1:1) )
-  END FUNCTION First_Char_Pos
-
 END MODULE QFYAML_Mod
+
