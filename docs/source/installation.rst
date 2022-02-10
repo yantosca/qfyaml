@@ -50,7 +50,7 @@ and call CMake with this command:
 The :file:`-B ../build` command tells CMake to create the Makefiles in
 the :file:`qfyaml/build` folder.
    
-You should see output similar to this:
+When the test runs, you should see output similar to this:
 
 .. code-block:: console
 
@@ -80,8 +80,12 @@ Type the following at the command line:
 The :file:`-C` command tells :program:`make` to look in the
 :file:`../build` folder for the Makefiles that were created by CMake.
 These Makefiles will direct the build process.
+   
+.. important:: You will need to repeat the compilation process each
+	       time you modify one :file:`qfyaml_mod.F90` or one of
+	       the :file:`test_*.F90` source code files.
 
-You should see output similar to this.
+When the test runs, you should see output similar to this.
 
 .. code-block:: console
 
@@ -130,7 +134,7 @@ You should see output similar to this.
    [100%] Built target test_geoschem_config.x
    make[1]: Leaving directory '/home/bob/work/qfyaml/build'
    make: Leaving directory '/home/bob/work/qfyaml/build'
-
+   
 .. _Installing:
 
 *****************
@@ -147,7 +151,11 @@ Type at the command line:
 
    $ make -C ../build install
 
-You should see output similar to this:
+.. important:: You will need to repeat the installation process each
+	       time you modify one :file:`qfyaml_mod.F90` or one of
+	       the :file:`test_*.F90` source code files.
+   
+When the test runs, you should see output similar to this:
 
 .. code-block:: console
 
@@ -204,6 +212,3 @@ and you will see this directory listing:
 Executable files for the various tests (which are discussed in the
 next chapter) end with the :file:`.x` extension.  The corresponding
 configuration files in YAML format end with the :file:`.yml` format.
-
-
-
