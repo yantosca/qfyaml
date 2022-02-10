@@ -1,8 +1,8 @@
-License agreement, 15 Apr 2020
+License agreement, 10 Feb 2022
 (The MIT "Expat" License, http://opensource.org/licenses/MIT)
 ==============================================================================
 
-Copyright (c) 2020, Bob Yantosca
+Copyright (c) 2020, 2022, Bob Yantosca
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -2,7 +2,7 @@
 Known Bugs
 ##########
 
-This page links to known bugs in :program:`qfyaml`. See the `Github
+This page lists known bugs in :program:`qfyaml`. See the `Github
 issues <http:s://github.com/yantosca/qfyaml/issues>`_ page for updates
 on their status.
 

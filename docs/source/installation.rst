@@ -29,7 +29,7 @@ in the :file:`qfyaml/test` folder.
 Configuring qfyaml
 ******************
 
-You may now call CMake, which will begin the configuration
+You may now call CMake to begin the configuration
 process.  During configuration, CMake will first check if you
 have everything on your system that is required to compile the
 :program:`qfyaml` source code.  If everything checks out, then Cmake
@@ -82,7 +82,7 @@ The :file:`-C` command tells :program:`make` to look in the
 These Makefiles will direct the build process.
    
 .. important:: You will need to repeat the compilation process each
-	       time you modify one :file:`qfyaml_mod.F90` or one of
+	       time you modify :file:`qfyaml_mod.F90` or one of
 	       the :file:`test_*.F90` source code files.
 
 When the test runs, you should see output similar to this.
@@ -141,8 +141,8 @@ When the test runs, you should see output similar to this.
 Installing qfyaml
 *****************
 
-Once compilation has finished successfully, we may install the
-compiled code (and various input files)  to the :file:`qfyaml/bin`
+Once compilation has finished successfully, you may install the
+compiled code (and various input files) to the :file:`qfyaml/bin`
 folder.
 
 Type at the command line:
@@ -152,7 +152,7 @@ Type at the command line:
    $ make -C ../build install
 
 .. important:: You will need to repeat the installation process each
-	       time you modify one :file:`qfyaml_mod.F90` or one of
+	       time you modify :file:`qfyaml_mod.F90` or one of
 	       the :file:`test_*.F90` source code files.
    
 When the test runs, you should see output similar to this:
@@ -209,6 +209,6 @@ and you will see this directory listing:
    test_qfyaml.x
    test_species_database.x
 
-Executable files for the various tests (which are discussed in the
-next chapter) end with the :file:`.x` extension.  The corresponding
-configuration files in YAML format end with the :file:`.yml` format.
+Executable files for the various tests end with the :file:`.x`
+extension.  The corresponding configuration files in YAML format end
+with the :file:`.yml` format. 

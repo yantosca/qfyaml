@@ -91,7 +91,8 @@ test_geoschem_config.x
 This test program attempts to read the `GEOS-Chem master configuration
 file
 <https://github.com/yantosca/qfyaml/blob/main/test/geoschem_config.yml>`_
-and echo back output.
+and echo back output.  The master configuration file will replace
+:file:`input.geos` in GEOS-Chem 14.0.0 and later.
 
 To run this test, type at the command line:
 
