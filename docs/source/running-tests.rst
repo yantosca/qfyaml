@@ -30,7 +30,7 @@ To run this test, type at the command line:
 .. code-block:: console
 
    $ cd qfyaml/bin      # Skip if you are already in qfyaml/bin
-   $ ./_test_qfyaml.x
+   $ ./test_qfyaml.x
 
 This test will parse the :file:`input.yml` file and echo back the
 output.  If the test is successful you will see this output:
@@ -99,7 +99,7 @@ To run this test, type at the command line:
 .. code-block:: console
 
    $ cd qfyaml/bin      # Skip if you are already in qfyaml/bin
-   $ ./_test_geoschem_config.x
+   $ ./test_geoschem_config.x
 
 And you should see output such as:
 
@@ -141,7 +141,7 @@ To run this test, type at the command line:
 .. code-block:: console
 
    $ cd qfyaml/bin      # Skip if you are already in qfyaml/bin
-   $ ./_test_species_database.x
+   $ ./test_species_database.x
 
 You should see output similar to this:
 
