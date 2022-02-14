@@ -1769,7 +1769,7 @@ CONTAINS
        CALL Handle_Error( errMsg, RC, thisLoc )
        RETURN
 
-    ELSE IF ( yml%vars(ix)%var_size /= var_size ) THEN
+    ELSE IF ( var_size < yml%vars(ix)%var_size ) THEN
 
        ! Variable has different size than requested: exit w/ error
        WRITE( errMsg, "(a,i0,a,i0,a)" )                                      &
@@ -1884,11 +1884,11 @@ CONTAINS
 ! !LOCAL VARIABLES:
 !
     ! Scalars
-    INTEGER                      :: B, ix, ix_prev
+    INTEGER                          :: B, ix, ix_prev
 
     ! Strings
-    CHARACTER(LEN=1            ) :: bkt
-    CHARACTER(LEN=QFYAML_strlen) :: line
+    CHARACTER(LEN=1                ) :: bkt
+    CHARACTER(LEN=QFYAML_MaxDataLen) :: line
 
     !=======================================================================
     ! Get_Fields_String begins here!
@@ -2782,6 +2782,8 @@ CONTAINS
     INTEGER,          INTENT(OUT  ) :: RC
 
     INTEGER                         :: ix
+    INTEGER                         :: sz_data
+    INTEGER                         :: sz_stored
     CHARACTER(LEN=QFYAML_strlen)    :: errMsg
     CHARACTER(LEN=QFYAML_strlen)    :: thisLoc
 
@@ -2790,15 +2792,35 @@ CONTAINS
     errMsg  = ''
     thisLoc = ' -> at Get_Real_Array (in module qfyaml_mod.F90)'
 
-    CALL Prepare_Get_Var( yml,             var_name, QFYAML_real_type,       &
-                          SIZE(real_data), ix,       RC                     )
+    ! Make sure the real_data array has at last 1 element
+    sz_data = SIZE( real_data )
+    IF ( sz_data < 1 ) THEN
+       errMsg = 'Argument "real_data" must be an array!'
+       CALL Handle_Error( errMsg, RC, thisLoc )
+       RETURN
+    ENDIF
+
+    ! Look up the stored data
+    CALL Prepare_Get_Var( yml,     var_name, QFYAML_real_type,               &
+                          sz_data, ix,       RC                             )
     IF ( RC /= QFYAML_Success ) THEN
        errMsg = 'Error encountered in "Prepare_Get_Var"!'
        CALL Handle_Error( errMsg, RC, thisLoc )
        RETURN
     ENDIF
 
-    real_data = yml%vars(ix)%real_data
+    ! Number of elements of stored data in this variable
+    sz_stored = SIZE( yml%vars(ix)%real_data )
+
+    ! Make sure the data array has enough elements
+    IF ( sz_data < sz_stored ) THEN
+       errMsg = 'Argument "real_data" does not have enough elements!'
+       CALL Handle_Error( errMsg, RC, thisLoc )
+       RETURN
+    ENDIF
+
+    ! Only copy over as many elements as are stored
+    real_data(1:sz_stored) = yml%vars(ix)%real_data(1:sz_stored)
 
   END SUBROUTINE Get_Real_Array
 
@@ -2813,6 +2835,8 @@ CONTAINS
     INTEGER,          INTENT(OUT  ) :: RC
 
     INTEGER                         :: ix
+    INTEGER                         :: sz_data
+    INTEGER                         :: sz_stored
     CHARACTER(LEN=QFYAML_strlen)    :: errMsg
     CHARACTER(LEN=QFYAML_strlen)    :: thisLoc
 
@@ -2821,15 +2845,35 @@ CONTAINS
     errMsg  = ''
     thisLoc = ' -> at Get_Int_Array (in module qfyaml_mod.F90)'
 
-    CALL Prepare_Get_Var( yml,            var_name, QFYAML_integer_type,     &
-                          SIZE(int_data), ix,       RC                      )
+    ! Make sure the real_data array has at last 1 element
+    sz_data = SIZE( int_data )
+    IF ( sz_data < 1 ) THEN
+       errMsg = 'Argument "int_data" must be an array!'
+       CALL Handle_Error( errMsg, RC, thisLoc )
+       RETURN
+    ENDIF
+
+    ! Look up the stored data
+    CALL Prepare_Get_Var( yml,     var_name, QFYAML_integer_type,            &
+                          sz_data, ix,       RC                             )
     IF ( RC /= QFYAML_Success ) THEN
        errMsg = 'Error encountered in "Prepare_Get_Var"!'
        CALL Handle_Error( errMsg, RC, thisLoc )
        RETURN
     ENDIF
 
-    int_data    = yml%vars(ix)%int_data
+    ! Number of elements of stored data in this variable
+    sz_stored = SIZE( yml%vars(ix)%int_data )
+
+    ! Make sure the data array has enough elements
+    IF ( sz_data < sz_stored ) THEN
+       errMsg = 'Argument "real_data" does not have enough elements!'
+       CALL Handle_Error( errMsg, RC, thisLoc )
+       RETURN
+    ENDIF
+
+    ! Only copy over as many elements as are stored
+    int_data(1:sz_stored) = yml%vars(ix)%int_data(1:sz_stored)
 
   END SUBROUTINE Get_Int_Array
 
@@ -2838,11 +2882,13 @@ CONTAINS
     ! Get a character array of a given name
     !
     TYPE(QFYAML_t),   INTENT(INOUT) :: yml
-    CHARACTER(LEN=*), INTENT(IN   )    :: var_name
+    CHARACTER(LEN=*), INTENT(IN   ) :: var_name
     CHARACTER(LEN=*), INTENT(INOUT) :: char_data(:)
     INTEGER,          INTENT(OUT  ) :: RC
 
     INTEGER                         :: ix
+    INTEGER                         :: sz_data
+    INTEGER                         :: sz_stored
     CHARACTER(LEN=QFYAML_strlen)    :: errMsg
     CHARACTER(LEN=QFYAML_strlen)    :: thisLoc
 
@@ -2851,15 +2897,36 @@ CONTAINS
     errMsg  = ''
     thisLoc = ' -> at Get_String_Array (in module qfyaml_mod.F90)'
 
-    CALL Prepare_Get_Var( yml,             var_name, QFYAML_string_type,     &
-                          SIZE(char_data), ix,       RC                     )
+    ! Make sure the char_data array has at last 1 element
+    sz_data = SIZE( char_data )
+    IF ( sz_data < 1 ) THEN
+       errMsg = 'Argument "char_data" must be an array!'
+       CALL Handle_Error( errMsg, RC, thisLoc )
+       RETURN
+    ENDIF
+
+    ! Look up the stored data
+    CALL Prepare_Get_Var( yml,     var_name, QFYAML_string_type,             &
+                          sz_data, ix,       RC                             )
+
     IF ( RC /= QFYAML_Success ) THEN
        errMsg = 'Error encountered in "Prepare_Get_Var"!'
        CALL Handle_Error( errMsg, RC, thisLoc )
        RETURN
     ENDIF
 
-    char_data = yml%vars(ix)%char_data
+    ! Number of elements of stored data in this variable
+    sz_stored = SIZE( yml%vars(ix)%char_data )
+
+    ! Make sure the data array has enough elements
+    IF ( sz_data < sz_stored ) THEN
+       errMsg = 'Argument "char_data" does not have enough elements!'
+       CALL Handle_Error( errMsg, RC, thisLoc )
+       RETURN
+    ENDIF
+
+    ! Copy over only the number of elements that are stored
+    char_data(1:sz_stored) = yml%vars(ix)%char_data(1:sz_stored)
 
   END SUBROUTINE Get_String_Array
 
@@ -2873,6 +2940,8 @@ CONTAINS
     INTEGER,          INTENT(OUT  ) :: RC
 
     INTEGER                         :: ix
+    INTEGER                         :: sz_data
+    INTEGER                         :: sz_stored
     CHARACTER(LEN=QFYAML_strlen)    :: errMsg
     CHARACTER(LEN=QFYAML_strlen)    :: thisLoc
 
@@ -2881,6 +2950,15 @@ CONTAINS
     errMsg  = ''
     thisLoc = ' -> at Get_Bool_Array (in module qfyaml_mod.F90)'
 
+    ! Make sure the char_data array has at last 1 element
+    sz_data = SIZE( bool_data )
+    IF ( sz_data < 1 ) THEN
+       errMsg = 'Argument "char_data" must be an array!'
+       CALL Handle_Error( errMsg, RC, thisLoc )
+       RETURN
+    ENDIF
+
+    ! Look up the stored data
     CALL Prepare_Get_Var( yml,             var_name, QFYAML_bool_type,       &
                           SIZE(bool_data), ix,       RC                     )
     IF ( RC /= QFYAML_Success ) THEN
@@ -2889,7 +2967,18 @@ CONTAINS
        RETURN
     ENDIF
 
-    bool_data = yml%vars(ix)%bool_data
+    ! Number of elements of stored data in this variable
+    sz_stored = SIZE( yml%vars(ix)%bool_data )
+
+    ! Make sure the data array has enough elements
+    IF ( sz_data < sz_stored ) THEN
+       errMsg = 'Argument "bool_data`" does not have enough elements!'
+       CALL Handle_Error( errMsg, RC, thisLoc )
+       RETURN
+    ENDIF
+
+    ! Copy over only the number of elements that are stored
+    bool_data(1:sz_stored) = yml%vars(ix)%bool_data(1:sz_stored)
 
   END SUBROUTINE Get_Bool_Array
 
