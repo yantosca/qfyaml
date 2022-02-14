@@ -387,64 +387,44 @@ extra_diagnostics:
     flight_track_file: Planeflight.dat.YYYYMMDD
     output_file: plane.log.YYYYMMDD
 
-#-------+------------------------------------------------------
-#%%% OUTPUT MENU %%%     : 123456789.123456789.123456789.1--1=ZERO+2=BPCH
-#Schedule output for JAN : 3000000000000000000000000000000
-#Schedule output for FEB : 30000000000000000000000000000
-#Schedule output for MAR : 3000000000000000000000000000000
-#Schedule output for APR : 300000000000000000000000000000
-#Schedule output for MAY : 3000000000000000000000000000000
-#Schedule output for JUN : 300000000000000000000000000000
-#Schedule output for JUL : 3000000000000000000000000000000
-#Schedule output for AUG : 3000000000000000000000000000000
-#Schedule output for SEP : 300000000000000000000000000000
-#Schedule output for OCT : 3000000000000000000000000000000
-#Schedule output for NOV : 300000000000000000000000000000
-#Schedule output for DEC : 3000000000000000000000000000000
-#------------------------+------------------------------------------------------
-#%%% GAMAP MENU %%%      :
-#diaginfo.dat path       : diaginfo.dat
-#tracerinfo.dat path     : tracerinfo.dat
-#------------------------+------------------------------------------------------
-#%%% DIAGNOSTIC MENU %%% :
-#Binary punch file name  : ./OutputDir/GEOSChem.YYYYMMDD.bpch
-#Diagnostic Entries ---> :  L   Tracers to print out for each diagnostic
-#ND03: Hg emissions, P/L :  0   all
-#ND06: Dust aer source   :  1   all
-#ND44: Drydep flx/vel    :  1   all
-#ND53: POPs Emissions    :  0   all
-#ND59: TOMAS aerosol emis:  0   all
-#ND60: TOMAS rate        :  0   all
-#ND61: TOMAS 3D rate     :  0   all
-#-------------------------------------------------------------------------------
-#%%% ND51 MENU %%%       :
-#Turn on ND51 diagnostic : F
-#LT avg timeseries file  : ts_satellite.YYYYMMDD.bpch
-#Output as HDF5?         : F
-#Tracers to include      : 1 2 501
-#GMT Hour for disk write :   0
-#Avg Period [LT hours]   :   9  11
-#IMIN, IMAX of region    :   1  72
-#JMIN, JMAX of region    :   1  46
-#LMIN, LMAX of region    :   1  40
-#-------------------------------------------------------------------------------
-#%%% ND51b MENU %%%      :
-#Turn on ND51b diagnstic : F
-#LT avg timeseries file  : ts_13_15.NA.YYYYMMDD.bpch
-#Output as HDF5?         : F
-#Tracers to include      : 1 2 501
-#GMT Hour for disk write :  1
-#Avg Period [LT hours]   :  13  15
-#IMIN, IMAX of region    :   1  72
-#JMIN, JMAX of region    :   1  46
-#LMIN, LMAX of region    :   1   1
-#-------------------------------------------------------------------------------
-#%%% PROD & LOSS MENU %%%: ### ONLY NEEDED FOR TOMAS ###
-#Turn on P/L (ND65) diag?: T
-## of levels for ND65    : 72
-#------------------------+------------------------------------------------------
-#END OF FILE             :
-#------------------------+------------------------------------------------------
+  legacy_bpch:                #          1         2         3
+     output_menu:             # 1234567890123456789012345678901
+       schedule_output_for_JAN: 3000000000000000000000000000000
+       schedule_output_for_FEB: 30000000000000000000000000000
+       schedule_output_for_MAR: 3000000000000000000000000000000
+       schedule_output_for_APR: 300000000000000000000000000000
+       schedule_output_for_MAY: 3000000000000000000000000000000
+       schedule_output_for_JUN: 300000000000000000000000000000
+       schedule_output_for_JUL: 3000000000000000000000000000000
+       schedule_output_for_AUG: 3000000000000000000000000000000
+       schedule_output_for_SEP: 300000000000000000000000000000
+       schedule_output_for_OCT: 3000000000000000000000000000000
+       schedule_output_for_NOV: 300000000000000000000000000000
+       schedule_output_for_DEC: 3000000000000000000000000000000
+    gamap:
+      diaginfo_dat_path: diaginfo.dat
+      tracerinfo_dat_path: tracerinfo.dat
+    bpch_diagnostics:
+      TOMAS_aerosol_emissions: "0 all"
+      TOMAS_rate: "0 all"
+      TOMAS_3D_rate: "0 all"
+# NOTE: These might be obsolete in 14.0.0, so comment out
+#    ND51_satellite:
+#      activate: false
+#      output_file: ts_satellite.YYYYMMDD.bpch
+#      tracers: [1, 2, 501]
+#      UTC_hour_for_write: 1
+#      averaging_period_in_LT: [13, 15]
+#      IMIN_and_IMAX_of_region: [1, 72]
+#      JMIN_and_JMAX_of_region: [1, 46]
+#      LMIN_and_LMAX_of_region: [1, 1]
 #
-#
-#
+#    ND51b_satellite:
+#      activate: false
+#      output_file: ts_satellite.YYYYMMDD.bpch
+#      tracers: [1, 2, 501]
+#      UTC_hour_for_write: 1
+#      averaging_period_in_LT: [13, 15]
+#      IMIN_and_IMAX_of_region: [1, 72]
+#      JMIN_and_JMAX_of_region: [1, 46]
+#      LMIN_and_LMAX_of_region: [1, 1]

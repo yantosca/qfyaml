@@ -121,9 +121,22 @@ PROGRAM Test_Input_Options
 
     CALL Parse_Strat_Aerosols( yml, RC )
     IF ( RC /= QFYAML_Success ) THEN
+       PRINT*, 'Error encountered in Parse_Aerosols!'
+       CALL EXIT( -1 )
+    ENDIF
+
+    CALL Parse_Obspack( yml, RC )
+    IF ( RC /= QFYAML_Success ) THEN
        PRINT*, 'Error encountered in Parse_Strat_Aerosols!'
        CALL EXIT( -1 )
     ENDIF
+
+    CALL Parse_PlaneFlight( yml, RC )
+    IF ( RC /= QFYAML_Success ) THEN
+       PRINT*, 'Error encountered in Parse_Strat_Aerosols!'
+       CALL EXIT( -1 )
+    ENDIF
+
 
     ! Cleanup & quit
 999 CONTINUE
@@ -863,7 +876,7 @@ CONTAINS
        ENDIF
     ENDDO
 
-    ! Find the numbe
+    ! Find the number of species
     C = 0
     DO N = 1, SIZE( a_str )
        IF ( TRIM( a_str(N) ) == MISSING_STR ) EXIT
@@ -1018,7 +1031,6 @@ CONTAINS
     print*, "Error in Parse_Transport"
     RETURN
   END SUBROUTINE Parse_Aerosols
-
 
   SUBROUTINE Parse_Strat_Aerosols( yml, RC )
     !
@@ -1176,5 +1188,157 @@ CONTAINS
     print*, "Error in Parse_Transport"
     RETURN
   END SUBROUTINE Parse_Strat_Aerosols
+
+  SUBROUTINE Parse_ObsPack( yml, RC )
+    !
+    TYPE(QFYAML_t),  INTENT(INOUT)  :: yml
+    INTEGER,         INTENT(OUT)    :: RC
+    !
+    INTEGER            :: C
+    INTEGER            :: N
+    CHARACTER(LEN=255) :: tags(5)
+    CHARACTER(LEN=255) :: key
+    REAL(yp)           :: a_real(2)
+    LOGICAL            :: v_bool
+    REAL(yp)           :: v_real
+    CHARACTER(LEN=255) :: v_str
+    CHARACTER(LEN=14)  :: a_str(50)
+
+    !
+    RC       = QFYAML_Success
+    tags(1 ) = "%activate"
+    tags(2 ) = "%quiet_logfile_output"
+    tags(3 ) = "%input_file"
+    tags(4 ) = "%output_file"
+    tags(5 ) = "%output_species"
+
+    ! Loop over the number of tags in the species database
+    DO N = 1, SIZE( tags )
+
+       ! Set intial values to default "missing" values
+       ! This will force creation of variables with these values
+       a_str  = MISSING_STR
+       v_str  = MISSING_STR
+       v_bool = MISSING_BOOL
+       v_real = MISSING_REAL
+
+       ! Search key
+       key = "extra_diagnostics%obspack" // TRIM( tags(N) )
+
+       ! %activate
+       IF ( INDEX( key, TRIM( tags(1) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %quiet_logfile_output
+       ELSE IF ( INDEX( key, TRIM( tags(2) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %input_file
+       ELSE IF ( INDEX( key, TRIM( tags(3) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', TRIM( v_str )
+
+       ! %output_file
+       ELSE IF ( INDEX( key, TRIM( tags(4) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', TRIM( v_str )
+
+       ! %species
+       ELSE IF ( INDEX( key, TRIM( tags(5) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, a_str, "", RC, dynamic_size=.TRUE. )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', a_str
+
+       ENDIF
+    ENDDO
+
+    ! Find the number of species
+    C = 0
+    DO N = 1, SIZE( a_str )
+       IF ( TRIM( a_str(N) ) == MISSING_STR ) EXIT
+       C = C + 1
+    ENDDO
+    PRINT*, 'Number of ObsPack species: '
+    PRINT*, '==> ', C
+    PRINT*
+    RETURN
+
+999 CONTINUE
+    RC = QFYAML_Failure
+    print*, "Error in Parse_Transport"
+    RETURN
+  END SUBROUTINE Parse_ObsPack
+
+  SUBROUTINE Parse_PlaneFlight( yml, RC )
+    !
+    TYPE(QFYAML_t),  INTENT(INOUT)  :: yml
+    INTEGER,         INTENT(OUT)    :: RC
+    !
+    INTEGER            :: C
+    INTEGER            :: N
+    CHARACTER(LEN=255) :: tags(3)
+    CHARACTER(LEN=255) :: key
+    LOGICAL            :: v_bool
+    CHARACTER(LEN=255) :: v_str
+
+    !
+    RC       = QFYAML_Success
+    tags(1 ) = "%activate"
+    tags(2 ) = "%input_file"
+    tags(3 ) = "%output_file"
+
+    ! Loop over the number of tags in the species database
+    DO N = 1, SIZE( tags )
+
+       ! Set intial values to default "missing" values
+       ! This will force creation of variables with these values
+       v_bool = MISSING_BOOL
+       v_str  = MISSING_STR
+
+       ! Search key
+       key = "extra_diagnostics%planeflight" // TRIM( tags(N) )
+
+       ! %activate
+       IF ( INDEX( key, TRIM( tags(1) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %input_file
+       ELSE IF ( INDEX( key, TRIM( tags(2) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', TRIM( v_str )
+
+       ! %output_file
+       ELSE IF ( INDEX( key, TRIM( tags(3) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_str
+       ENDIF
+    ENDDO
+
+    PRINT*
+    RETURN
+
+999 CONTINUE
+    RC = QFYAML_Failure
+    print*, "Error in Parse_Transport"
+    RETURN
+  END SUBROUTINE Parse_PlaneFlight
 
 END PROGRAM Test_Input_Options
