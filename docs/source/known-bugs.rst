@@ -39,3 +39,27 @@ Use underscores instead of spaces in YAML sequence items:
    - Star_fruit
 
 And then you can remove the underscores in post-processing.
+
+Error returning long YAML sequences
+===================================
+
+It was discovered that only a subset long YAML sequences were being
+returned.  Upon further investigation, a string variable in routine
+:file:`Get_Fields_string` was found to be too short to hold all of the
+stored data within a YAML variable.
+
+We have fixed this behavior in :program:`qfyaml 0.3.1`.
+
+Arrays passed to QFYAML_Add_Get had to be the same size as the data in
+the YAML file
+===================================
+
+When passing an array to routine :file:`QFYAML_Add_Get`, an error
+would be returned if the array was not the same length as the array or
+sequence in the YAML file.
+
+In :program:`qfyaml 0.3.1`, arrays that are larger than the size of
+the data may be passed to :file:`QFYAML_Add_Get`.  This will let you
+declare an array size that is sufficiently large in the calling
+routine.  This can be especially useful if you do not know the size of
+the data to be read in from the YAML file.
