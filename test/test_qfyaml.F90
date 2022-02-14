@@ -54,7 +54,7 @@ PROGRAM Test_QFYAML
   RC = QFYAML_SUCCESS
 
   ! Read the YAML file into a config object
-  fileName = "input.yml"
+  fileName = "qfyaml.yml"
   WRITE( 6, "(a)" ) "### Reading " // TRIM( fileName )
   CALL QFYAML_Init( fileName, yml, yml_anchored, RC )
 

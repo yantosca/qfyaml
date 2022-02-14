@@ -5,18 +5,18 @@
 # Simulation settings
 #============================================================================
 simulation:
+  name: fullchem
   start: [20190701, 000000]
   end: [20190801, 000000]
   data_dir: /n/holyscratch01/external_repos/GEOS-CHEM/gcgrid/data/ExtData
   met_field: MERRA2
-  simulation_name: fullchem
   species_database_file: species_database.yml
   debug_printout: false
   use_gcclassic_timers: false
 
 #============================================================================
 # Grid settings
-#============================================================================ 
+#============================================================================
 grid:
   resolution: 0.5x0.625
   longitude_range: [-140.0, -40.0]
@@ -76,7 +76,7 @@ operations:
     clear_sky_flux: false
     all_sky_flux: false
     radiation_timestep_in_s: 10800
-    
+
   transport:
     activate: true
     fill_negative_values: true
@@ -320,9 +320,9 @@ operations:
 
   wet_deposition:
     activate: true
-        
+
 #============================================================================
-# Settings for GEOS-Chem aerosols  
+# Settings for GEOS-Chem aerosols
 #============================================================================
 aerosols:
 
