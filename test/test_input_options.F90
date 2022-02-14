@@ -101,14 +101,33 @@ PROGRAM Test_Input_Options
        CALL EXIT( -1 )
     ENDIF
 
+    CALL Parse_RRTMG( yml, RC )
+    IF ( RC /= QFYAML_Success ) THEN
+       PRINT*, 'Error encountered in Parse_RRTMG!'
+       CALL EXIT( -1 )
+    ENDIF
+
     CALL Parse_Transport( yml, RC )
     IF ( RC /= QFYAML_Success ) THEN
        PRINT*, 'Error encountered in Parse_Transport!'
        CALL EXIT( -1 )
     ENDIF
 
-    print*, "### finishing"
+    CALL Parse_Aerosols( yml, RC )
+    IF ( RC /= QFYAML_Success ) THEN
+       PRINT*, 'Error encountered in Parse_Aerosols!'
+       CALL EXIT( -1 )
+    ENDIF
+
+    CALL Parse_Strat_Aerosols( yml, RC )
+    IF ( RC /= QFYAML_Success ) THEN
+       PRINT*, 'Error encountered in Parse_Strat_Aerosols!'
+       CALL EXIT( -1 )
+    ENDIF
+
+    ! Cleanup & quit
 999 CONTINUE
+    print*, "### finishing"
     CALL QFYAML_CleanUp( yml          )
     CALL QFYAML_CleanUp( yml_anchored )
 
@@ -144,11 +163,11 @@ CONTAINS
     INTEGER            :: a_int_2(2)
     !
     RC      = QFYAML_Success
-    tags(1) = "%start"
-    tags(2) = "%end"
-    tags(3) = "%data_dir"
-    tags(4) = "%met_field"
-    tags(5) = "%name"
+    tags(1) = "%name"
+    tags(2) = "%start"
+    tags(3) = "%end"
+    tags(4) = "%data_dir"
+    tags(5) = "%met_field"
     tags(6) = "%species_database_file"
     tags(7) = "%debug_printout"
     tags(8) = "%use_gcclassic_timers"
@@ -165,35 +184,35 @@ CONTAINS
        ! Search key
        key = "simulation" // TRIM( tags(N) )
 
-       ! simulation%start
+       ! simulation%name
        IF ( INDEX( key, tags(1) ) > 0 ) THEN
-          CALL QFYAML_Add_Get( yml, key, a_int_2, "", RC )
+          CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           PRINT*, TRIM( key )
-          PRINT*, '==> ', a_int_2
+          PRINT*, '==> ', TRIM( v_str )
 
-       ! simulation%end
+       ! simulation%start
        ELSE IF ( INDEX( key, tags(2) ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, a_int_2, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           PRINT*, TRIM( key )
           PRINT*, '==> ', a_int_2
 
-       ! simulation%data_dir
+       ! simulation%end
        ELSE IF ( INDEX( key, tags(3) ) > 0 ) THEN
-          CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
+          CALL QFYAML_Add_Get( yml, key, a_int_2, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           PRINT*, TRIM( key )
-          PRINT*, '==> ', TRIM( v_str )
+          PRINT*, '==> ', a_int_2
 
-       ! simulation%met_field
+       ! simulation%data_dir
        ELSE IF ( INDEX( key, tags(4) ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           PRINT*, TRIM( key )
           PRINT*, '==> ', TRIM( v_str )
 
-       ! simulation%name
+       ! simulation%met_field
        ELSE IF ( INDEX( key, tags(5) ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_str, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
@@ -553,9 +572,9 @@ CONTAINS
     !
     RC      = QFYAML_Success
     tags(1) = "%dry_deposition%activate"
-    tags(2) = "%dry_deposition%co2_effect"
-    tags(3) = "%dry_deposition%co2_level"
-    tags(4) = "%dry_deposition%reference_co2_level"
+    tags(2) = "%dry_deposition%CO2_effect"
+    tags(3) = "%dry_deposition%CO2_level"
+    tags(4) = "%dry_deposition%reference_CO2_level"
     tags(5) = "%dry_deposition%diag_alt_above_sfc_in_m"
 
     ! Loop over the number of tags in the species database
@@ -576,21 +595,21 @@ CONTAINS
           PRINT*, TRIM( key )
           PRINT*, '==> ', v_bool
 
-       ! %dry_deposition%co2_effect
+       ! %dry_deposition%CO2_effect
        ELSE IF ( INDEX( key, TRIM( tags(2) ) ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           PRINT*, TRIM( key )
           PRINT*, '==> ', v_bool
 
-       ! %dry_deposition%co2_level
+       ! %dry_deposition%CO2_level
        ELSE IF ( INDEX( key, TRIM( tags(3) ) ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
           PRINT*, TRIM( key )
           PRINT*, '==> ', v_real
 
-       ! %dry_deposition%reference_co2_level
+       ! %dry_deposition%reference_CO2_level
        ELSE IF ( INDEX( key, TRIM( tags(4) ) ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
           IF ( RC /= QFYAML_Success ) GOTO 999
@@ -685,11 +704,105 @@ CONTAINS
     RETURN
   END SUBROUTINE Parse_Photolysis
 
-  SUBROUTINE Parse_Transport( yml, RC )
+  SUBROUTINE Parse_RRTMG( yml, RC )
     !
     TYPE(QFYAML_t),  INTENT(INOUT)  :: yml
     INTEGER,         INTENT(OUT) :: RC
     !
+    INTEGER            :: N
+    CHARACTER(LEN=255) :: tags(7)
+    CHARACTER(LEN=255) :: key
+    LOGICAL            :: v_bool
+    INTEGER            :: v_int
+
+    !
+    RC      = QFYAML_Success
+    tags(1) = "%rrtmg%activate"
+    tags(2) = "%rrtmgAOD_wavelength_in_nm"
+    tags(3) = "%rrtmg%longwave_fluxes"
+    tags(4) = "%rrtmg%shortwave_fluxes"
+    tags(5) = "%rrtmg%clear_sky_flux"
+    tags(6) = "%rrtmg%all_sky_flux"
+    tags(7) = "%rrtmg%radiation_timestep_in_s"
+
+    ! Loop over the number of tags in the species database
+    DO N = 1, SIZE( tags )
+
+       ! Set intial values to default "missing" values
+       ! This will force creation of variables with these values
+       v_bool = MISSING_BOOL
+       v_int  = MISSING_INT
+
+       ! Search key
+       key = "operations" // TRIM( tags(N) )
+
+       ! %rrtmg%activate
+       IF ( INDEX( key, TRIM( tags(1) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %rrtmg%AOD_wavelength_in_nm
+       ELSE IF ( INDEX( key, TRIM( tags(2) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_int, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_int
+
+       ! %rrtmg%longwave_fluxes
+       ELSE IF ( INDEX( key, TRIM( tags(3) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %rrtmg%shortwave_fluxes
+       ELSE IF ( INDEX( key, TRIM( tags(4) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %rrtmg%clear_sky_flux
+       ELSE IF ( INDEX( key, TRIM( tags(5) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %rrtmg%all_sky_flux
+       ELSE IF ( INDEX( key, TRIM( tags(6) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %rrtmg%shortwave_fluxes
+       ELSE IF ( INDEX( key, TRIM( tags(7) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_int, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_int
+
+       ENDIF
+    ENDDO
+
+    PRINT*
+    RETURN
+
+999 CONTINUE
+    RC = QFYAML_Failure
+    print*, "Error in Parse_Transport"
+    RETURN
+  END SUBROUTINE Parse_RRTMG
+
+  SUBROUTINE Parse_Transport( yml, RC )
+    !
+    TYPE(QFYAML_t),  INTENT(INOUT)  :: yml
+    INTEGER,         INTENT(OUT)    :: RC
+    !
+    INTEGER            :: C
     INTEGER            :: N
     CHARACTER(LEN=255) :: tags(4)
     CHARACTER(LEN=255) :: key
@@ -725,7 +838,7 @@ CONTAINS
           IF ( RC /= QFYAML_Success ) GOTO 999
           PRINT*, TRIM( key )
           PRINT*, '==> ', v_bool
-  
+
        ! %transport%fill_negative_values
        ELSE IF ( INDEX( key, TRIM( tags(2) ) ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
@@ -740,7 +853,7 @@ CONTAINS
           PRINT*, TRIM( key )
           PRINT*, '==> ', a_int_3
 
-       ! %wet_deposition%activate
+       ! %transport%transported_species
        ELSE IF ( INDEX( key, TRIM( tags(4) ) ) > 0 ) THEN
           CALL QFYAML_Add_Get( yml, key, a_str, "", RC, dynamic_size=.TRUE. )
           IF ( RC /= QFYAML_Success ) GOTO 999
@@ -750,7 +863,15 @@ CONTAINS
        ENDIF
     ENDDO
 
-    print*, '---'
+    ! Find the numbe
+    C = 0
+    DO N = 1, SIZE( a_str )
+       IF ( TRIM( a_str(N) ) == MISSING_STR ) EXIT
+       C = C + 1
+    ENDDO
+    PRINT*, 'Number of transported species: '
+    PRINT*, '==> ', C
+    PRINT*
     RETURN
 
 999 CONTINUE
@@ -758,5 +879,302 @@ CONTAINS
     print*, "Error in Parse_Transport"
     RETURN
   END SUBROUTINE Parse_Transport
+
+  SUBROUTINE Parse_Aerosols( yml, RC )
+    !
+    TYPE(QFYAML_t),  INTENT(INOUT)  :: yml
+    INTEGER,         INTENT(OUT)    :: RC
+    !
+    INTEGER            :: C
+    INTEGER            :: N
+    CHARACTER(LEN=255) :: tags(12)
+    CHARACTER(LEN=255) :: key
+    REAL(yp)           :: a_real(2)
+    LOGICAL            :: v_bool
+    REAL(yp)           :: v_real
+
+    !
+    RC       = QFYAML_Success
+    tags(1 ) = "%carbon%activate"
+    tags(2 ) = "%carbon%brown_carbon"
+    tags(3 ) = "%complex_SOA%activate"
+    tags(4 ) = "%complex_SOA%semivolatile_POA"
+    tags(5 ) = "%dust%activate"
+    tags(6 ) = "%dust%acid_uptake_on_dust"
+    tags(7 ) = "%sea_salt%activate"
+    tags(8 ) = "%sea_salt%SALA_radius_bin_in_um"
+    tags(9 ) = "%sea_salt%SALC_radius_bin_in_um"
+    tags(10) = "%sea_salt%marine_organic_aerosols"
+    tags(11) = "%sulfate%activate"
+    tags(12) = "%sulfate%metal_cat_SO2_oxidation"
+
+    ! Loop over the number of tags in the species database
+    DO N = 1, SIZE( tags )
+
+       ! Set intial values to default "missing" values
+       ! This will force creation of variables with these values
+       a_real = MISSING_REAL
+       v_bool = MISSING_BOOL
+
+       ! Search key
+       key = "aerosols" // TRIM( tags(N) )
+
+       ! %carbon%activate
+       IF ( INDEX( key, TRIM( tags(1) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %carbon%brown_carbon
+       ELSE IF ( INDEX( key, TRIM( tags(2) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %complex_SOA%activate
+       ELSE IF ( INDEX( key, TRIM( tags(3) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %complex_SOA%semivolatile_POA
+       ELSE IF ( INDEX( key, TRIM( tags(4) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %dust%activate
+       ELSE IF ( INDEX( key, TRIM( tags(5) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %dust%acid_uptake_on_dust
+       ELSE IF ( INDEX( key, TRIM( tags(6) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %sea_salt%activate
+       ELSE IF ( INDEX( key, TRIM( tags(7) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %sea_salt%SALA_radius_bin_in_um
+       ELSE IF ( INDEX( key, TRIM( tags(8) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, a_real, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          a_real(1) = Roundoff( a_real(1), 2 )
+          a_real(2) = Roundoff( a_real(2), 2 )
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', a_real
+
+       ! %sea_salt%SALC_radius_bin_in_um
+       ELSE IF ( INDEX( key, TRIM( tags(9) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, a_real, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          a_real(1) = Roundoff( a_real(1), 2 )
+          a_real(2) = Roundoff( a_real(2), 2 )
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', a_real
+
+       ! %sea_salt%marine_organic_aerosols
+       ELSE IF ( INDEX( key, TRIM( tags(10) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %sulfate%activate
+       ELSE IF ( INDEX( key, TRIM( tags(11) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %sulfate%metal_cat_SO2_oxidation
+       ELSE IF ( INDEX( key, TRIM( tags(12) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ENDIF
+    ENDDO
+
+    PRINT*
+    RETURN
+
+999 CONTINUE
+    RC = QFYAML_Failure
+    print*, "Error in Parse_Transport"
+    RETURN
+  END SUBROUTINE Parse_Aerosols
+
+
+  SUBROUTINE Parse_Strat_Aerosols( yml, RC )
+    !
+    TYPE(QFYAML_t),  INTENT(INOUT)  :: yml
+    INTEGER,         INTENT(OUT)    :: RC
+    !
+    INTEGER            :: C
+    INTEGER            :: N
+    CHARACTER(LEN=255) :: tags(14)
+    CHARACTER(LEN=255) :: key
+    REAL(yp)           :: a_real(2)
+    LOGICAL            :: v_bool
+    REAL(yp)           :: v_real
+
+    !
+    RC       = QFYAML_Success
+    tags(1 ) = "%settle_strat_aerosol"
+    tags(2 ) = "%polar_strat_clouds%activate"
+    tags(3 ) = "%polar_strat_clouds%het_chem"
+    tags(4 ) = "%homogeneous_NAT"
+    tags(5 ) = "%NAT_supercooling_req_in_K"
+    tags(6 ) = "%calc_strat_aero_optdepth"
+    tags(7 ) = "%enhance_BC_absorption%activate"
+    tags(8 ) = "%enhance_BC_absorption%hydrophilic_BC"
+    tags(9 ) = "%enhance_BC_absorption%hydrophobic_BC"
+    tags(10) = "%photolyze_nitrate%activate"
+    tags(11) = "%photolyze_nitrate%NITs_Jscale_JHNO3"
+    tags(12) = "%photolyze_nitrate%NIT_Jscale_JHNO2"
+    tags(13) = "%photolyze_nitrate%percent_channel_A_HONO"
+    tags(14) = "%photolyze_nitrate%percent_channel_B_NO2"
+
+    ! Loop over the number of tags in the species database
+    DO N = 1, SIZE( tags )
+
+       ! Set intial values to default "missing" values
+       ! This will force creation of variables with these values
+       v_bool = MISSING_BOOL
+       v_real = MISSING_REAL
+
+       ! Search key
+       key = "aerosols%stratosphere" // TRIM( tags(N) )
+
+       ! %settle_strat_aerosol
+       IF ( INDEX( key, TRIM( tags(1) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %polar_strat_clouds%activate
+       ELSE IF ( INDEX( key, TRIM( tags(2) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %polar_strat_clouds%het_chem
+       ELSE IF ( INDEX( key, TRIM( tags(3) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %homogeneous_NAT
+       ELSE IF ( INDEX( key, TRIM( tags(4) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %NAT_supercooling_req_in_K
+       ELSE IF ( INDEX( key, TRIM( tags(5) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_real
+
+       ! %calc_strat_aero_optdepth
+       ELSE IF ( INDEX( key, TRIM( tags(6) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %enhance_BC_absorption%activate
+       ELSE IF ( INDEX( key, TRIM( tags(7) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %enhance_BC_absoprtion%hydrophilic_BC
+       ELSE IF ( INDEX( key, TRIM( tags(8) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          v_real = Roundoff( v_real, 3 )
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_real
+
+       ! %enhance_BC_absoprtion%hydrophobic_BC
+       ELSE IF ( INDEX( key, TRIM( tags(9) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          v_real = Roundoff( v_real, 3 )
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_real
+
+       ! %photolyze_nitrate%activate
+       ELSE IF ( INDEX( key, TRIM( tags(10) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_bool
+
+       ! %photolyze_nitrate%NITS_Jscale_JHNO3
+       ELSE IF ( INDEX( key, TRIM( tags(11) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          v_real = Roundoff( v_real, 3 )
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_real
+
+       ! %photolyze_nitrate%NIT_Jscale_JHNO2
+       ELSE IF ( INDEX( key, TRIM( tags(12) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          v_real = Roundoff( v_real, 3 )
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_real
+
+       ! %photolyze_nitrate%percent_channel_A_HONO
+       ELSE IF ( INDEX( key, TRIM( tags(13) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          v_real = Roundoff( v_real, 3 )
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_real
+
+       ! %photolyze_nitrate%percent_channel_B_NO2
+       ELSE IF ( INDEX( key, TRIM( tags(14) ) ) > 0 ) THEN
+          CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
+          IF ( RC /= QFYAML_Success ) GOTO 999
+          v_real = Roundoff( v_real, 3 )
+          PRINT*, TRIM( key )
+          PRINT*, '==> ', v_real
+
+       ENDIF
+    ENDDO
+
+    PRINT*
+    RETURN
+
+999 CONTINUE
+    RC = QFYAML_Failure
+    print*, "Error in Parse_Transport"
+    RETURN
+  END SUBROUTINE Parse_Strat_Aerosols
 
 END PROGRAM Test_Input_Options

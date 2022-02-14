@@ -52,9 +52,9 @@ operations:
 
   dry_deposition:
     activate: true
-    co2_effect: false
-    co2_level: 600.0
-    reference_co2_level: 380.0
+    CO2_effect: false
+    CO2_level: 600.0
+    reference_CO2_level: 380.0
     diag_alt_above_sfc_in_m: 10
 
   pbl_mixing:
@@ -330,7 +330,7 @@ aerosols:
     activate: true
     brown_carbon: false
 
-  complex_soa:
+  complex_SOA:
     activate: true
     semivolatile_POA: false
 
@@ -352,10 +352,10 @@ aerosols:
     homogeneous_NAT: false
     NAT_supercooling_req_in_K: 3.0
     calc_strat_aero_optdepth: true
-    enhance_bc_absorption:
+    enhance_BC_absorption:
       activate: true
-      hydrophilic_bc: 1.5
-      hydrophobic_bc: 1.0
+      hydrophilic_BC: 1.5
+      hydrophobic_BC: 1.0
     photolyze_nitrate:
       activate: true
       NITs_Jscale_JHNO3: 0.0
