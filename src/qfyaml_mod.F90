@@ -99,10 +99,11 @@ MODULE QFYAML_Mod
 
   ! Other constants
   INTEGER, PARAMETER :: QFYAML_MaxStack       =  20    ! Max cat_stack size
-  INTEGER, PARAMETER :: QFYAML_NamLen         =  100   ! Max len for names
+  INTEGER, PARAMETER :: QFYAML_NamLen         =  100   ! M
+  x len for names
   INTEGER, PARAMETER :: QFYAML_StrLen         =  512   ! Max len for strings
   INTEGER, PARAMETER :: QFYAML_MaxArr         =  1000  ! Max entries per array
-  INTEGER, PARAMETER :: QFYAML_MaxDataLen     =  40000 ! Max stored data size
+  INTEGER, PARAMETER :: QFYAML_MaxDataLen     =  20000 ! Max stored data size
 
   CHARACTER(LEN=7), PARAMETER :: QFYAML_type_names(0:QFYAML_num_types) = &
       (/ 'storage', 'integer', 'real   ', 'string ', 'bool   ' /)
@@ -3385,12 +3386,29 @@ CONTAINS
     TYPE(QFYAML_t),   INTENT(INOUT) :: yml
     CHARACTER(LEN=*), INTENT(IN   ) :: var_name
     REAL(yp),         INTENT(INOUT) :: real_data(:)
+    !
     INTEGER                         :: ix
+    INTEGER                         :: sz_data
+    INTEGER                         :: sz_stored
+    !
+    ! Make sure the char_data array has at last 1 element
+    sz_data = SIZE( real_data )
+    IF ( sz_data < 1 ) THEN
+       errMsg = 'Argument "real_data" must be an array!'
+       CALL Handle_Error( errMsg, RC, thisLoc )
+       RETURN
+    ENDIF
 
+    ! Look up the variable
     CALL Get_Var_Index( yml, var_name, ix )
     IF ( ix > 0 ) THEN
-       yml%vars(ix)%real_data = real_data
-       real_data = yml%vars(ix)%real_data
+
+       sz_stored = SIZE( yml%vars(ix)%real_data )
+
+       IF ( sz_data <= sz_stored ) THEN
+          yml%vars(ix)%real_data = real_data
+          real_data = yml%vars(ix)%real_data
+       ENDIF
     ENDIF
 
   END SUBROUTINE Update_Real_Array
