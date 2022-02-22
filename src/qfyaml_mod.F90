@@ -27,11 +27,11 @@ MODULE QFYAML_Mod
 ! !PUBLIC DATA MEMBERS:
 !
   ! Constants
-  PUBLIC :: QFYAML_Success
   PUBLIC :: QFYAML_Failure
+  PUBLIC :: QFYAML_MaxArr
   PUBLIC :: QFYAML_NamLen
   PUBLIC :: QFYAML_StrLen
-  PUBLIC :: QFYAML_MaxArr
+  PUBLIC :: QFYAML_Success
 
   ! Public methods
   PUBLIC :: QFYAML_Add
@@ -39,6 +39,7 @@ MODULE QFYAML_Mod
   PUBLIC :: QFYAML_CleanUp
   PUBLIC :: QFYAML_Get
   PUBLIC :: QFYAML_Check
+  PUBLIC :: QFYAML_FindNextHigher
   PUBLIC :: QFYAML_Init
   PUBLIC :: QFYAML_Merge
   PUBLIC :: QFYAML_Update
@@ -1494,6 +1495,77 @@ CONTAINS
 !------------------------------------------------------------------------------
 !BOP
 !
+! !IROUTINE: QFYAML_FindNextHigher
+!
+! !DESCRIPTION: Finds variables that are one category depth higher than
+!  a given target string (trg_str).  Returns the number of variables that
+!  match this criteria (n_matches), as well as the variables themselves
+!  (match_vars).
+!\\
+!\\
+! !INTERFACE:
+!
+  SUBROUTINE QFYAML_FindNextHigher( yml, trg_str, match_ct, match_vars )
+!
+! !INPUT PARAMETERS:
+!
+    TYPE(QFYAML_t),               INTENT(IN)  :: yml
+    CHARACTER(LEN=*),             INTENT(IN)  :: trg_str
+!
+! !INPUT/OUTPUT PARAMETERS:
+!
+    INTEGER,                      INTENT(OUT) :: match_ct
+    CHARACTER(LEN=QFYAML_NamLen), INTENT(OUT) :: match_vars(:)
+!EOP
+!------------------------------------------------------------------------------
+!BOC
+!
+! !LOCAL VARIABLES:
+!
+    INTEGER :: ix, len_trg, v
+
+    !=======================================================================
+    ! QFYAML_FindNextHigher begins here!
+    !=======================================================================
+
+    ! Initialize
+    len_trg    = LEN_TRIM( trg_str )
+    match_ct   = 0
+    match_vars = ''
+
+    ! Loop over # of stored variables
+    DO v = 1, yml%num_vars
+
+       ! Reset for safety's sake
+       ix = 0
+
+       ! Skip if the string is shorter than the prefix
+       IF ( LEN_TRIM( yml%vars(v)%var_name ) < len_trg ) CYCLE
+
+       ! Test if the prefix is in the variable name
+       ix  = INDEX( TRIM( yml%vars(v)%var_name ), trg_str )
+
+       ! If the variable contains the prefix, then test if the variable
+       ! contains another separator.  If it doesn't, then it's the
+       ! proper depth, so we'll update the number of matches
+       IF ( ix > 0 ) THEN
+          ix  = INDEX( yml%vars(v)%var_name(len_trg+1:),                     &
+                       QFYAML_Category_Separator                            )
+          IF ( ix == 0 ) THEN
+             match_ct             = match_ct + 1
+             match_vars(match_ct) = TRIM( yml%vars(v)%var_name )
+          ENDIF
+       ENDIF
+    ENDDO
+
+  END SUBROUTINE QFYAML_FindNextHigher
+!EOC
+!------------------------------------------------------------------------------
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
+! Based on existing package https://github.com/jannisteunissen/config_fortran
+!------------------------------------------------------------------------------
+!BOP
+!
 ! !IROUTINE: Split_Category
 !
 ! !DESCRIPTION: splits the category and the var name
@@ -1540,7 +1612,7 @@ CONTAINS
        var_name = variable%var_name(ix+1:)
     ENDIF
 
-  END SUBROUTINE split_category
+  END SUBROUTINE Split_Category
 !EOC
 !------------------------------------------------------------------------------
 ! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
@@ -1591,7 +1663,7 @@ CONTAINS
 
     END SELECT
 
-  END SUBROUTINE resize_storage
+  END SUBROUTINE Resize_Storage
 !EOC
 !------------------------------------------------------------------------------
 ! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | APR 2020
@@ -1843,7 +1915,7 @@ CONTAINS
        ALLOCATE( yml%vars( min_dyn_size ) )
     ENDIF
 
-  END SUBROUTINE ensure_free_storage
+  END SUBROUTINE Ensure_Free_Storage
 !EOC
 !------------------------------------------------------------------------------
 ! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
