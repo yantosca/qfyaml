@@ -6,8 +6,8 @@ weather:
   humidity: 99.85858265
   temperature:
     daily: 23.0434356
-      weekly:
-        units: K
+    weekly:
+      units: K
   pressure: 1013.25
 
 #### Test parsing different types of input

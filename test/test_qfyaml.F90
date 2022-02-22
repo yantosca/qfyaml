@@ -27,6 +27,7 @@ PROGRAM Test_QFYAML
   INTEGER                         :: v_int
   INTEGER                         :: RC
   INTEGER                         :: N
+  INTEGER                         :: match_ct
 
   ! Strings
   CHARACTER(LEN=255)              :: v_str
@@ -36,6 +37,7 @@ PROGRAM Test_QFYAML
   ! Arrays
   REAL(yp),           ALLOCATABLE :: a_real(:)
   CHARACTER(LEN=255), ALLOCATABLE :: a_str(:)
+  CHARACTER(LEN=100)              :: match_vars(5)
 
   ! Objects
   TYPE(QFYAML_t)                  :: yml
@@ -119,6 +121,14 @@ PROGRAM Test_QFYAML
   v_real = -999.0_yp
   CALL QFYAML_Add_Get( yml, key, v_real, "", RC )
   WRITE( 6, "(a32, "" : "", f13.6)") ADJUSTL(key), v_real
+
+  WRITE( 6, '(/, a)' ) '### FIND NEXT-HIGHER VARIABLES IN "weather"'
+
+  CALL QFYAML_FindNextHigher( yml, "weather%", match_ct, match_vars )
+
+  DO N = 1, match_ct
+     print*, '>>>', N, TRIM( match_vars(N) )
+  ENDDO
 
   WRITE( 6, '(/, a)' ) "### YAML SEQUENCES"
 
