@@ -1533,8 +1533,8 @@ CONTAINS
     ! Initialize
     len_t      = LEN_TRIM( trg_str )
     match_ct   = 0
-    match_vars = ''
-    last_match = ''
+    match_vars = 'UNKNOWN'
+    last_match = 'UNKNOWN'
 
     ! Loop over # of stored variables
     DO ix = 1, yml%num_vars
@@ -1564,12 +1564,12 @@ CONTAINS
           ELSE
 
              ! If another separator is found, then the var_name contains
-             ! another category and possibly several YAML variables (e.g.
-             ! weather%temperature%daily, weather%temperature%weekly, etc.).
+             ! possibly several more categories and a variable (e.g.
+             ! weather%temperature%daily, weather%temperature%weekly).
              ! In this case, we will only consider the first match
              ! as a true match (i.e. returns "weather%temperature").
              IF ( INDEX( TRIM( yml%vars(ix)%var_name ),                      &
-                         TRIM( last_match            )  ) <= 0 ) THEN
+                         TRIM( last_match            )  ) /= 1 ) THEN
                 match_ct             = match_ct + 1
                 match_vars(match_ct) = TRIM( yml%vars(ix)%var_name(1:len_t+c-1))
                 last_match           = TRIM( match_vars(match_ct) )

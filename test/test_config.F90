@@ -830,19 +830,19 @@ CONTAINS
     !
     RC      = QFYAML_Success
 
-    key = "operations%transport%activate"
-    v_bool  = MISSING_BOOL
-    CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
-    PRINT*, TRIM( key )
-    PRINT*, '==> ', v_bool
-       
-    key = "operations%transport%fill_negative_values"
+    key = "operations%transport%gcclassic_tpcore%activate"
     v_bool  = MISSING_BOOL
     CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
     PRINT*, TRIM( key )
     PRINT*, '==> ', v_bool
 
-    key = "operations%transport%iord_jord_kord"
+    key = "operations%transport%gcclassic_tpcore%fill_negative_values"
+    v_bool  = MISSING_BOOL
+    CALL QFYAML_Add_Get( yml, key, v_bool, "", RC )
+    PRINT*, TRIM( key )
+    PRINT*, '==> ', v_bool
+
+    key = "operations%transport%gcclassic_tpcore%iord_jord_kord"
     a_int = MISSING_INT
     CALL QFYAML_Add_Get( yml, key, a_int, "", RC )
     PRINT*, TRIM( key )
@@ -863,6 +863,7 @@ CONTAINS
     print*, '### passive species found: ', match_ct
     IF ( match_ct > 0 ) THEN
        DO N = 1, match_ct
+          PRINT*
 
           ! long name
           key = TRIM( match_vars(N) ) // '%long_name'

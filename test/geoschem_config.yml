@@ -1,5 +1,6 @@
 ---
-### GEOS-Chem input_options.yml file for the fullchem simulations
+### geoschem_config.yml: GEOS-Chem Runtime configuration options.
+### Customized for simulations using the KPP "fullchem" mechanism.
 ###
 ### NOTE: Add quotes around nitrogen oxide ('NO'), because YAML
 ### parsers will confuse this with a negative "no" value.
@@ -15,7 +16,7 @@ simulation:
   met_field: MERRA2
   species_database_file: ./species_database.yml
   debug_printout: false
-  use_gcclassic_timers: false
+  use_gcclassic_timers: true 
 
 #============================================================================
 # Grid settings
@@ -25,10 +26,10 @@ grid:
   number_of_levels: 72
   longitude:
     range: [-180.0, 180.0]
-    center_at_180: true
+    center_at_180: true 
   latitude:
     range: [-90.0, 90.0]
-    half_size_polar_boxes: true
+    half_size_polar_boxes: true 
   nested_grid_simulation:
     activate: false
     buffer_zone_NSEW: [0, 0, 0, 0]
@@ -49,8 +50,8 @@ operations:
   chemistry:
     activate: true
     linear_chemistry_aloft:
-      activate: false
-      use_linoz_for_O3: false
+      activate: true
+      use_linoz_for_O3: true
     active_strat_H2O:
       activate: true
       use_static_bnd_cond: true
@@ -69,12 +70,12 @@ operations:
 
   pbl_mixing:
      activate: true
-     use_non_local_pbl: true
+     use_non_local_pbl: true 
 
   photolysis:
-    input_directory: /n/holyscratch01/external_repos/GEOS-CHEM/gcgrid/data/ExtData/CHEM_INPUTS/FAST_JX/v2021-10/
+    input_dir: /n/holyscratch01/external_repos/GEOS-CHEM/gcgrid/data/ExtData/CHEM_INPUTS/FAST_JX/v2021-10/
     overhead_O3:
-      use_online_O3_from_model: true
+      use_online_O3_from_model: true 
       use_column_O3_from_met: true
       use_TOMS_SBUV_O3: false
     photolyze_nitrate_aerosol:
@@ -84,7 +85,7 @@ operations:
       percent_channel_A_HONO: 66.667
       percent_channel_B_NO2: 33.333
 
-  rrtmg:
+  rrtmg_rad_transfer_model:
     activate: false
     aod_wavelengths_in_nm:
       - 550
@@ -94,9 +95,10 @@ operations:
     all_sky_flux: false
 
   transport:
-    activate: true
-    fill_negative_values: true
-    iord_jord_kord: [3, 3, 7]
+    gcclassic_tpcore:                 # GEOS-Chem Classic only
+      activate: true                  # GEOS-Chem Classic only
+      fill_negative_values: true      # GEOS-Chem Classic only
+      iord_jord_kord: [3, 3, 7]       # GEOS-Chem Classic only
     transported_species:
       - ACET
       - ACTA
@@ -370,7 +372,7 @@ aerosols:
       hydrophobic: 1.0
 
   complex_SOA:
-    activate:  true
+    activate:  true 
     semivolatile_POA: false
 
   dust:
@@ -391,7 +393,7 @@ aerosols:
     allow_homogeneous_NAT: false
     NAT_supercooling_req_in_K: 3.0
     supersat_factor_req_for_ice_nucl: 1.2
-    calc_strat_aero_optdepth: true
+    calc_strat_aod: true
 
   sulfate:
     activate: true
