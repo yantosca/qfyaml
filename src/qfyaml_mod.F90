@@ -29,6 +29,7 @@ MODULE QFYAML_Mod
   ! Constants
   PUBLIC :: QFYAML_Failure
   PUBLIC :: QFYAML_MaxArr
+  PUBLIC :: QFYAML_MaxStack
   PUBLIC :: QFYAML_NamLen
   PUBLIC :: QFYAML_StrLen
   PUBLIC :: QFYAML_Success
