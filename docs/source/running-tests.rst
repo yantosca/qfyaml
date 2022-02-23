@@ -52,6 +52,11 @@ output.  If the test is successful you will see this output:
    weather%temperature%weekly%units : K
    weather%pressure                 :   1013.250000
 
+   ### FIND NEXT-HIGHER VARIABLES IN "weather"
+               1 weather%humidity
+               2 weather%pressure
+               3 weather%temperature
+
    ### YAML SEQUENCES
    fruits
               1 Apples
@@ -83,14 +88,14 @@ The following test programs can be used to debug source code for
 reading YAML-format configuration files into the `GEOS-Chem model
 <https://geos-chem.org>`_.
 
-.. _test_input_options.x:
+.. _test_config.x:
 
-test_input_options.x
-======================
+test_config.x
+=============
 
 This test program attempts to read the `GEOS-Chem master configuration
 file
-<https://github.com/yantosca/qfyaml/blob/main/test/input_options.yml>`_
+<https://github.com/yantosca/qfyaml/blob/main/test/geoschem_config.yml>`_
 and echo back output.  The master configuration file will replace
 :file:`input.geos` in GEOS-Chem 14.0.0 and later.
 
@@ -99,7 +104,7 @@ To run this test, type at the command line:
 .. code-block:: console
 
    $ cd qfyaml/bin      # Skip if you are already in qfyaml/bin
-   $ ./test_input_options.x
+   $ ./test_config.x
 
 And you should see output such as:
 
