@@ -54,22 +54,22 @@ install(
 )
 
 
-### INPUT OPTIONS EXAMPLE
+### CONFIGURATION FILE EXAMPLE
 
-add_executable(test_input_options.x
-  test_input_options.F90
+add_executable(test_config.x
+  test_config.F90
 )
-target_link_libraries(test_input_options.x
+target_link_libraries(test_config.x
   PUBLIC
   Common
   QfYaml
   BuildProperties
 )
 install(
-  TARGETS test_input_options.x
+  TARGETS test_config.x
   RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}
 )
 install(
-  FILES input_options.yml
+  FILES geoschem_config.yml
   DESTINATION ${CMAKE_INSTALL_PREFIX}
 )
