@@ -33,7 +33,7 @@ PROGRAM Test_Species_Database
 
   ! Strings
   CHARACTER(LEN=14)           :: tag
-  CHARACTER(LEN=14)           :: spc
+  CHARACTER(LEN=31)           :: spc
   CHARACTER(LEN=255)          :: v_str
   CHARACTER(LEN=255)          :: key
   CHARACTER(LEN=255)          :: fileName
@@ -44,7 +44,7 @@ PROGRAM Test_Species_Database
 
   ! String arrays
   CHARACTER(LEN=17)           :: tags(46)
-  CHARACTER(LEN=14)           :: species(11)
+  CHARACTER(LEN=31)          :: species(11)
 
   ! Objects
   TYPE(QFYAML_t)              :: yml
@@ -77,8 +77,8 @@ PROGRAM Test_Species_Database
 
   RC         = QFYAML_SUCCESS
   mw_g       = MISSING_INT
-  species(1) = "ACTA"
-  species(2) = "ALD2"
+  species(1) = "CO"
+  species(2) = "COAnthroEmis25dayTracer"
   species(3) = "ALK4"
   species(4) = "ASOA1"
   species(5) = "ASOA2"

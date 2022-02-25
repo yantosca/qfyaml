@@ -1,5 +1,5 @@
 ---
-#### input.yml - Input for test_qfyaml.F90
+#### qfyaml.yml - Input for test_qfyaml.F90
 
 #### Test going back & forth between levels
 weather:
@@ -10,7 +10,18 @@ weather:
       units: K
   pressure: 1013.25
 
-#### Test parsing different types of input
+operations:
+  transport:
+    passive_species:
+      CH3ITracer:
+        long_name: Methyl_iodide
+        mol_wt_in_g: 142.0
+        lifetime_in_s: 4.32e5
+        default_bkg_conc_in_vv: 1.0e-20
+  wet_deposition:
+    activate: true
+
+##### Test parsing different types of input
 author:
   age: 29
   fav_reals: [1.0, 2.0]
@@ -47,3 +58,5 @@ filename: another_file
 author_name:
   first: Homer
   full: Homer J. Simpson
+
+

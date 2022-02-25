@@ -7,6 +7,36 @@ issues <http:s://github.com/yantosca/qfyaml/issues>`_ page for updates
 on their status.
 
 *************
+Version 0.3.2
+*************
+
+Error parsing categories
+========================
+
+We discovered an error parsing this YAML file, where the
+:code:`wet_deposition` tag is more than 2 indentation levels behind
+behind the previous line.
+
+.. code-block:: yaml
+
+   operations:
+     transport:
+       passive_species:
+         CH3ITracer:
+           long_name: Methyl_iodide
+           mol_wt_in_g: 142.0
+           lifetime_in_s: 4.32e5
+           default_bkg_conc_in_vv: 1.0e-20
+     wet_deposition:
+       activate: true
+
+This has now been fixed in qfyaml 0.3.3.
+
+NOTE: For best results with qfyaml, we recommend formatting YAML files
+so that they contain a consistent indentation level throughout the
+file (i.e. such as 2 or 4 spaces).  Editors such as Emacs can do this easily.
+
+*************
 Version 0.3.0
 *************
 
