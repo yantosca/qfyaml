@@ -171,6 +171,11 @@ PROGRAM Test_QFYAML
   DEALLOCATE( a_str )
   WRITE( 6, "(a)" )
 
+  ! Write out contents of YAML file
+  WRITE( 6, '(a)' ) REPEAT( '=', 60 )
+  CALL QFYAML_Print( yml, RC )
+  WRITE( 6, '(a)' ) REPEAT( '=', 60 )
+
   ! Finalize the config object
   WRITE( 6, "(a)" ) "#### finishing"
   CALL QFYAML_CleanUp( yml          )

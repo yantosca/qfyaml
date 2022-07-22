@@ -44,6 +44,7 @@ MODULE QFYAML_Mod
   PUBLIC :: QFYAML_FindNextHigher
   PUBLIC :: QFYAML_Init
   PUBLIC :: QFYAML_Merge
+  PUBLIC :: QFYAML_Print
   PUBLIC :: QFYAML_Update
 !
 ! !REMARKS:
@@ -174,7 +175,7 @@ MODULE QFYAML_Mod
      MODULE PROCEDURE  Add_Get_String, Add_Get_String_Array
   END INTERFACE QFYAML_Add_Get
 
-  ! Interface to get variables from the configuration
+ ! Interface to get variables from the configuration
   INTERFACE QFYAML_Update
      MODULE PROCEDURE  Update_Real,    Update_Real_Array
      MODULE PROCEDURE  Update_Int,     Update_Int_Array
@@ -2299,6 +2300,164 @@ CONTAINS
     ENDIF
 
   END SUBROUTINE partition_var_list
+!EOC
+!------------------------------------------------------------------------------
+! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020
+! Based on existing package https://github.com/jannisteunissen/config_fortran
+!------------------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE: QFYAML_Print
+!
+! !DESCRIPTION: Prints the contents of a yml object.
+!\\
+!\\
+! !INTERFACE:
+!
+  SUBROUTINE QFYAML_Print( yml, RC, fileName )
+!
+! !USES:
+!
+    IMPLICIT NONE
+!
+! !INPUT PARAMETERS:
+!
+    CHARACTER(LEN=*), OPTIONAL      :: fileName
+!
+! !INPUT/OUTPUT PARAMETERS:
+!
+    TYPE(QFYAML_t),   INTENT(INOUT) :: yml
+!
+! !OUTPUT PARAMETERS:
+!
+    INTEGER,          INTENT(OUT)   :: RC
+!
+! !REVISION HISTORY:
+!  22 Jul 2022
+!  See the subsequent Git history with the gitk browser!
+!EOP
+!------------------------------------------------------------------------------
+!BOC
+!
+! !LOCAL VARIABLES:
+!
+    ! Scalars
+    INTEGER                      :: c, c0, d, i, lun, varDepth
+
+    ! Strings
+    CHARACTER(LEN=3)             :: crlf
+    CHARACTER(LEN=QFYAML_NamLen) :: varName
+    CHARACTER(LEN=QFYAML_StrLen) :: errMsg
+    CHARACTER(LEN=QFYAML_StrLen) :: thisLoc
+
+    ! String arrays
+    CHARACTER(LEN=QFYAML_NamLen) :: stack(QFYAML_MaxStack)
+    CHARACTER(LEN=QFYAML_NamLen) :: lastStack(QFYAML_MaxStack)
+!
+! !DEFINED PARAMETERS:
+!
+    CHARACTER(LEN=2), PARAMETER  :: QFYAML_indent = "  "
+
+    !========================================================================
+    ! QFYAML_Print begins here!
+    !========================================================================
+
+    ! Initialize
+    RC        = QFYAML_Success
+    lun       = 6
+    crlf      = ACHAR(13) // ACHAR(10)  ! Carriage Return + Line Feed (CRLF)
+    lastStack = ''
+    errMsg    = ''
+    thisLoc   = ' -> at QFYAML_Print (in qfyaml_mod.F90)'
+
+    !========================================================================
+    ! Open YAML file for output if a filename has been specified
+    !========================================================================
+    IF ( PRESENT( fileName ) ) THEN
+
+       ! Open file
+       lun = 700
+       OPEN( lun,                                                            &
+             FILE=TRIM( fileName ),                                          &
+             STATUS='UNKNOWN',                                               &
+             FORM='FORMATTED',                                               &
+             IOSTAT=RC                                                      )
+
+       ! Trap errors
+       IF ( RC /= QFYAML_SUCCESS ) THEN
+          errMsg = 'Could not open YAML file for output!'
+          CALL Handle_Error( errMsg, RC, thisLoc )
+          RETURN
+       ENDIF
+
+       ! Write YAML header
+       WRITE( lun, '(a)') '---'
+    ENDIF
+
+    !========================================================================
+    ! Step through YAML variables and write output to file
+    !========================================================================
+    DO i = 1, yml%num_vars
+
+       !---------------------------------------------------------------------
+       ! Store each level of the YAML variable in a stack for use below
+       !---------------------------------------------------------------------
+
+       ! Initialize loop variables
+       c0      = 0
+       stack   = ''
+       varName = yml%vars(i)%var_name
+
+       ! Find how many level this variable goes down
+       varDepth = QFYAML_FindDepth( varName )
+
+       ! Split the variable into substrings and store in stack
+       DO d = 1, varDepth-1
+          c        = INDEX( varName(c0+1:), QFYAML_category_separator )
+          stack(d) = varName(c0+1:c0+c-1) // ':'
+          c0       = c0 + c
+       ENDDO
+       stack(d) = &
+           TRIM( varName(c0+1:) ) // ': ' // TRIM( yml%vars(i)%stored_data )
+
+       !---------------------------------------------------------------------
+       ! Print out to a YAML file
+       !
+       ! Only print levels that haven't been printed in prior variables
+       !
+       ! For example, if two variables are:
+       !   author%age
+       !   author%fav_reals
+       ! then only print out "author:"
+       !---------------------------------------------------------------------
+       DO d = 1, varDepth
+          IF ( TRIM( stack(d) ) /= TRIM( lastStack(d) ) ) THEN
+             WRITE( lun, '(a,a)' ) REPEAT( QFYAML_indent, d-1 ),             &
+                                   TRIM( stack(d)             )
+          ENDIF
+       ENDDO
+
+       ! Save a copy of stack for next iteration
+       lastStack = stack
+    ENDDO
+
+    !========================================================================
+    ! Open YAML file for output if a filename has been specified
+    !========================================================================
+    IF ( PRESENT( fileName ) ) THEN
+
+       ! Close the file
+       CLOSE( LUN, IOSTAT=RC )
+
+       ! Trap errors
+       IF ( RC /= QFYAML_SUCCESS ) THEN
+          errMsg = 'Error encountered when closing YAML output file!'
+          CALL Handle_Error( errMsg, RC, thisLoc )
+          RETURN
+       ENDIF
+    ENDIF
+
+  END SUBROUTINE QFYAML_Print
 !EOC
 !------------------------------------------------------------------------------
 ! QFYAML: Bob Yantosca | yantosca@seas.harvard.edu | Apr 2020

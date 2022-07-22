@@ -364,6 +364,15 @@ PROGRAM Test_Species_Database
   !=========================================================================
   ! Finalize the config objects
   !=========================================================================
+
+  CALL QFYAML_Print( yml, RC, fileName='test_species_database_output.yml' )
+  IF ( RC /= QFYAML_SUCCESS ) THEN
+     WRITE( 6, '(a)' ) 'Could not write YAML output file!'
+  ENDIF
+
+  !=========================================================================
+  ! Finalize the config objects
+  !=========================================================================
 999 CONTINUE
   print*, "### finishing"
   CALL QFYAML_CleanUp( yml1          )
