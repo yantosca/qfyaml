@@ -44,7 +44,7 @@ PROGRAM Test_Species_Database
 
   ! String arrays
   CHARACTER(LEN=17)           :: tags(46)
-  CHARACTER(LEN=31)          :: species(11)
+  CHARACTER(LEN=31)           :: species(11)
 
   ! Objects
   TYPE(QFYAML_t)              :: yml
@@ -357,15 +357,17 @@ PROGRAM Test_Species_Database
         ENDIF
 
      ENDDO
-
-     print*, "###"
   ENDDO
 
   !=========================================================================
-  ! Finalize the config objects
+  ! Print metadata output for only the species requested
   !=========================================================================
+  print*, "### Writing requested species to species_output.yml"
+  CALL QFYAML_Print( yml        = yml,                                      &
+                     RC         = RC,                                       &
+                     fileName   = 'species_output.yml',                     &
+                     searchKeys = species                                  )
 
-  CALL QFYAML_Print( yml, RC, fileName='test_species_database_output.yml' )
   IF ( RC /= QFYAML_SUCCESS ) THEN
      WRITE( 6, '(a)' ) 'Could not write YAML output file!'
   ENDIF

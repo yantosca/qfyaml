@@ -2314,7 +2314,7 @@ CONTAINS
 !\\
 ! !INTERFACE:
 !
-  SUBROUTINE QFYAML_Print( yml, RC, fileName )
+  SUBROUTINE QFYAML_Print( yml, RC, fileName, searchKeys )
 !
 ! !USES:
 !
@@ -2323,6 +2323,7 @@ CONTAINS
 ! !INPUT PARAMETERS:
 !
     CHARACTER(LEN=*), OPTIONAL      :: fileName
+    CHARACTER(LEN=*), OPTIONAL      :: searchKeys(:)
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
@@ -2342,7 +2343,9 @@ CONTAINS
 ! !LOCAL VARIABLES:
 !
     ! Scalars
-    INTEGER                      :: c, c0, d, i, lun, varDepth
+    LOGICAL                      :: isFileName, isSearchKeys, printVar
+    INTEGER                      :: c,          c0,           d
+    INTEGER                      :: i,          lun,          varDepth
 
     ! Strings
     CHARACTER(LEN=3)             :: crlf
@@ -2363,25 +2366,24 @@ CONTAINS
     !========================================================================
 
     ! Initialize
-    RC        = QFYAML_Success
-    lun       = 6
-    crlf      = ACHAR(13) // ACHAR(10)  ! Carriage Return + Line Feed (CRLF)
-    lastStack = ''
-    errMsg    = ''
-    thisLoc   = ' -> at QFYAML_Print (in qfyaml_mod.F90)'
+    RC           = QFYAML_Success
+    lun          = 6
+    crlf         = ACHAR(13) // ACHAR(10)  ! Carriage Return + Line Feed (CRLF)
+    isFileName   = PRESENT( fileName   )
+    isSearchKeys = PRESENT( searchKeys )
+    lastStack    = ''
+    errMsg       = ''
+    thisLoc      = ' -> at QFYAML_Print (in qfyaml_mod.F90)'
 
     !========================================================================
     ! Open YAML file for output if a filename has been specified
     !========================================================================
-    IF ( PRESENT( fileName ) ) THEN
+    IF ( isFileName ) THEN
 
        ! Open file
        lun = 700
-       OPEN( lun,                                                            &
-             FILE=TRIM( fileName ),                                          &
-             STATUS='UNKNOWN',                                               &
-             FORM='FORMATTED',                                               &
-             IOSTAT=RC                                                      )
+       OPEN( lun, FILE=TRIM( fileName ),  STATUS='UNKNOWN',                  &
+                  FORM='FORMATTED',       IOSTAT=RC                         )
 
        ! Trap errors
        IF ( RC /= QFYAML_SUCCESS ) THEN
@@ -2399,14 +2401,33 @@ CONTAINS
     !========================================================================
     DO i = 1, yml%num_vars
 
-       !---------------------------------------------------------------------
-       ! Store each level of the YAML variable in a stack for use below
-       !---------------------------------------------------------------------
-
        ! Initialize loop variables
+       c       = 0
        c0      = 0
        stack   = ''
        varName = yml%vars(i)%var_name
+
+       !---------------------------------------------------------------------
+       ! If searchKeys has been provided, then test if the first part of
+       ! the variable name matches any of the search keys.  If so, then
+       ! set a logical flag to denote we will print out the variable.
+       ! Or if searchKeys is not passed, then print out all variables.
+       !---------------------------------------------------------------------
+       printVar = .TRUE.
+       IF ( isSearchKeys ) THEN
+          c = INDEX( varName, QFYAML_category_separator )
+          printVar = ( ANY( searchKeys == yml%vars(i)%var_name(1:c-1) ) )
+       ENDIF
+
+       ! Skip this variable if it isn't to be printed
+       IF ( .not. printVar ) CYCLE
+
+       ! Also skip this variable if it has undefined data
+       IF ( ADJUSTL(yml%vars(i)%stored_data) == unstored_data_string ) CYCLE
+
+       !---------------------------------------------------------------------
+       ! Store each level of the YAML variable in a stack for use below
+       !---------------------------------------------------------------------
 
        ! Find how many level this variable goes down
        varDepth = QFYAML_FindDepth( varName )
@@ -2418,7 +2439,7 @@ CONTAINS
           c0       = c0 + c
        ENDDO
        stack(d) = &
-           TRIM( varName(c0+1:) ) // ': ' // TRIM( yml%vars(i)%stored_data )
+           TRIM( varName(c0+1:) ) // ':' // TRIM( yml%vars(i)%stored_data )
 
        !---------------------------------------------------------------------
        ! Print out to a YAML file
@@ -2434,8 +2455,8 @@ CONTAINS
           IF ( TRIM( stack(d) ) /= TRIM( lastStack(d) ) ) THEN
              WRITE( lun, '(a,a)' ) REPEAT( QFYAML_indent, d-1 ),             &
                                    TRIM( stack(d)             )
-          ENDIF
-       ENDDO
+             ENDIF
+          ENDDO
 
        ! Save a copy of stack for next iteration
        lastStack = stack
@@ -2444,7 +2465,7 @@ CONTAINS
     !========================================================================
     ! Open YAML file for output if a filename has been specified
     !========================================================================
-    IF ( PRESENT( fileName ) ) THEN
+    IF ( isFileName ) THEN
 
        ! Close the file
        CLOSE( LUN, IOSTAT=RC )
