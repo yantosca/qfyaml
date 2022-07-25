@@ -9,7 +9,7 @@ endif()
 # Define project name, version, and language
 project(
   qfyaml
-  VERSION 0.4.0
+  VERSION 0.4.1
   LANGUAGES Fortran
 )
 

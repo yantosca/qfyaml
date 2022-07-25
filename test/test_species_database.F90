@@ -373,6 +373,19 @@ PROGRAM Test_Species_Database
   ENDIF
 
   !=========================================================================
+  ! Print metadata output for only the species requested
+  !=========================================================================
+  print*, "### Writing requested species to stdout"
+  CALL QFYAML_Print( yml        = yml,                                      &
+                     RC         = RC,                                       &
+                     fileName   = '*',                                      &
+                     searchKeys = species                                  )
+
+  IF ( RC /= QFYAML_SUCCESS ) THEN
+     WRITE( 6, '(a)' ) 'Could not write YAML output file!'
+  ENDIF
+
+  !=========================================================================
   ! Finalize the config objects
   !=========================================================================
 999 CONTINUE
