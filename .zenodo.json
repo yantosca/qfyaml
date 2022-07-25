@@ -10,6 +10,10 @@
 	"fortran-language",
 	"yaml"
     ],
-    "license": "mit-license",
+    "license": {
+        "id": "GPL-3.0",
+        "url": "https://github.com/yantosca/qfyaml/blob/main/LICENSE.txt",
+        "title": "GNU General Public License v3.0"
+    },
     "upload_type": "software"
 }
