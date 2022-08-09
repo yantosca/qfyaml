@@ -44,7 +44,7 @@ PROGRAM Test_Species_Database
 
   ! String arrays
   CHARACTER(LEN=17)           :: tags(46)
-  CHARACTER(LEN=31)           :: species(11)
+  CHARACTER(LEN=31)           :: species(12)
 
   ! Objects
   TYPE(QFYAML_t)              :: yml
@@ -88,6 +88,7 @@ PROGRAM Test_Species_Database
   species(9) = "Be10Strat"
   species(10) = "AW1"
   species(11) = "AW2"
+  species(12) = "NO"
 
   ! Species database tags to match
   tags = (/ "Background_VV    ", "DD_AeroDryDep    ", "DD_DustDryDep    ",   &
@@ -113,11 +114,11 @@ PROGRAM Test_Species_Database
   CALL QFYAML_Init( fileName, yml1, yml1_anchored, RC )
   IF ( RC /= QFYAML_Success ) STOP
 
-  ! Read another YAML file into another config object
-  fileName = "species_database_tomas.yml"
-  PRINT*, "### Reading " // TRIM( fileName )
-  CALL QFYAML_Init( fileName, yml2, yml2_anchored, RC )
-  IF ( RC /= QFYAML_Success ) STOP
+!  ! Read another YAML file into another config object
+!  fileName = "species_database_tomas.yml"
+!  PRINT*, "### Reading " // TRIM( fileName )
+!  CALL QFYAML_Init( fileName, yml2, yml2_anchored, RC )
+!  IF ( RC /= QFYAML_Success ) STOP
 
   ! Merge two YAML objects into a single object
   CALL QFYAML_Merge( yml1, yml2, yml, RC )
