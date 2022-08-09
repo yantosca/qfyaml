@@ -4,3 +4,4 @@
 
 rm -f *.yml
 rm -f *.x
+rm -rf ../build/*
