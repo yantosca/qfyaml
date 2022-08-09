@@ -10,16 +10,16 @@ installation, executables for these tests will be placed in the
 
 .. _general_tests:
 
-**********************
-General test programs:
-**********************
+=====================
+General test programs
+=====================
 
 The following test programs can be used to help debug issues with the
 :program:`qfyaml` code itself.
 
 
 test_qfyaml.x
-=============
+-------------
 
 This test reads a general YAML file (`input.yml
 <https://github.com/yantosca/qfyaml/blob/main/test/input.yml>`_) that
@@ -80,9 +80,9 @@ output.  If the test is successful you will see this output:
 
 .. _geos-chem_tests:
 
-********************************
+================================
 GEOS-Chem-specific test programs
-********************************
+================================
 
 The following test programs can be used to debug source code for
 reading YAML-format configuration files into the `GEOS-Chem model
@@ -91,7 +91,7 @@ reading YAML-format configuration files into the `GEOS-Chem model
 .. _test_config.x:
 
 test_config.x
-=============
+-------------
 
 This test program attempts to read the `GEOS-Chem master configuration
 file
@@ -150,7 +150,7 @@ And you should see output such as:
 .. _test_species_database.x:
 
 test_species_database.x
-=======================
+-----------------------
 
 This test program attemps to read the `GEOS-Chem species database
 <https://github.com/yantosca/qfyaml/blob/main/test/species_database.yml>`_

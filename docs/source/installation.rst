@@ -6,9 +6,9 @@ Installation and compilation
 
 .. _Downloading:
 
-******************
+==================
 Downloading qfyaml
-******************
+==================
 
 Use Git to clone the source code from the `qfyaml repository
 <https://github.com/yantosca/qfyaml>`_  to your computer system:
@@ -25,9 +25,9 @@ in the :file:`qfyaml/test` folder.
 
 .. _Configuring:
 
-******************
+==================
 Configuring qfyaml
-******************
+==================
 
 You may now call CMake to begin the configuration
 process.  During configuration, CMake will first check if you
@@ -137,9 +137,9 @@ When the test runs, you should see output similar to this.
    
 .. _Installing:
 
-*****************
+=================
 Installing qfyaml
-*****************
+=================
 
 Once compilation has finished successfully, you may install the
 compiled code (and various input files) to the :file:`qfyaml/bin`
@@ -212,3 +212,19 @@ and you will see this directory listing:
 Executable files for the various tests end with the :file:`.x`
 extension.  The corresponding configuration files in YAML format end
 with the :file:`.yml` format. 
+
+.. _Removing:
+
+=========================================
+Removing files created during compilation
+=========================================
+
+To remove all files in the :file:`bin/` and :file:`build/` folders,
+type:
+
+.. code-block:: console
+ 
+   $ cd bin
+   $ ./cleanup.sh
+
+

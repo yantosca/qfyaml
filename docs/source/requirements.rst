@@ -9,5 +9,4 @@ order to use :program:`qfyaml`:
 #. `CMake <https://cmake.org>`_, version 3.5 or later.
 #. Either the `GNU Fortran Compiler <https://gcc.gnu.org>`_ or the `Intel
    Fortran Compiler
-   <https://www/intel.com/content/www/us/en/developer/tools/oneapi/fortran/-compiler.html>`_. 
-
+   <https://www/intel.com/content/www/us/en/developer/tools/oneapi/fortran/-compiler.html>`_.

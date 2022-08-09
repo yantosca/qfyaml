@@ -18,23 +18,24 @@ features.  It is compatible with most versions of GNU Fortran and
 Intel Fortran.
 
 .. toctree::
-   :maxdepth: -1
+   :maxdepth: 2
    :caption: Overview
 
    about.rst
    requirements.rst
 
 .. toctree::
-   :maxdepth: -1
+   :maxdepth: 2
    :caption: Usage details
 
    installation.rst
    running-tests.rst
 
 .. toctree::
-   :maxdepth: -1
+   :maxdepth: 1
    :caption: Help and reference
 
    known-bugs.rst
-   contributing.rst
+   CONTRIBUTING.md
+   SUPPORT.md
    editing-these-docs.rst

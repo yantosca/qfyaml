@@ -5,9 +5,9 @@ Editing these docs
 This documentation is generated with Sphinx. This page describes how
 to contribute to the GCPy documentation. 
 
-***********
+===========
 Quick start
-***********
+===========
 
 You need the Sphinx Python to build (and therefore edit) this
 documentation. Assuming you already have Python installed, 
@@ -35,9 +35,9 @@ web-browser.
 
    You can clean the documentation with :code:`make clean`.
 
-*************
+=============
 Learning reST
-*************
+=============
 
 Writing reST can be a bit tricky at first. Whitespace matters (just
 like in Python), and some directives can be easily miswritten. Two
@@ -67,9 +67,9 @@ long-run. Below are some good resources for learning reST.
 A good starting point would be Eric Holscher's presentations followed
 by reading the reStructuredText primer. 
 
-****************
+================
 Style guidelines
-****************
+================
 
 .. important::  
 

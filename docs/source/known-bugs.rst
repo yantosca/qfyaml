@@ -3,15 +3,15 @@ Known Bugs
 ##########
 
 This page lists known bugs in :program:`qfyaml`. See the `Github
-issues <http:s://github.com/yantosca/qfyaml/issues>`_ page for updates
+issues <https://github.com/yantosca/qfyaml/issues>`_ page for updates
 on their status.
 
-*************
+=============
 Version 0.3.2
-*************
+=============
 
 Error parsing categories
-========================
+------------------------
 
 We discovered an error parsing this YAML file, where the
 :code:`wet_deposition` tag is more than 2 indentation levels behind
@@ -36,12 +36,12 @@ NOTE: For best results with qfyaml, we recommend formatting YAML files
 so that they contain a consistent indentation level throughout the
 file (i.e. such as 2 or 4 spaces).  Editors such as Emacs can do this easily.
 
-*************
+=============
 Version 0.3.0
-*************
+=============
 
 Error parsing YAML sequence items containing spaces
-===================================================
+---------------------------------------------------
 
 Items in YAML sequences containing spaces are not parsed properly.
 For example:
@@ -71,7 +71,7 @@ Use underscores instead of spaces in YAML sequence items:
 And then you can remove the underscores in post-processing.
 
 Error returning long YAML sequences
-===================================
+-----------------------------------
 
 It was discovered that only a subset long YAML sequences were being
 returned.  Upon further investigation, a string variable in routine
@@ -82,7 +82,7 @@ We have fixed this behavior in :program:`qfyaml 0.3.1`.
 
 Arrays passed to QFYAML_Add_Get had to be the same size as the data in
 the YAML file
-===================================
+--------------------------
 
 When passing an array to routine :file:`QFYAML_Add_Get`, an error
 would be returned if the array was not the same length as the array or
