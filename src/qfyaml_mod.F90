@@ -2261,6 +2261,7 @@ CONTAINS
     CHARACTER(LEN=QFYAML_NamLen) :: pivot_value
 
     ! Objects
+    TYPE(QFYAML_var_t)           :: var_t
     TYPE(QFYAML_var_t)           :: temp
 
     !=======================================================================
@@ -2272,7 +2273,8 @@ CONTAINS
 
     ! Take the middle element as pivot
     pivot_ix    = SIZE( list ) / 2
-    pivot_value = list(pivot_ix)%var_name
+    var_t       = list(pivot_ix)
+    pivot_value = var_t%var_name
 
     DO WHILE ( left < right )
 
