@@ -6,14 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to 
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). 
 
-## [0.4.4] - 2022-08-09
+## [0.4.4] - 2024-09-27
 ### Changed
 - Minor formatting changes in `CHANGELOG.md`
 
 ### Fixed
 - Add fix from https://github.com/geoschem/geos-chem/pull/2486/ to prevent errors on Intel compilers
 
-## [0.4.3] - 2022-08-09
+## [0.4.3] - 2024-09-26
 - Species database files in `test/` have been updated to GEOS-Chem 14.5.0 (in development)
 
 ## [0.4.2] - 2022-08-09
