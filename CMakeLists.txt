@@ -41,7 +41,7 @@ target_compile_options(BuildProperties
   INTERFACE
   $<$<STREQUAL:${CMAKE_Fortran_COMPILER_ID},Intel>:
      ${CMAKE_Fortran_FLAGS_Intel}
-     $<$<CONFIG:Debug>:${CMake_Fortran_FLAGS_DEBUG_Intel}>
+     $<$<CONFIG:Debug>:${CMAKE_Fortran_FLAGS_Intel_DEBUG}>
      $<$<CONFIG:RelWithDebInfo>:${CMAKE_Fortran_FLAGS_RELEASE_Intel}>
      $<$<CONFIG:Release>:${CMAKE_Fortran_FLAGS_RELEASE_Intel}>
   >

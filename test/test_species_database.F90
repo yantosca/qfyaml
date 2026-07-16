@@ -114,11 +114,11 @@ PROGRAM Test_Species_Database
   CALL QFYAML_Init( fileName, yml1, yml1_anchored, RC )
   IF ( RC /= QFYAML_Success ) STOP
 
-!  ! Read another YAML file into another config object
-!  fileName = "species_database_tomas.yml"
-!  PRINT*, "### Reading " // TRIM( fileName )
-!  CALL QFYAML_Init( fileName, yml2, yml2_anchored, RC )
-!  IF ( RC /= QFYAML_Success ) STOP
+  ! Read another YAML file into another config object
+  fileName = "species_database_tomas.yml"
+  PRINT*, "### Reading " // TRIM( fileName )
+  CALL QFYAML_Init( fileName, yml2, yml2_anchored, RC )
+  IF ( RC /= QFYAML_Success ) STOP
 
   ! Merge two YAML objects into a single object
   CALL QFYAML_Merge( yml1, yml2, yml, RC )

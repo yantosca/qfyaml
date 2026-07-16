@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/yantosca/qfyaml/blob/master/LICENSE.txt)
+[![License](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://github.com/yantosca/qfyaml/blob/master/LICENSE.txt)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3957924.svg)](https://doi.org/10.5281/zenodo.3957924)
 [![DOI](https://img.shields.io/readthedocs/qfyaml?label=ReadTheDocs)](https://qfyaml.readthedocs.io/en/latest/)
 
