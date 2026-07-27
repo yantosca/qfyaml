@@ -23,7 +23,7 @@ copyright = '2022, Bob Yantosca'
 author = 'Bob Yantosca'
 
 # The full version, including alpha/beta/rc tags
-release = '0.4.2'
+release = '0.5.0'
 
 # -- Options for HTML output -------------------------------------------------
 

@@ -1,17 +1,24 @@
-# Requirements for building the QFYAML documentation
+# ======================================================================
+# ReadTheDocs requirements file
 #
-# NOTE: There are issues with sphinx 4.0.0+ and sphinx-rtd-theme 1.0.0
-# so we'll use older versions (Bob Yantosca, 03 May 2022)
+# If you wish to install the dependencies for building the ReadTheDocs
+# ReadTheDocs documentation from PyPI (the Python Package Index), use:
 #
-# ALSO NOTE: A recent update to jinja2 has broken backwards c
-# compatibility with the older ReadTheDocs package, so we need to
-# use a version of jinja2 prior to 3.1.0. (Bob Yantosca, 03 May 2022)
+# $ pip install -r read_the_docs_requirements.txt
+# ======================================================================
 #
-sphinx<4.0.0
-sphinx_rtd_theme<1.0.0
-sphinxcontrib-bibtex==2.2.0
-recommonmark
-docutils==0.16
-jinja2<3.1.0
+# --- Core Sphinx ---
+sphinx==8.2.3
+docutils==0.21.2
 
+# --- Theme ---
+sphinx-rtd-theme==3.1.0
+
+# --- Extensions ---
+sphinxcontrib-bibtex==2.6.5
+myst-parser==5.0.0
+sphinx-autobuild==2024.2.4
+
+# --- Templating ---
+jinja2==3.1.6
 

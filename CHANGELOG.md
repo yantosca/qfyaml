@@ -7,8 +7,16 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). 
 
 ## [0.5.0] - 2026-07-27
+### Added
+- Added a Fortran Package Manager manifest file, `fpm.toml`
+- Added `.readthedocs.yaml` file for ReadTheDocs configuration
+
 ### Fixed
 - Restored missing `input_options.yml` file needed for tests
+
+### Changed
+- Updated `docs/requirements.txt` to use more recent Python package versions for ReadtheDocs
+- Updated version numbers to 3.5.0
 
 ### Removed
 - Removed unused `var_w_anchor` variable from routine `Copy_Anchor_Variable` in `src/qfyaml_mod.F90`
