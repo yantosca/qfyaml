@@ -10,6 +10,9 @@ and this project adheres to
 ### Fixed
 - Restored missing `input_options.yml` file needed for tests
 
+### Removed
+- Removed unused `var_w_anchor` variable from routine `Copy_Anchor_Variable` in `src/qfyaml_mod.F90`
+
 ## [0.4.4] - 2024-09-27
 ### Changed
 - Minor formatting changes in `CHANGELOG.md`

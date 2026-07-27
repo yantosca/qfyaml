@@ -660,7 +660,6 @@ CONTAINS
           ! copying the fields of the variable with the anchor.
           CALL Copy_Anchor_Variable( yml              = yml,                 &
                                      anchor_ix        = anchor_ix,           &
-                                     var_w_anchor     = var_w_anchor,        &
                                      var_pt_to_anchor = var_pt_to_anchor,    &
                                      RC               = RC                  )
 
@@ -1169,14 +1168,12 @@ CONTAINS
 !\\
 ! !INTERFACE:
 !
-  SUBROUTINE Copy_Anchor_Variable( yml,          anchor_ix,                  &
-                                   var_w_anchor, var_pt_to_anchor,           &
-                                   RC                                       )
+  SUBROUTINE Copy_Anchor_Variable( yml,              anchor_ix,              &
+                                   var_pt_to_anchor, RC                     )
 !
 ! !INPUT PARAMETERS:
 !
     INTEGER,                      INTENT(IN)    :: anchor_ix
-    CHARACTER(LEN=QFYAML_NamLen), INTENT(IN)    :: var_w_anchor
     CHARACTER(LEN=QFYAML_NamLen), INTENT(IN)    :: var_pt_to_anchor
 !
 ! !INPUT/OUTPUT PARAMETERS:
