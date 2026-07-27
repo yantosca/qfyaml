@@ -1176,7 +1176,6 @@ CONTAINS
 ! !INPUT PARAMETERS:
 !
     INTEGER,                      INTENT(IN)    :: anchor_ix
-    CHARACTER(LEN=QFYAML_NamLen), INTENT(IN)    :: var_w_anchor
     CHARACTER(LEN=QFYAML_NamLen), INTENT(IN)    :: var_pt_to_anchor
 !
 ! !INPUT/OUTPUT PARAMETERS:
